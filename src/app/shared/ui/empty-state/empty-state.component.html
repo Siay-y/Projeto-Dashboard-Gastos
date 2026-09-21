@@ -1,0 +1,50 @@
+<app-card class="empty">
+  @if (illustration(); as art) {
+    <!-- Line-art: traço na cor primária, um detalhe em âmbar -->
+    <svg class="empty__art" viewBox="0 0 72 72" aria-hidden="true">
+      @switch (art) {
+        @case ('wallet') {
+          <path class="art-stroke" d="M18 22v-4a4 4 0 0 1 4-4h30" />
+          <rect class="art-stroke" x="10" y="22" width="52" height="34" rx="6" />
+          <rect class="art-stroke art-fill-soft" x="44" y="32" width="18" height="14" rx="3" />
+          <circle class="art-accent" cx="53" cy="39" r="2.5" />
+        }
+        @case ('receipt') {
+          <path class="art-stroke" d="M20 10h32v50l-5.3-4-5.4 4-5.3-4-5.3 4-5.4-4-5.3 4z" />
+          <path class="art-stroke" d="M28 22h16M28 30h16M28 38h10" />
+          <circle class="art-accent" cx="44" cy="38" r="2.5" />
+        }
+        @case ('chart') {
+          <path class="art-stroke" d="M14 14v44h44" />
+          <rect class="art-stroke" x="22" y="38" width="8" height="16" rx="2" />
+          <rect class="art-stroke" x="34" y="30" width="8" height="24" rx="2" />
+          <rect class="art-stroke art-fill-soft" x="46" y="34" width="8" height="20" rx="2" />
+          <path class="art-stroke" d="M20 30l12-10 12 6 12-12" />
+          <circle class="art-accent" cx="56" cy="14" r="2.5" />
+        }
+        @case ('repeat') {
+          <path class="art-stroke" d="M20 32a16 16 0 0 1 28-9" />
+          <path class="art-stroke" d="M46 17l2 6-6 2" />
+          <path class="art-stroke" d="M52 40a16 16 0 0 1-28 9" />
+          <path class="art-stroke" d="M26 55l-2-6 6-2" />
+          <circle class="art-accent" cx="36" cy="36" r="3" />
+        }
+      }
+    </svg>
+  } @else {
+    <span class="empty__icon" aria-hidden="true">
+      <span class="material-symbols-rounded">{{ icon() }}</span>
+    </span>
+  }
+
+  <div class="empty__text">
+    <h2 class="empty__title">{{ title() }}</h2>
+    @if (description()) {
+      <p class="empty__description">{{ description() }}</p>
+    }
+  </div>
+
+  <div class="empty__action">
+    <ng-content />
+  </div>
+</app-card>

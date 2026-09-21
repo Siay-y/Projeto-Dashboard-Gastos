@@ -16,6 +16,32 @@
   }
 }
 
+.empty__art {
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.art-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.art-fill-soft {
+  fill: var(--color-surface);
+}
+
+.art-accent {
+  fill: var(--color-accent);
+}
+
 .empty__icon {
   display: grid;
   place-items: center;

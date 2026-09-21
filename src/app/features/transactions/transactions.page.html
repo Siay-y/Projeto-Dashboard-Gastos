@@ -14,6 +14,12 @@
     <strong class="tabular">{{ recurring.monthlyTotal() | currency }}</strong> por mês
   </span>
   <app-button actions variant="tonal" icon="add" (click)="openNewRecurring()">Adicionar</app-button>
+  <app-menu
+    actions
+    label="Mais opções de gastos fixos"
+    [items]="recurringMenu()"
+    (select)="onRecurringMenu($event)"
+  />
 
   @if (recurring.hasItems()) {
     <app-card [padded]="false" [elevation]="0">
@@ -26,7 +32,7 @@
     </app-card>
   } @else {
     <app-empty-state
-      icon="autorenew"
+      illustration="repeat"
       title="Nenhum gasto fixo"
       description="Assinaturas, aluguel, academia… cadastre uma vez e o valor entra sozinho nos gastos de todo mês."
     >
@@ -38,6 +44,12 @@
 <!-- ---- Histórico ---- -->
 <app-collapsible-section id="history" title="Histórico" appFadeInUp [delay]="2">
   <span subtitle>Lançamentos pontuais: mercado, almoço, Uber, entradas extras.</span>
+  <app-menu
+    actions
+    label="Mais opções do histórico"
+    [items]="historyMenu()"
+    (select)="onHistoryMenu($event)"
+  />
 
   @if (service.hasTransactions()) {
     <app-transaction-list
@@ -47,7 +59,7 @@
     />
   } @else {
     <app-empty-state
-      icon="receipt_long"
+      illustration="receipt"
       title="Seu histórico está vazio"
       description="Registre entradas e gastos para acompanhar o mês. Você pode editar ou excluir qualquer lançamento depois."
     >
@@ -64,3 +76,15 @@
 <app-dialog #recDialog size="lg" [title]="recDialogTitle()" (closed)="editingRecurring.set(null)">
   <app-recurring-form (saved)="saveRecurring($event)" (cancelled)="recDialog.close()" />
 </app-dialog>
+
+<!-- ---- Importação ---- -->
+<input
+  #fileInput
+  type="file"
+  accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  class="visually-hidden"
+  tabindex="-1"
+  aria-hidden="true"
+  (change)="onFileChosen($event)"
+/>
+<app-import-dialog [kind]="importKind()" (confirmed)="confirmImport()" />

@@ -1,0 +1,65 @@
+<section class="hero" aria-label="Saldo total e próximos vencimentos">
+  <!-- ---- Saldo ---- -->
+  <div class="balance">
+    <div class="balance__top">
+      <span class="balance__label">Saldo total</span>
+      <button
+        type="button"
+        class="balance__edit"
+        aria-label="Informar saldo total"
+        title="Informar saldo"
+        (click)="edit.emit()"
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+      </button>
+    </div>
+
+    <strong class="balance__value"><app-money [value]="balance()" /></strong>
+    <span class="balance__hint">{{ balanceHint() }}</span>
+
+    <div class="result" [class.result--negative]="monthResult() < 0">
+      <span class="material-symbols-rounded result__icon" aria-hidden="true">
+        {{ monthResult() < 0 ? 'trending_down' : 'trending_up' }}
+      </span>
+      <span class="result__text">
+        <strong class="tabular">{{ monthResult() < 0 ? '−' : '+' }}{{ resultAbs() | currency }}</strong>
+        no mês (ganhos − gastos)
+      </span>
+    </div>
+  </div>
+
+  <!-- ---- Próximos vencimentos ---- -->
+  <div class="upcoming">
+    <span class="upcoming__title">Próximos vencimentos</span>
+
+    @if (shown().length > 0) {
+      <ul class="upcoming__list">
+        @for (item of shown(); track item.id) {
+          <li class="due" [class.due--soon]="item.days <= 1">
+            <span class="due__text">
+              <span class="due__label">{{ item.label }}</span>
+              <span class="due__when">
+                @if (item.detail; as detail) {
+                  {{ detail }} ·
+                }
+                @if (when(item); as word) {
+                  <strong>{{ word }}</strong>
+                } @else {
+                  {{ item.date | date: 'EEE, dd/MM' }}
+                }
+              </span>
+            </span>
+            <span class="due__amount tabular">{{ item.amount | currency }}</span>
+          </li>
+        }
+      </ul>
+      @if (hidden() > 0) {
+        <span class="upcoming__more">+ {{ hidden() }} {{ hidden() === 1 ? 'outro' : 'outros' }}</span>
+      }
+    } @else {
+      <p class="upcoming__empty">
+        Cadastre gastos fixos com dia de cobrança ou compras parceladas para ver o que vence em breve.
+      </p>
+    }
+  </div>
+</section>

@@ -1,0 +1,75 @@
+// Ações por deslize (diretiva `appSwipeAction`).
+// Fica global porque os fundos são criados pela diretiva, fora do
+// encapsulamento de estilos dos componentes.
+//
+// Estrutura gerada:
+//   .swipe-action                ← host (position: relative, overflow: hidden)
+//     .swipe-action__fg          ← primeiro filho: conteúdo, move com o dedo
+//     .swipe-action__bg--edit    ← azul + lápis, aparece ao arrastar p/ direita
+//     .swipe-action__bg--delete  ← vermelho + lixeira, ao arrastar p/ esquerda
+//
+// `--swipe-progress` (0..1) = quanto do limite já foi percorrido.
+
+.swipe-action {
+  position: relative;
+  overflow: hidden;
+  // O navegador cuida da rolagem vertical; o horizontal é nosso.
+  touch-action: pan-y;
+}
+
+.swipe-action__fg {
+  position: relative;
+  z-index: 1;
+  // Precisa ter fundo próprio para cobrir as cores atrás.
+  background: var(--color-surface);
+  will-change: transform;
+}
+
+.swipe-action__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  padding-inline: var(--space-6);
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swipe-action__bg--edit {
+  justify-content: flex-start;
+  background: var(--color-info);
+}
+
+.swipe-action__bg--delete {
+  justify-content: flex-end;
+  background: var(--color-danger);
+}
+
+// Só o lado para onde o dedo está indo fica visível
+.swipe-action[data-swipe-dir='edit'] .swipe-action__bg--edit,
+.swipe-action[data-swipe-dir='delete'] .swipe-action__bg--delete {
+  opacity: 1;
+}
+
+// O ícone cresce conforme se aproxima do limite e "pula" ao armar
+.swipe-action__icon {
+  font-size: 26px;
+  transform: scale(calc(0.6 + 0.4 * var(--swipe-progress, 0)));
+  transition: transform 140ms var(--ease-emphasized);
+}
+
+.swipe-action.is-armed .swipe-action__icon {
+  transform: scale(1.2);
+}
+
+// Enquanto desliza, nada de hover/seleção de texto atrapalhando
+.swipe-action.is-swiping {
+  user-select: none;
+  -webkit-user-select: none;
+
+  .swipe-action__fg {
+    pointer-events: none;
+  }
+}

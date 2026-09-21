@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export type CardElevation = 0 | 1 | 2;
 
 /**
- * Superfície com borda fina e sombra discreta — bloco base de toda a UI.
+ * Superfície com borda fina — bloco base de toda a UI.
+ * Sombra (`elevation` 1/2) só para o que flutua sobre a página.
  */
 @Component({
   selector: 'app-card',
@@ -16,6 +17,6 @@ export type CardElevation = 0 | 1 | 2;
   },
 })
 export class CardComponent {
-  readonly elevation = input<CardElevation>(1);
+  readonly elevation = input<CardElevation>(0);
   readonly padded = input(true);
 }

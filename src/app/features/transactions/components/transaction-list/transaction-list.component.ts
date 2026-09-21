@@ -13,6 +13,7 @@ import { findAccount } from '../../../../core/constants/accounts';
 import { findCategory } from '../../../../core/constants/categories';
 import { InstallmentProgress, getInstallmentProgress } from '../../../../core/domain/installments';
 import { Account, Category, Transaction } from '../../../../core/domain/models';
+import { SwipeActionDirective } from '../../../../shared/directives/swipe-action.directive';
 import { DeleteButtonComponent, TileIconComponent } from '../../../../shared/ui';
 import { capitalizeFirst, toMonthKey } from '../../../../shared/utils/date';
 
@@ -44,10 +45,11 @@ const FILTERS: readonly { value: HistoryFilter; label: string }[] = [
  * Histórico em formato de tabela minimalista, agrupado por mês.
  * Uma linha por compra; parceladas mostram o progresso (ex.: 5/12).
  * Clique na linha → editar. Excluir pede confirmação inline.
+ * No toque: deslizar para a direita edita, para a esquerda apaga (appSwipeAction).
  */
 @Component({
   selector: 'app-transaction-list',
-  imports: [CurrencyPipe, DatePipe, TileIconComponent, DeleteButtonComponent],
+  imports: [CurrencyPipe, DatePipe, TileIconComponent, DeleteButtonComponent, SwipeActionDirective],
   templateUrl: './transaction-list.component.html',
   styleUrl: './transaction-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -19,7 +19,10 @@
 
 .fade-in-up {
   --delay: 0;
-  animation: fade-in-up var(--duration-long) var(--ease-emphasized) both;
+  // `backwards` (não `both`): ao terminar, o elemento volta ao estilo normal,
+  // sem `transform` residual — que criaria um contexto de empilhamento e
+  // esconderia menus/popovers atrás dos blocos seguintes.
+  animation: fade-in-up var(--duration-long) var(--ease-emphasized) backwards;
   animation-delay: calc(var(--delay) * 80ms);
 }
 

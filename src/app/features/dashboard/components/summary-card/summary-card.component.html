@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <strong class="summary__value tabular">{{ value() | currency }}</strong>
+  <strong class="summary__value"><app-money [value]="value()" /></strong>
 
   @if (hint()) {
     <span class="summary__hint">{{ hint() }}</span>

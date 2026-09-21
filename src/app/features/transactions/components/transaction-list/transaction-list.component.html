@@ -55,66 +55,77 @@
         @let inst = row.installments;
 
         <div
-          class="table__row"
+          class="swipe"
           role="row"
-          [class.table__row--settled]="inst?.remaining === 0"
-          [class.table__row--confirming]="confirmingId() === t.id"
+          appSwipeAction
+          (swipeEdit)="edit.emit(t)"
+          (swipeDelete)="remove.emit(t.id)"
         >
-          <button
-            type="button"
-            class="row-main"
-            [attr.aria-label]="'Editar ' + t.description"
-            (click)="edit.emit(t)"
+          <div
+            class="table__row"
+            [class.table__row--settled]="inst?.remaining === 0"
+            [class.table__row--confirming]="confirmingId() === t.id"
           >
-            <span role="cell" class="col-icon">
-              <app-tile-icon [source]="row.category" />
-            </span>
-
-            <span role="cell" class="col-desc">
-              <span class="desc">
-                {{ t.description }}
-                @if (inst) {
-                  <span class="badge" [class.badge--done]="inst.remaining === 0">
-                    {{ inst.paid }}/{{ inst.count }}
-                  </span>
-                }
+            <button
+              type="button"
+              class="row-main"
+              [attr.aria-label]="'Editar ' + t.description"
+              (click)="edit.emit(t)"
+            >
+              <span role="cell" class="col-icon">
+                <app-tile-icon [source]="row.category" />
               </span>
-              <span class="meta">
-                {{ row.category.label }}
-                @if (row.account; as account) {
-                  · {{ account.label }}
-                }
-                @if (inst) {
-                  @if (inst.remaining === 0) {
-                    · quitado
-                  } @else {
-                    · {{ inst.remaining }} {{ inst.remaining === 1 ? 'restante' : 'restantes' }}
-                    @if (inst.nextDate; as next) {
-                      · próxima {{ next | date: 'dd/MM' }}
+
+              <span role="cell" class="col-desc">
+                <span class="desc">
+                  {{ t.description }}
+                  @if (inst) {
+                    <span class="badge" [class.badge--done]="inst.remaining === 0">
+                      {{ inst.paid }}/{{ inst.count }}
+                    </span>
+                  }
+                </span>
+                <span class="meta">
+                  {{ row.category.label }}
+                  @if (row.account; as account) {
+                    · {{ account.label }}
+                  }
+                  @if (inst) {
+                    @if (inst.remaining === 0) {
+                      · quitado
+                    } @else {
+                      · {{ inst.remaining }} {{ inst.remaining === 1 ? 'restante' : 'restantes' }}
+                      @if (inst.nextDate; as next) {
+                        · próxima {{ next | date: 'dd/MM' }}
+                      }
                     }
                   }
-                }
-                <span class="meta__date">· {{ t.date | date: 'dd/MM' }}</span>
+                  <span class="meta__date">· {{ t.date | date: 'dd/MM' }}</span>
+                </span>
               </span>
+
+              <span role="cell" class="col-date">{{ t.date | date: 'dd/MM/y' }}</span>
+
+              <span role="cell" class="col-amount" [class.col-amount--income]="t.type === 'income'">
+                <span class="tabular"
+                  >{{ t.type === 'income' ? '+' : '−' }}{{ t.amount | currency }}</span
+                >
+                @if (inst) {
+                  <span class="col-amount__total tabular"
+                    >{{ inst.count }}× · {{ inst.total | currency }}</span
+                  >
+                }
+              </span>
+            </button>
+
+            <span role="cell" class="col-actions">
+              <app-delete-button
+                [itemLabel]="t.description"
+                (confirmingChange)="setConfirming(t.id, $event)"
+                (confirmed)="remove.emit(t.id)"
+              />
             </span>
-
-            <span role="cell" class="col-date">{{ t.date | date: 'dd/MM/y' }}</span>
-
-            <span role="cell" class="col-amount" [class.col-amount--income]="t.type === 'income'">
-              <span class="tabular">{{ t.type === 'income' ? '+' : '−' }}{{ t.amount | currency }}</span>
-              @if (inst) {
-                <span class="col-amount__total tabular">{{ inst.count }}× · {{ inst.total | currency }}</span>
-              }
-            </span>
-          </button>
-
-          <span role="cell" class="col-actions">
-            <app-delete-button
-              [itemLabel]="t.description"
-              (confirmingChange)="setConfirming(t.id, $event)"
-              (confirmed)="remove.emit(t.id)"
-            />
-          </span>
+          </div>
         </div>
       }
     </div>

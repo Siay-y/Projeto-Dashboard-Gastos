@@ -1,0 +1,19 @@
+<ul class="alerts" aria-label="Avisos">
+  @for (alert of alerts(); track alert.id) {
+    <li class="alert" [attr.data-tone]="alert.tone" role="status">
+      <span class="alert__icon material-symbols-rounded" aria-hidden="true">{{ alert.icon }}</span>
+
+      <div class="alert__text">
+        <strong class="alert__title">{{ alert.title }}</strong>
+        <span class="alert__description">{{ alert.description }}</span>
+      </div>
+
+      @if (alert.action; as act) {
+        <button type="button" class="alert__action" (click)="action.emit(act.id)">
+          {{ act.label }}
+          <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+        </button>
+      }
+    </li>
+  }
+</ul>

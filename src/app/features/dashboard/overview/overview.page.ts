@@ -8,15 +8,20 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { APP_ROUTES } from '../../../core/constants/routes';
+import { AlertAction, AlertService } from '../../../core/services/alert.service';
 import { FinanceSettingsService } from '../../../core/services/finance-settings.service';
+import { RecurringExpenseService } from '../../../core/services/recurring-expense.service';
 import { TransactionService } from '../../../core/services/transaction.service';
+import { UpcomingService } from '../../../core/services/upcoming.service';
 import { UserService } from '../../../core/services/user.service';
 import { FadeInUpDirective } from '../../../shared/directives/fade-in-up.directive';
 import { ButtonComponent, EmptyStateComponent } from '../../../shared/ui';
-import { capitalizeFirst } from '../../../shared/utils/date';
+import { capitalizeFirst, daysBetween, toDateKey } from '../../../shared/utils/date';
 import { getGreeting } from '../../../shared/utils/greeting';
+import { AlertListComponent } from '../components/alert-list/alert-list.component';
+import { BalanceHeroComponent } from '../components/balance-hero/balance-hero.component';
 import { AmountDialogComponent } from '../components/amount-dialog/amount-dialog.component';
 import { SummaryCardComponent } from '../components/summary-card/summary-card.component';
 
@@ -27,7 +32,7 @@ const ADJUST_COPY: Record<AdjustMode, { title: string; label: string; descriptio
     title: 'Saldo total',
     label: 'Quanto você tem guardado',
     description:
-      'Informe o total que você tem no banco. Esse valor é seu — os lançamentos não o alteram; atualize sempre que quiser.',
+      'Informe o total que você tem no banco. Os lançamentos não alteram esse valor; atualize sempre que quiser.',
   },
   income: {
     title: 'Renda mensal',
@@ -38,7 +43,7 @@ const ADJUST_COPY: Record<AdjustMode, { title: string; label: string; descriptio
 };
 
 /**
- * Visão geral: saudação, data e os indicadores do mês.
+ * Visão geral: saudação, indicadores do mês e avisos.
  * Saldo e renda mensal podem ser ajustados direto nos cards.
  */
 @Component({
@@ -49,6 +54,8 @@ const ADJUST_COPY: Record<AdjustMode, { title: string; label: string; descriptio
     EmptyStateComponent,
     SummaryCardComponent,
     AmountDialogComponent,
+    AlertListComponent,
+    BalanceHeroComponent,
     FadeInUpDirective,
   ],
   templateUrl: './overview.page.html',
@@ -57,9 +64,13 @@ const ADJUST_COPY: Record<AdjustMode, { title: string; label: string; descriptio
 })
 export class OverviewPage {
   private readonly locale = inject(LOCALE_ID);
+  private readonly router = inject(Router);
+  private readonly recurring = inject(RecurringExpenseService);
   protected readonly settings = inject(FinanceSettingsService);
   protected readonly user = inject(UserService);
   protected readonly transactions = inject(TransactionService);
+  protected readonly alerts = inject(AlertService);
+  protected readonly upcoming = inject(UpcomingService);
 
   private readonly amountDialog = viewChild.required(AmountDialogComponent);
 
@@ -74,14 +85,23 @@ export class OverviewPage {
     formatDate(`${this.transactions.referenceMonth()}-01`, 'MMMM', this.locale),
   );
 
+  /** Há algo para prever? Sem lançamentos nem gastos fixos, mostra o convite. */
+  protected readonly hasData = computed(
+    () => this.transactions.hasTransactions() || this.recurring.activeCount() > 0,
+  );
+
   protected readonly adjustMode = signal<AdjustMode>('balance');
   protected readonly adjustCopy = computed(() => ADJUST_COPY[this.adjustMode()]);
 
-  protected readonly balanceHint = computed(() =>
-    this.settings.totalBalance() === 0
-      ? 'Toque no lápis para informar quanto você tem'
-      : 'Valor informado por você',
-  );
+  protected readonly balanceHint = computed(() => {
+    const updatedAt = this.settings.balanceUpdatedAt();
+    if (!updatedAt) return 'Toque no lápis para informar quanto você tem';
+
+    const age = daysBetween(updatedAt, toDateKey());
+    if (age === 0) return 'Informado hoje';
+    if (age === 1) return 'Informado ontem';
+    return `Informado em ${formatDate(updatedAt, 'd/MM', this.locale)}`;
+  });
 
   protected readonly incomeHint = computed(() => {
     const count = this.transactions.monthlyIncomeCount();
@@ -115,6 +135,23 @@ export class OverviewPage {
   protected saveAdjust(value: number): void {
     if (this.adjustMode() === 'balance') this.settings.setTotalBalance(value);
     else this.settings.setMonthlyIncome(value);
+  }
+
+  protected handleAlert(action: AlertAction): void {
+    switch (action) {
+      case 'set-balance':
+        this.openAdjust('balance');
+        break;
+      case 'set-income':
+        this.openAdjust('income');
+        break;
+      case 'view-fixed':
+        void this.router.navigate([this.routes.TRANSACTIONS], { queryParams: { secao: 'fixos' } });
+        break;
+      case 'view-history':
+        void this.router.navigate([this.routes.TRANSACTIONS], { queryParams: { secao: 'historico' } });
+        break;
+    }
   }
 
   private countHint(count: number, singular: string, plural: string): string {

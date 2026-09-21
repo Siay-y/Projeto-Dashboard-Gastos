@@ -135,16 +135,21 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   }
 }
 
-.table__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+// Invólucro de cada linha: recebe o deslize (appSwipeAction) e a divisória
+.swipe {
   border-bottom: 1px solid var(--color-outline);
-  transition: background-color var(--duration-short) var(--ease-standard);
 
   &:last-child {
     border-bottom: none;
   }
+}
+
+.table__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  background: var(--color-surface);
+  transition: background-color var(--duration-short) var(--ease-standard);
 
   &:hover {
     background: var(--color-surface-variant);
@@ -215,8 +220,8 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   margin-left: var(--space-1);
   padding: 1px var(--space-2);
   border-radius: var(--radius-sm);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.02em;

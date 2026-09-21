@@ -1,0 +1,31 @@
+<button
+  type="button"
+  class="trigger"
+  [class.trigger--open]="open()"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="open()"
+  [attr.aria-label]="label()"
+  [title]="label()"
+  (click)="toggle()"
+>
+  <span class="material-symbols-rounded" aria-hidden="true">more_vert</span>
+</button>
+
+@if (open()) {
+  <div class="panel" role="menu">
+    @for (item of items(); track item.id) {
+      <button
+        type="button"
+        role="menuitem"
+        class="item"
+        [disabled]="item.disabled"
+        (click)="pick(item)"
+      >
+        @if (item.icon) {
+          <span class="item__icon material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>
+        }
+        {{ item.label }}
+      </button>
+    }
+  </div>
+}

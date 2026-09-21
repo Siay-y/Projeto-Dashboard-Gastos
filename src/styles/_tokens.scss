@@ -7,6 +7,14 @@
   --color-primary-active: #123d30;
   --color-primary-soft: #e4efea;
   --color-on-primary: #ffffff;
+  // Verde profundo para superfícies em destaque (card herói).
+  --color-primary-deep: #153f33;
+
+  // ---- Acento (âmbar quente): usado com parcimônia em destaques pontuais ----
+  --color-accent: #b7791f;
+  --color-accent-soft: #f7edd9;
+  // Versão clara para fundos escuros.
+  --color-accent-bright: #f2b54a;
 
   // ---- Neutros (quentes, não cinza-puro) ----
   --color-background: #f5f4f0;
@@ -26,6 +34,9 @@
   --color-danger-soft: #f8e6e3;
   --color-warning: #a8681a;
   --color-warning-soft: #f7eddc;
+  // Ação neutra/"editar" (fundo do deslize para a direita)
+  --color-info: #1f5fbf;
+  --color-info-soft: #e3ecf9;
 
   // ---- Raios (contidos) ----
   --radius-sm: 4px;
@@ -59,4 +70,6 @@
 
   // ---- Tipografia ----
   --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  // Títulos e valores monetários: mais personalidade sem perder legibilidade.
+  --font-display: 'Manrope', var(--font-family);
 }

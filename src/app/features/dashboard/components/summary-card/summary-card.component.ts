@@ -1,6 +1,5 @@
-import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CardComponent } from '../../../../shared/ui';
+import { CardComponent, MoneyComponent } from '../../../../shared/ui';
 
 export type SummaryTone = 'neutral' | 'positive' | 'negative';
 
@@ -10,7 +9,7 @@ export type SummaryTone = 'neutral' | 'positive' | 'negative';
  */
 @Component({
   selector: 'app-summary-card',
-  imports: [CardComponent, CurrencyPipe],
+  imports: [CardComponent, MoneyComponent],
   templateUrl: './summary-card.component.html',
   styleUrl: './summary-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

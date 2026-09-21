@@ -14,13 +14,8 @@ export const DASHBOARD_ROUTES: Routes = [
     title: 'Transações · Meus Gastos',
   },
   {
-    path: 'relatorios',
-    loadComponent: () => import('./coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
-    title: 'Relatórios · Meus Gastos',
-    data: {
-      heading: 'Relatórios',
-      description: 'Gráficos por categoria e fluxo de caixa chegam em breve.',
-      icon: 'insights',
-    },
+    path: 'calendario',
+    loadComponent: () => import('../calendar/calendar.page').then((m) => m.CalendarPage),
+    title: 'Calendário · Meus Gastos',
   },
 ];

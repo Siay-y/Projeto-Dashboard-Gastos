@@ -1,0 +1,138 @@
+<header class="page-header" appFadeInUp>
+  <div class="page-header__text">
+    <span class="overline">
+      @if (totals().count === 0) {
+        Nada marcado neste mês
+      } @else {
+        {{ totals().committed | currency }} em fixos e parcelas
+        @if (totals().spent > 0) {
+          · {{ totals().spent | currency }} em gastos
+        }
+        @if (totals().income > 0) {
+          · {{ totals().income | currency }} em ganhos
+        }
+      }
+    </span>
+    <h1>Calendário</h1>
+  </div>
+
+  <div class="month-nav" role="group" aria-label="Navegar entre meses">
+    <button type="button" class="month-nav__btn" aria-label="Mês anterior" (click)="shiftMonth(-1)">
+      <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+    </button>
+    <span class="month-nav__label" aria-live="polite">{{ monthLabel() }}</span>
+    <button type="button" class="month-nav__btn" aria-label="Próximo mês" (click)="shiftMonth(1)">
+      <span class="material-symbols-rounded" aria-hidden="true">chevron_right</span>
+    </button>
+    @if (!isCurrentMonth()) {
+      <app-button variant="tonal" (click)="goToToday()">Hoje</app-button>
+    }
+  </div>
+</header>
+
+<div class="layout">
+  <!-- ---- Grade do mês ---- -->
+  <app-card class="grid-card" [padded]="false" appFadeInUp [delay]="1">
+    <div class="weekdays" aria-hidden="true">
+      @for (wd of weekdays; track wd) {
+        <span class="weekdays__item">{{ wd }}</span>
+      }
+    </div>
+
+    <div class="grid" role="grid" aria-label="Dias do mês">
+      @for (d of days(); track d.date) {
+        @let active = d.date === selected();
+        <button
+          type="button"
+          class="day"
+          role="gridcell"
+          [class.day--out]="!d.inMonth"
+          [class.day--today]="d.isToday"
+          [class.day--selected]="active"
+          [class.day--busy]="d.events.length > 0"
+          [attr.aria-selected]="active"
+          [attr.aria-label]="d.day + (d.events.length ? ', ' + d.events.length + ' itens' : '')"
+          (click)="select(d.date)"
+        >
+          <span class="day__num">{{ d.day }}</span>
+
+          @if (d.events.length > 0) {
+            <!-- Celular: pontinhos coloridos -->
+            <span class="day__dots" aria-hidden="true">
+              @for (e of d.events.slice(0, 4); track e.id) {
+                <i class="dot" [attr.data-kind]="e.kind"></i>
+              }
+            </span>
+
+            <!-- Desktop: chips com o nome -->
+            <span class="day__chips" aria-hidden="true">
+              @for (e of d.events.slice(0, chipsPerDay); track e.id) {
+                <span class="chip" [attr.data-kind]="e.kind">{{ e.label }}</span>
+              }
+              @if (d.events.length > chipsPerDay) {
+                <span class="chip chip--more">+{{ d.events.length - chipsPerDay }}</span>
+              }
+            </span>
+
+            @if (d.outflow > 0) {
+              <span class="day__total tabular" aria-hidden="true">{{ d.outflow | currency }}</span>
+            }
+          }
+        </button>
+      }
+    </div>
+
+    <ul class="legend" aria-hidden="true">
+      @for (k of kinds; track k.kind) {
+        <li class="legend__item"><i class="dot" [attr.data-kind]="k.kind"></i>{{ k.label }}</li>
+      }
+    </ul>
+  </app-card>
+
+  <!-- ---- Agenda do dia ---- -->
+  <app-card class="agenda" appFadeInUp [delay]="2">
+    <div class="agenda__head">
+      <span class="overline">Agenda do dia</span>
+      <h2 class="agenda__title">{{ selectedLabel() }}</h2>
+    </div>
+
+    @if (selectedDay(); as day) {
+      @if (day.events.length > 0) {
+        <ul class="agenda__list">
+          @for (e of day.events; track e.id) {
+            <li class="item">
+              <app-tile-icon size="sm" [source]="e.category" />
+              <span class="item__text">
+                <span class="item__label">{{ e.label }}</span>
+                <span class="item__meta">
+                  <i class="dot" [attr.data-kind]="e.kind" aria-hidden="true"></i>
+                  {{ e.detail ?? e.category.label }}
+                </span>
+              </span>
+              <span class="item__amount tabular" [class.item__amount--income]="e.kind === 'income'">
+                {{ e.kind === 'income' ? '+' : '−' }}{{ e.amount | currency }}
+              </span>
+            </li>
+          }
+        </ul>
+
+        <dl class="agenda__totals">
+          @if (selectedOutflow() > 0) {
+            <div class="agenda__total">
+              <dt>Saídas</dt>
+              <dd class="tabular">−{{ selectedOutflow() | currency }}</dd>
+            </div>
+          }
+          @if (selectedInflow() > 0) {
+            <div class="agenda__total agenda__total--income">
+              <dt>Entradas</dt>
+              <dd class="tabular">+{{ selectedInflow() | currency }}</dd>
+            </div>
+          }
+        </dl>
+      } @else {
+        <p class="agenda__empty">Nada previsto para este dia.</p>
+      }
+    }
+  </app-card>
+</div>

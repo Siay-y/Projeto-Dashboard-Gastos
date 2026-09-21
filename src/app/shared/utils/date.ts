@@ -25,6 +25,23 @@ export function addMonthsClamped(dateKey: string, months: number): string {
   return toDateKey(target);
 }
 
+/** Converte `YYYY-MM-DD` em `Date` local (meia-noite). */
+export function fromDateKey(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** Quantidade de dias do mês de `date`. */
+export function daysInMonth(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+}
+
+/** Dias inteiros de `from` até `to` (negativo se `to` for antes). */
+export function daysBetween(from: string, to: string): number {
+  const ms = fromDateKey(to).getTime() - fromDateKey(from).getTime();
+  return Math.round(ms / 86_400_000);
+}
+
 export function capitalizeFirst(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }

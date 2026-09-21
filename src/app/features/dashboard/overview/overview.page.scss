@@ -9,21 +9,22 @@
 }
 
 // ---- Grade de indicadores ----
+// Ganhos e Gastos sempre um abaixo do outro.
+// Desktop: herói à esquerda ocupando as duas linhas.
 .summary-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
 
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(3, 1fr);
+  @media (min-width: 1024px) {
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    grid-template-rows: auto auto;
   }
+}
 
-  // Saldo em destaque no tablet: ocupa a linha inteira
-  @media (min-width: 640px) and (max-width: 1023px) {
-    grid-template-columns: repeat(2, 1fr);
-
-    > :first-child {
-      grid-column: 1 / -1;
-    }
+.summary-grid__hero {
+  @media (min-width: 1024px) {
+    grid-column: 1;
+    grid-row: 1 / span 2;
   }
 }

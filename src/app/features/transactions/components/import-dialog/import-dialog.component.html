@@ -1,0 +1,87 @@
+<app-dialog [title]="title()" (closed)="preview.set(null); error.set(null)">
+  @if (error(); as message) {
+    <!-- ---- Arquivo inválido ---- -->
+    <div class="state state--error">
+      <span class="state__icon material-symbols-rounded" aria-hidden="true">error</span>
+      <div class="state__text">
+        <strong>Não deu para importar</strong>
+        <p>{{ message }}</p>
+      </div>
+    </div>
+
+    <p class="hint">
+      Dica: exporte a seção pelo menu de três pontos e use o arquivo gerado como modelo. As colunas
+      <strong>Descrição</strong>, <strong>Valor</strong>{{ kind() === 'history' ? ' e Data' : '' }}
+      são obrigatórias.
+    </p>
+
+    <footer class="actions">
+      <app-button variant="tonal" (click)="close()">Fechar</app-button>
+    </footer>
+  } @else if (preview(); as p) {
+    <!-- ---- Resumo ---- -->
+    <dl class="summary">
+      <div class="summary__item summary__item--ok">
+        <dt>Prontos para importar</dt>
+        <dd class="tabular">{{ p.items.length }}</dd>
+      </div>
+      <div class="summary__item">
+        <dt>Já existem (ignorados)</dt>
+        <dd class="tabular">{{ p.duplicates }}</dd>
+      </div>
+      <div class="summary__item" [class.summary__item--warn]="p.issues.length > 0">
+        <dt>Linhas com problema</dt>
+        <dd class="tabular">{{ p.issues.length }}</dd>
+      </div>
+    </dl>
+
+    <!-- ---- Prévia ---- -->
+    @if (rows().length > 0) {
+      <ul class="rows" aria-label="Prévia dos registros">
+        @for (row of rows(); track $index) {
+          <li class="row">
+            <span class="row__text">
+              <span class="row__description">{{ row.description }}</span>
+              <span class="row__meta">{{ row.meta }}</span>
+            </span>
+            <span class="row__amount tabular" [class.row__amount--income]="row.signed > 0">
+              {{ row.signed > 0 ? '+' : '−' }}{{ row.amount | currency }}
+            </span>
+          </li>
+        }
+        @if (count() > previewLimit) {
+          <li class="rows__more">+ {{ plural(count() - previewLimit, 'registro', 'registros') }}</li>
+        }
+      </ul>
+    } @else {
+      <p class="empty">
+        Nada novo para importar da aba <strong>{{ p.sheet }}</strong>.
+        @if (p.duplicates > 0) {
+          Todos os registros válidos já estão cadastrados.
+        }
+      </p>
+    }
+
+    <!-- ---- Problemas ---- -->
+    @if (p.issues.length > 0) {
+      <div class="issues">
+        <strong class="issues__title">Linhas ignoradas</strong>
+        <ul class="issues__list">
+          @for (issue of p.issues.slice(0, issueLimit); track issue.row) {
+            <li><span class="issues__row tabular">Linha {{ issue.row }}</span> {{ issue.message }}</li>
+          }
+          @if (p.issues.length > issueLimit) {
+            <li class="issues__more">+ {{ p.issues.length - issueLimit }} outras</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <footer class="actions">
+      <app-button variant="tonal" (click)="close()">Cancelar</app-button>
+      <app-button icon="upload" [disabled]="count() === 0" (click)="confirm()">
+        Importar {{ count() > 0 ? count() : '' }}
+      </app-button>
+    </footer>
+  }
+</app-dialog>

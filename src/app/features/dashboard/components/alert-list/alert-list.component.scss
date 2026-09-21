@@ -1,0 +1,110 @@
+:host {
+  display: block;
+}
+
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+// Tom padrão: informativo (cor primária). Os outros trocam as variáveis.
+.alert {
+  --tone: var(--color-primary);
+  --tone-soft: var(--color-primary-soft);
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-left: 3px solid var(--tone);
+  border-radius: var(--radius-lg);
+
+  @media (min-width: 640px) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: var(--space-4) var(--space-5);
+  }
+}
+
+.alert[data-tone='warning'] {
+  --tone: var(--color-warning);
+  --tone-soft: var(--color-warning-soft);
+}
+
+.alert[data-tone='danger'] {
+  --tone: var(--color-danger);
+  --tone-soft: var(--color-danger-soft);
+}
+
+.alert__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--tone-soft);
+  color: var(--tone);
+  font-size: 20px;
+}
+
+.alert__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.alert__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.alert__description {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.alert__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-self: start;
+  grid-column: 2;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  margin-left: calc(var(--space-3) * -1);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--tone);
+  transition: background-color var(--duration-short) var(--ease-standard);
+
+  .material-symbols-rounded {
+    font-size: 16px;
+    transition: transform var(--duration-short) var(--ease-standard);
+  }
+
+  &:hover {
+    background: var(--tone-soft);
+
+    .material-symbols-rounded {
+      transform: translateX(2px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tone);
+    outline-offset: 1px;
+  }
+
+  @media (min-width: 640px) {
+    grid-column: auto;
+    margin-left: 0;
+  }
+}

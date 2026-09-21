@@ -1,17 +1,34 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# Compiled output
+# Saída de build
 /dist
 /tmp
 /out-tsc
 /bazel-out
+*.tsbuildinfo
 
-# Node
+# Dependências
 /node_modules
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# IDEs and editors
+# Cache do Angular CLI e ferramentas
+/.angular
+.sass-cache/
+.eslintcache
+/coverage
+/.vitest
+
+# Variáveis de ambiente e segredos (o app não usa, mas nunca devem subir)
+.env
+.env.*
+!.env.example
+
+# Plataformas de deploy
+.vercel
+.netlify
+
+# IDEs e editores
 .idea/
 .project
 .classpath
@@ -19,26 +36,28 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+.history/
+*.swp
 
-# Visual Studio Code
+# Visual Studio Code (mantém só configurações compartilháveis)
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mcp.json
-.history/*
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
+# Diversos
 /connect.lock
-/coverage
 /libpeerconnection.log
 testem.log
 /typings
 __screenshots__/
 
-# System files
+# Arquivos de sistema
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Assistentes de código (configuração local, não o projeto)
+.claude/

@@ -10,15 +10,14 @@
 </header>
 
 <section class="summary-grid" aria-label="Resumo financeiro">
-  <app-summary-card
+  <app-balance-hero
+    class="summary-grid__hero"
     appFadeInUp
     [delay]="1"
-    label="Saldo total"
-    icon="account_balance"
-    [value]="settings.totalBalance()"
-    [hint]="balanceHint()"
-    [editable]="true"
-    editLabel="Informar saldo"
+    [balance]="settings.totalBalance()"
+    [balanceHint]="balanceHint()"
+    [monthResult]="transactions.monthlyIncome() - transactions.monthlyExpenses()"
+    [upcoming]="upcoming.items()"
     (edit)="openAdjust('balance')"
   />
 
@@ -46,13 +45,17 @@
   />
 </section>
 
-@if (!transactions.hasTransactions()) {
+@if (alerts.hasAlerts()) {
+  <app-alert-list appFadeInUp [delay]="4" [alerts]="alerts.alerts()" (action)="handleAlert($event)" />
+}
+
+@if (!hasData()) {
   <app-empty-state
     appFadeInUp
     [delay]="4"
-    icon="receipt_long"
+    illustration="wallet"
     title="Nenhuma transação ainda"
-    description="Registre sua primeira entrada ou gasto para ver o resumo do mês ganhar vida."
+    description="Registre sua primeira entrada ou gasto para ver o resumo e a previsão do mês ganharem vida."
   >
     <app-button variant="tonal" icon="add" [routerLink]="routes.TRANSACTIONS" [queryParams]="{ novo: 1 }">
       Registrar transação
