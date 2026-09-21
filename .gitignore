@@ -5,39 +5,53 @@
 /bazel-out
 *.tsbuildinfo
 
-# Dependências
+# Dependências e gerenciadores de pacote
 /node_modules
+/.npm
+/.pnpm-store
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
+# Pode conter token de autenticação do registro
+.npmrc
 
 # Cache do Angular CLI e ferramentas
 /.angular
+/.cache
 .sass-cache/
 .eslintcache
 /coverage
 /.vitest
+/test-results
 
 # Variáveis de ambiente e segredos (o app não usa, mas nunca devem subir)
 .env
 .env.*
 !.env.example
+*.local
+*.pem
+*.key
 
-# Plataformas de deploy
+# Plataformas de deploy (o vercel.json É versionado; a pasta .vercel não)
 .vercel
 .netlify
+.firebase
 
 # IDEs e editores
 .idea/
+.vs/
 .project
 .classpath
 .c9/
 *.launch
 .settings/
 *.sublime-workspace
+*.code-workspace
 .history/
 *.swp
+*~
 
 # Visual Studio Code (mantém só configurações compartilháveis)
 .vscode/*
@@ -56,8 +70,11 @@ __screenshots__/
 
 # Arquivos de sistema
 .DS_Store
+._*
 Thumbs.db
+ehthumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
 # Assistentes de código (configuração local, não o projeto)
 .claude/

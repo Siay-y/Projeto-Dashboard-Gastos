@@ -200,8 +200,10 @@ projeto-gastos/
 │   ├── main.ts
 │   └── styles.scss
 ├── angular.json
+├── LICENSE
 ├── package.json
-└── tsconfig.json
+├── tsconfig.json
+└── vercel.json                     Build, fallback de SPA, cache e cabeçalhos
 ```
 
 A separação segue Clean Architecture em três anéis: `core` não importa nada de
@@ -481,17 +483,37 @@ puladas.
 A aplicação é totalmente estática. `npm run build` produz HTML, CSS, JS e
 assets em `dist/projeto-gastos/browser`, publicáveis em qualquer host estático.
 
-| Configuração | Valor |
+O repositório traz um `vercel.json` pronto: basta importar o projeto na Vercel
+e publicar, sem configurar nada no painel.
+
+| Configuração | Valor (já em `vercel.json`) |
 | --- | --- |
+| Instalação | `npm ci` |
 | Comando de build | `npm run build` |
 | Diretório de publicação | `dist/projeto-gastos/browser` |
-| Versão do Node | 20 ou superior |
-| Fallback de SPA | **Obrigatório**: todas as rotas devem servir `index.html` |
+| Framework preset | `null` (estático puro; o arquivo define tudo) |
+| Versão do Node | 20 ou superior (`engines` no `package.json`) |
+| Fallback de SPA | Rewrite de todo caminho sem extensão para `/index.html` |
+| Cache | Assets com hash (`*-XXXXXXXX.js/css`) imutáveis por um ano; `index.html` sem cache |
+| Cabeçalhos | `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, HSTS |
 
-Diferente de um site de página única com âncoras, aqui existem rotas reais
-(`/transacoes`, `/calendario`). Sem o fallback, recarregar a página em uma
-dessas URLs devolve 404 do host. Na Vercel o preset `Angular` já aplica o
-rewrite; na Netlify, um `_redirects` com `/* /index.html 200` resolve.
+O fallback de SPA é obrigatório: diferente de um site de página única com
+âncoras, aqui existem rotas reais (`/transacoes`, `/calendario`). Sem ele,
+recarregar a página em uma dessas URLs devolveria 404 do host. O rewrite
+ignora caminhos com extensão, então arquivos inexistentes continuam retornando
+404 de verdade.
+
+Em outro host estático (Netlify, Cloudflare Pages), reproduza o mesmo
+comportamento: Netlify aceita um `_redirects` com `/* /index.html 200`.
+
+Para conferir um deploy:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}
+" https://SEU-DOMINIO/calendario        # 200
+curl -s -o /dev/null -w "%{http_code}
+" https://SEU-DOMINIO/nao-existe.txt    # 404
+```
 
 ---
 
