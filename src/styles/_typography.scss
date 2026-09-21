@@ -1,0 +1,62 @@
+// Escala tipográfica enxuta.
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 1.75rem; // 28px
+}
+
+h2 {
+  font-size: 1.375rem; // 22px
+}
+
+h3 {
+  font-size: 1.125rem; // 18px
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+// Rótulo pequeno em caixa alta — usado como "overline".
+.overline {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+// Material Symbols — ajustes padrão de ícone.
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 24px;
+  user-select: none;
+  vertical-align: middle;
+
+  &.filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}

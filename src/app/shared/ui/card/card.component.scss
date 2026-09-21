@@ -1,0 +1,28 @@
+// Estilos aplicados ao próprio host (<app-card>) — por isso `:host(...)`.
+:host {
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--duration-medium) var(--ease-standard);
+}
+
+:host([data-padded]) {
+  padding: var(--space-6);
+
+  @media (min-width: 640px) {
+    padding: var(--space-8);
+  }
+}
+
+:host([data-elevation='0']) {
+  box-shadow: none;
+}
+
+:host([data-elevation='1']) {
+  box-shadow: var(--shadow-1);
+}
+
+:host([data-elevation='2']) {
+  box-shadow: var(--shadow-2);
+}

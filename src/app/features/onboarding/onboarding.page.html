@@ -1,0 +1,69 @@
+<div class="onboarding">
+  <header class="onboarding__brand" appFadeInUp>
+    <span class="brand-mark" aria-hidden="true">
+      <span class="material-symbols-rounded filled">account_balance_wallet</span>
+    </span>
+    <span class="brand-name">Meus Gastos</span>
+  </header>
+
+  <main class="onboarding__main">
+    <app-card class="onboarding__card" [elevation]="2" appFadeInUp [delay]="1">
+      <form class="onboarding__form" (ngSubmit)="submit()" novalidate>
+        <div class="onboarding__heading">
+          <span class="overline">Primeiro acesso</span>
+          <h1>Como devo te chamar?</h1>
+          <p class="onboarding__lead">
+            Vamos usar seu nome para personalizar o painel. Nada de conta ou senha.
+          </p>
+        </div>
+
+        <app-input
+          name="name"
+          label="Seu nome"
+          placeholder="Meu nome"
+          autocomplete="given-name"
+          [autofocus]="true"
+          [maxlength]="maxLength"
+          [error]="errorMessage()"
+          [(ngModel)]="name"
+        />
+
+        <!-- Prévia ao vivo de como o painel vai saudar o usuário -->
+        <div class="preview" [class.preview--active]="trimmedName()" aria-live="polite">
+          <span class="preview__label">Prévia do painel</span>
+
+          <div class="preview__row">
+            <span class="preview__avatar" aria-hidden="true">
+              @if (initial()) {
+                @for (letter of [initial()]; track letter) {
+                  <span class="preview__letter">{{ letter }}</span>
+                }
+              } @else {
+                <span class="material-symbols-rounded">person</span>
+              }
+            </span>
+
+            <div class="preview__text">
+              <span class="preview__greeting">
+                {{ greeting }},
+                @if (trimmedName()) {
+                  <strong>{{ trimmedName() }}</strong>
+                } @else {
+                  <span class="preview__blank" aria-label="seu nome"></span>
+                }
+              </span>
+              <span class="preview__sub">Aqui está o resumo do seu mês</span>
+            </div>
+          </div>
+        </div>
+
+        <app-button type="submit" icon="arrow_forward" [block]="true">Continuar</app-button>
+
+        <p class="onboarding__note">
+          <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+          Seus dados ficam somente neste navegador. Nada é enviado a servidores.
+        </p>
+      </form>
+    </app-card>
+  </main>
+</div>

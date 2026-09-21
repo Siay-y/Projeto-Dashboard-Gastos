@@ -1,0 +1,40 @@
+<div
+  class="field"
+  [class.field--focused]="focused()"
+  [class.field--error]="hasError()"
+  [class.field--disabled]="disabled()"
+  [class.field--with-icon]="icon()"
+>
+  @if (label()) {
+    <label class="field__label" [for]="id">{{ label() }}</label>
+  }
+
+  <div class="field__control">
+    @if (icon()) {
+      <span class="material-symbols-rounded field__icon" aria-hidden="true">{{ icon() }}</span>
+    }
+
+    <input
+      #inputEl
+      class="field__input"
+      [id]="id"
+      [type]="type()"
+      [value]="value()"
+      [placeholder]="placeholder()"
+      [disabled]="disabled()"
+      [attr.maxlength]="maxlength() ?? null"
+      [attr.autocomplete]="autocomplete()"
+      [attr.aria-invalid]="hasError() || null"
+      [attr.aria-describedby]="hint() || error() ? id + '-help' : null"
+      (input)="handleInput($event)"
+      (focus)="focused.set(true)"
+      (blur)="handleBlur()"
+    />
+  </div>
+
+  @if (error()) {
+    <p class="field__help field__help--error" [id]="id + '-help'" role="alert">{{ error() }}</p>
+  } @else if (hint()) {
+    <p class="field__help" [id]="id + '-help'">{{ hint() }}</p>
+  }
+</div>

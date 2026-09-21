@@ -1,0 +1,22 @@
+// Pattern de fundo: "escamas" — arcos sobrepostos em duas fileiras deslocadas.
+// Tile de 40×40 sem emendas visíveis; traço na cor primária com opacidade baixa.
+// Uma máscara radial faz o pattern se dissolver nas bordas da tela para não
+// competir com o conteúdo.
+$scales-tile: "data:image/svg+xml;utf8," +
+  "<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>" +
+  "<g fill='none' stroke='%231e5e4b' stroke-opacity='0.16' stroke-width='1'>" +
+  "<path d='M0 20a20 20 0 0 1 40 0'/>" +
+  "<path d='M-20 40a20 20 0 0 1 40 0M20 40a20 20 0 0 1 40 0'/>" +
+  "</g></svg>";
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url($scales-tile);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 100%);
+}
