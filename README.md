@@ -8,6 +8,8 @@ Registre ganhos e gastos, cadastre contas fixas que entram sozinhas todo mês,
 acompanhe compras parceladas que avançam com o calendário, veja o que vence nos
 próximos dias e leve seus dados para o Excel quando quiser.
 
+**Aplicação publicada:** <https://dashboard-gastos-flax.vercel.app/>
+
 ---
 
 ## Sumário
@@ -483,8 +485,10 @@ puladas.
 A aplicação é totalmente estática. `npm run build` produz HTML, CSS, JS e
 assets em `dist/projeto-gastos/browser`, publicáveis em qualquer host estático.
 
-O repositório traz um `vercel.json` pronto: basta importar o projeto na Vercel
-e publicar, sem configurar nada no painel.
+O ambiente ativo é a Vercel, em
+<https://dashboard-gastos-flax.vercel.app/>. O repositório traz um
+`vercel.json` pronto: basta importar o projeto na Vercel e publicar, sem
+configurar nada no painel.
 
 | Configuração | Valor (já em `vercel.json`) |
 | --- | --- |
@@ -493,15 +497,16 @@ e publicar, sem configurar nada no painel.
 | Diretório de publicação | `dist/projeto-gastos/browser` |
 | Framework preset | `null` (estático puro; o arquivo define tudo) |
 | Versão do Node | 20 ou superior (`engines` no `package.json`) |
-| Fallback de SPA | Rewrite de todo caminho sem extensão para `/index.html` |
+| Fallback de SPA | Rewrite de qualquer caminho para `/index.html`; arquivos existentes têm prioridade |
 | Cache | Assets com hash (`*-XXXXXXXX.js/css`) imutáveis por um ano; `index.html` sem cache |
 | Cabeçalhos | `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, HSTS |
 
 O fallback de SPA é obrigatório: diferente de um site de página única com
 âncoras, aqui existem rotas reais (`/transacoes`, `/calendario`). Sem ele,
-recarregar a página em uma dessas URLs devolveria 404 do host. O rewrite
-ignora caminhos com extensão, então arquivos inexistentes continuam retornando
-404 de verdade.
+recarregar a página em uma dessas URLs devolveria 404 do host. A Vercel serve
+primeiro o que existe em disco (JS, CSS, favicon) e só então aplica o rewrite,
+então os assets não são afetados; um caminho desconhecido cai no app, que o
+redireciona para a visão geral.
 
 Em outro host estático (Netlify, Cloudflare Pages), reproduza o mesmo
 comportamento: Netlify aceita um `_redirects` com `/* /index.html 200`.
@@ -510,9 +515,8 @@ Para conferir um deploy:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}
-" https://SEU-DOMINIO/calendario        # 200
-curl -s -o /dev/null -w "%{http_code}
-" https://SEU-DOMINIO/nao-existe.txt    # 404
+" https://dashboard-gastos-flax.vercel.app/calendario   # 200
+curl -sI https://dashboard-gastos-flax.vercel.app/ | grep -i x-frame-options                    # DENY
 ```
 
 ---
