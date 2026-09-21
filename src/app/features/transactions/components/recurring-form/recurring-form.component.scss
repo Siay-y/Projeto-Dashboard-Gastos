@@ -1,0 +1,55 @@
+.rec-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.rec-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  align-items: start;
+
+  @media (min-width: 480px) {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+.rec-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rec-form__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.rec-form__error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.rec-form__optional {
+  margin-left: var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-disabled);
+}
+
+.rec-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+
+  @media (min-width: 480px) {
+    display: flex;
+    justify-content: flex-end;
+
+    app-button {
+      min-width: 130px;
+    }
+  }
+}

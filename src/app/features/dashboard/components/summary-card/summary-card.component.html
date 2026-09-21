@@ -1,0 +1,28 @@
+<app-card class="summary" [padded]="false">
+  <div class="summary__top">
+    <span class="summary__label">{{ label() }}</span>
+
+    <div class="summary__tools">
+      @if (editable()) {
+        <button
+          type="button"
+          class="summary__edit"
+          [attr.aria-label]="editLabel() + ': ' + label()"
+          [title]="editLabel()"
+          (click)="edit.emit()"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+        </button>
+      }
+      <span class="summary__icon" aria-hidden="true">
+        <span class="material-symbols-rounded">{{ icon() }}</span>
+      </span>
+    </div>
+  </div>
+
+  <strong class="summary__value tabular">{{ value() | currency }}</strong>
+
+  @if (hint()) {
+    <span class="summary__hint">{{ hint() }}</span>
+  }
+</app-card>

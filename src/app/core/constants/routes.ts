@@ -2,4 +2,6 @@
 export const APP_ROUTES = {
   ONBOARDING: '/bem-vindo',
   DASHBOARD: '/',
+  TRANSACTIONS: '/transacoes',
+  REPORTS: '/relatorios',
 } as const;

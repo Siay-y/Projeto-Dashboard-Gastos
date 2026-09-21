@@ -1,0 +1,15 @@
+@if (confirming()) {
+  <span class="confirm">
+    <span class="confirm__label">Excluir?</span>
+    <button type="button" class="icon-btn icon-btn--danger" aria-label="Confirmar exclusão" (click)="confirm()">
+      <span class="material-symbols-rounded" aria-hidden="true">check</span>
+    </button>
+    <button type="button" class="icon-btn" aria-label="Cancelar" (click)="cancel()">
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
+  </span>
+} @else {
+  <button type="button" class="icon-btn" [attr.aria-label]="'Excluir ' + itemLabel()" (click)="ask()">
+    <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+  </button>
+}

@@ -1,0 +1,27 @@
+.amount-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.amount-form__description {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.amount-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+
+  @media (min-width: 480px) {
+    display: flex;
+    justify-content: flex-end;
+
+    app-button {
+      min-width: 130px;
+    }
+  }
+}

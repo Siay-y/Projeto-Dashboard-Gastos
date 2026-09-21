@@ -1,0 +1,66 @@
+<header class="page-header" appFadeInUp>
+  <div class="page-header__text">
+    <span class="overline">{{ countLabel() }}</span>
+    <h1>Transações</h1>
+  </div>
+
+  <app-button icon="add" (click)="openNew()">Nova transação</app-button>
+</header>
+
+<!-- ---- Gastos fixos ---- -->
+<app-collapsible-section id="recurring" title="Gastos fixos" [defaultExpanded]="false" appFadeInUp [delay]="1">
+  <span subtitle>
+    {{ recurringSummary() }} ·
+    <strong class="tabular">{{ recurring.monthlyTotal() | currency }}</strong> por mês
+  </span>
+  <app-button actions variant="tonal" icon="add" (click)="openNewRecurring()">Adicionar</app-button>
+
+  @if (recurring.hasItems()) {
+    <app-card [padded]="false" [elevation]="0">
+      <app-recurring-list
+        [items]="recurring.items()"
+        (edit)="openEditRecurring($event)"
+        (toggle)="toggleRecurring($event)"
+        (remove)="removeRecurring($event)"
+      />
+    </app-card>
+  } @else {
+    <app-empty-state
+      icon="autorenew"
+      title="Nenhum gasto fixo"
+      description="Assinaturas, aluguel, academia… cadastre uma vez e o valor entra sozinho nos gastos de todo mês."
+    >
+      <app-button variant="tonal" icon="add" (click)="openNewRecurring()">Adicionar gasto fixo</app-button>
+    </app-empty-state>
+  }
+</app-collapsible-section>
+
+<!-- ---- Histórico ---- -->
+<app-collapsible-section id="history" title="Histórico" appFadeInUp [delay]="2">
+  <span subtitle>Lançamentos pontuais: mercado, almoço, Uber, entradas extras.</span>
+
+  @if (service.hasTransactions()) {
+    <app-transaction-list
+      [transactions]="service.transactions()"
+      (edit)="openEdit($event)"
+      (remove)="remove($event)"
+    />
+  } @else {
+    <app-empty-state
+      icon="receipt_long"
+      title="Seu histórico está vazio"
+      description="Registre entradas e gastos para acompanhar o mês. Você pode editar ou excluir qualquer lançamento depois."
+    >
+      <app-button variant="tonal" icon="add" (click)="openNew()">Registrar transação</app-button>
+    </app-empty-state>
+  }
+</app-collapsible-section>
+
+<!-- ---- Dialogs ---- -->
+<app-dialog #txDialog size="lg" [title]="txDialogTitle()" (closed)="editing.set(null)">
+  <app-transaction-form (saved)="save($event)" (cancelled)="txDialog.close()" />
+</app-dialog>
+
+<app-dialog #recDialog size="lg" [title]="recDialogTitle()" (closed)="editingRecurring.set(null)">
+  <app-recurring-form (saved)="saveRecurring($event)" (cancelled)="recDialog.close()" />
+</app-dialog>

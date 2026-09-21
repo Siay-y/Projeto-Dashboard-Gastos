@@ -1,0 +1,59 @@
+<div class="list" role="list">
+  @for (row of rows(); track row.item.id) {
+    @let item = row.item;
+
+    <div
+      class="row"
+      role="listitem"
+      [class.row--paused]="!item.active"
+      [class.row--confirming]="confirmingId() === item.id"
+    >
+      <button
+        type="button"
+        class="row__main"
+        [attr.aria-label]="'Editar ' + item.description"
+        (click)="edit.emit(item)"
+      >
+        <app-tile-icon [source]="row.category" />
+
+        <span class="row__text">
+          <span class="row__desc">{{ item.description }}</span>
+          <span class="row__meta">
+            @if (item.dueDay) {
+              Todo dia {{ item.dueDay }} ·
+            }
+            {{ row.category.label }}
+            @if (row.account; as account) {
+              · {{ account.label }}
+            }
+            @if (!item.active) {
+              <span class="row__tag">Pausado</span>
+            }
+          </span>
+        </span>
+
+        <span class="row__amount tabular">{{ item.amount | currency }}</span>
+      </button>
+
+      <span class="row__actions">
+        <button
+          type="button"
+          role="switch"
+          class="switch"
+          [attr.aria-checked]="item.active"
+          [attr.aria-label]="(item.active ? 'Pausar ' : 'Reativar ') + item.description"
+          [title]="item.active ? 'Pausar' : 'Reativar'"
+          (click)="toggle.emit({ id: item.id, active: !item.active })"
+        >
+          <span class="switch__knob"></span>
+        </button>
+
+        <app-delete-button
+          [itemLabel]="item.description"
+          (confirmingChange)="setConfirming(item.id, $event)"
+          (confirmed)="remove.emit(item.id)"
+        />
+      </span>
+    </div>
+  }
+</div>

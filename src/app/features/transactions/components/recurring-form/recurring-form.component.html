@@ -1,0 +1,55 @@
+<form class="rec-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <app-input
+    label="Descrição"
+    placeholder="Ex.: Netflix, Aluguel, Academia"
+    formControlName="description"
+    [autofocus]="true"
+    [maxlength]="maxDescription"
+    [error]="errorFor('description')"
+  />
+
+  <div class="rec-form__row">
+    <app-input
+      label="Valor mensal"
+      prefix="R$"
+      type="number"
+      inputmode="decimal"
+      step="0.01"
+      min="0"
+      placeholder="0,00"
+      formControlName="amount"
+      [error]="errorFor('amount')"
+    />
+    <app-input
+      label="Dia de cobrança"
+      type="number"
+      inputmode="numeric"
+      step="1"
+      min="1"
+      placeholder="Opcional"
+      hint="Ex.: 10 para todo dia 10"
+      formControlName="dueDay"
+      [error]="errorFor('dueDay')"
+    />
+  </div>
+
+  <div class="rec-form__field">
+    <span class="rec-form__label">Categoria</span>
+    <app-category-picker type="expense" [value]="categoryId()" (valueChange)="setCategory($event)" />
+    @if (errorFor('categoryId'); as error) {
+      <p class="rec-form__error" role="alert">{{ error }}</p>
+    }
+  </div>
+
+  <div class="rec-form__field">
+    <span class="rec-form__label">
+      Conta ou cartão <span class="rec-form__optional">opcional</span>
+    </span>
+    <app-account-picker [value]="accountId()" (valueChange)="setAccount($event)" />
+  </div>
+
+  <footer class="rec-form__actions">
+    <app-button variant="tonal" (click)="cancelled.emit()">Cancelar</app-button>
+    <app-button type="submit" icon="check">Salvar</app-button>
+  </footer>
+</form>

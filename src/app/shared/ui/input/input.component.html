@@ -4,6 +4,7 @@
   [class.field--error]="hasError()"
   [class.field--disabled]="disabled()"
   [class.field--with-icon]="icon()"
+  [class.field--with-prefix]="prefix()"
 >
   @if (label()) {
     <label class="field__label" [for]="id">{{ label() }}</label>
@@ -12,6 +13,8 @@
   <div class="field__control">
     @if (icon()) {
       <span class="material-symbols-rounded field__icon" aria-hidden="true">{{ icon() }}</span>
+    } @else if (prefix()) {
+      <span class="field__prefix" aria-hidden="true">{{ prefix() }}</span>
     }
 
     <input
@@ -24,6 +27,10 @@
       [disabled]="disabled()"
       [attr.maxlength]="maxlength() ?? null"
       [attr.autocomplete]="autocomplete()"
+      [attr.inputmode]="inputmode() ?? null"
+      [attr.step]="step() ?? null"
+      [attr.min]="min() ?? null"
+      [attr.autofocus]="autofocus() || null"
       [attr.aria-invalid]="hasError() || null"
       [attr.aria-describedby]="hint() || error() ? id + '-help' : null"
       (input)="handleInput($event)"

@@ -1,0 +1,27 @@
+<header class="head">
+  <button
+    type="button"
+    class="head__toggle"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="bodyId"
+    (click)="toggle()"
+  >
+    <span class="head__chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+    <span class="head__text">
+      <span class="head__title">{{ title() }}</span>
+      <span class="head__subtitle"><ng-content select="[subtitle]" /></span>
+    </span>
+  </button>
+
+  <div class="head__actions">
+    <ng-content select="[actions]" />
+  </div>
+</header>
+
+<div class="body" [id]="bodyId" [attr.inert]="expanded() ? null : ''">
+  <div class="body__inner">
+    <div class="body__content">
+      <ng-content />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,284 @@
+$breakpoint-table: 768px;
+
+// Colunas compartilhadas entre cabeçalho e linhas
+$cols-mobile: 36px minmax(0, 1fr) auto;
+$cols-desktop: 36px minmax(0, 1fr) 110px 140px;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+// ---- Filtros (só aparecem quando há compras parceladas) ----
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition:
+    border-color var(--duration-short) var(--ease-standard),
+    background-color var(--duration-short) var(--ease-standard),
+    color var(--duration-short) var(--ease-standard);
+
+  &:hover {
+    border-color: var(--color-outline-strong);
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+}
+
+.filter-chip--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.filter-chip__count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-variant);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-secondary);
+
+  .filter-chip--active & {
+    background: var(--color-surface);
+    color: var(--color-primary);
+  }
+}
+
+.filters__empty {
+  padding: var(--space-4) var(--space-1);
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+// ---- Cabeçalho do mês ----
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.month__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-inline: var(--space-1);
+}
+
+.month__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.month__totals {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.month__total--income {
+  color: var(--color-success);
+}
+
+.month__total--expense {
+  color: var(--color-text-secondary);
+}
+
+// ---- Tabela ----
+.table {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table__head {
+  display: none;
+
+  @media (min-width: $breakpoint-table) {
+    display: grid;
+    grid-template-columns: $cols-desktop 48px;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-surface-variant);
+    border-bottom: 1px solid var(--color-outline);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-disabled);
+  }
+}
+
+.table__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline);
+  transition: background-color var(--duration-short) var(--ease-standard);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--color-surface-variant);
+  }
+}
+
+// Compra parcelada já quitada: esmaecida para diferenciar do que ainda pesa
+.table__row--settled {
+  .col-icon,
+  .desc,
+  .col-date,
+  .col-amount {
+    opacity: 0.55;
+  }
+}
+
+.table__row--confirming {
+  background: var(--color-danger-soft);
+
+  &:hover {
+    background: var(--color-danger-soft);
+  }
+}
+
+// Área clicável (editar) — contém as células de dados
+.row-main {
+  display: grid;
+  grid-template-columns: $cols-mobile;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 60px;
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  text-align: left;
+  color: inherit;
+
+  @media (min-width: $breakpoint-table) {
+    grid-template-columns: $cols-desktop;
+    padding-left: var(--space-4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+// ---- Células ----
+.col-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.desc {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Selo "3/10" da parcela
+.badge {
+  display: inline-block;
+  margin-left: var(--space-1);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  vertical-align: 1px;
+}
+
+.badge--done {
+  background: var(--color-surface-variant);
+  color: var(--color-text-secondary);
+}
+
+.meta {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta__date {
+  @media (min-width: $breakpoint-table) {
+    display: none;
+  }
+}
+
+.col-date {
+  display: none;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+
+  @media (min-width: $breakpoint-table) {
+    display: block;
+  }
+}
+
+.col-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+// Total da compra parcelada ("12× · R$ 1.200,00")
+.col-amount__total {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-disabled);
+}
+
+.col-amount--income {
+  color: var(--color-success);
+}
+
+.col-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-inline: var(--space-2);
+}
+

@@ -12,9 +12,9 @@ export const routes: Routes = [
   {
     path: '',
     canMatch: [hasUserGuard],
-    loadComponent: () =>
-      import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
-    title: 'Meus Gastos',
+    loadComponent: () => import('./layout/shell/shell.component').then((m) => m.ShellComponent),
+    loadChildren: () =>
+      import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   { path: '**', redirectTo: '' },
 ];

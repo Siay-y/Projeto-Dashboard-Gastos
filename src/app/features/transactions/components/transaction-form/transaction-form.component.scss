@@ -1,0 +1,195 @@
+.tx-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.tx-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @media (min-width: 480px) {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+.tx-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tx-form__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tx-form__error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.tx-form__optional {
+  margin-left: var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-disabled);
+}
+
+// ---- Parcelamento ----
+.installments {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: border-color var(--duration-short) var(--ease-standard);
+
+  @media (min-width: 480px) {
+    grid-template-columns: 1fr 140px;
+    align-items: start;
+  }
+}
+
+.installments--on {
+  border-color: var(--color-primary);
+}
+
+.installments__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 46px;
+  cursor: pointer;
+
+  &:has(input:focus-visible) .switch {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.installments__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.installments__label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.installments__hint {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--color-outline-strong);
+  transition: background-color var(--duration-short) var(--ease-standard);
+
+  .installments--on & {
+    background: var(--color-primary);
+  }
+}
+
+.switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform var(--duration-short) var(--ease-emphasized);
+
+  .installments--on & {
+    transform: translateX(16px);
+  }
+}
+
+// ---- Seletor de tipo (segmented control) ----
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-variant);
+}
+
+.segmented__option {
+  --seg-color: var(--color-text);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  border-radius: calc(var(--radius-md) - 2px);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--duration-short) var(--ease-standard),
+    color var(--duration-short) var(--ease-standard),
+    box-shadow var(--duration-short) var(--ease-standard);
+
+  .material-symbols-rounded {
+    font-size: 18px;
+  }
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+}
+
+.segmented__option--expense {
+  --seg-color: var(--color-danger);
+}
+
+.segmented__option--income {
+  --seg-color: var(--color-success);
+}
+
+.segmented__option--active {
+  background: var(--color-surface);
+  color: var(--seg-color);
+  box-shadow: var(--shadow-1);
+
+  &:hover {
+    color: var(--seg-color);
+  }
+}
+
+// ---- Ações ----
+.tx-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+
+  @media (min-width: 480px) {
+    display: flex;
+    justify-content: flex-end;
+
+    app-button {
+      min-width: 130px;
+    }
+  }
+}

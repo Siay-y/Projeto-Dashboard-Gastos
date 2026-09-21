@@ -1,0 +1,19 @@
+@let icon = source().icon;
+
+@switch (icon.kind) {
+  @case ('brand') {
+    @if (brandPath(); as path) {
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path [attr.d]="path" fill="currentColor" />
+      </svg>
+    } @else {
+      <span class="material-symbols-rounded" aria-hidden="true">subscriptions</span>
+    }
+  }
+  @case ('letter') {
+    <span class="letter" aria-hidden="true">{{ icon.text }}</span>
+  }
+  @default {
+    <span class="material-symbols-rounded" aria-hidden="true">{{ icon.name }}</span>
+  }
+}

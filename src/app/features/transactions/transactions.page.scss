@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+
+  @media (min-width: 1024px) {
+    gap: var(--space-10);
+  }
+}
+
+app-collapsible-section strong {
+  font-weight: 600;
+  color: var(--color-text);
+}

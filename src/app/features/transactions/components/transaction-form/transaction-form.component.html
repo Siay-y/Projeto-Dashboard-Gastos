@@ -1,0 +1,118 @@
+<form class="tx-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <!-- Tipo -->
+  <div class="segmented" role="radiogroup" aria-label="Tipo de transação">
+    <button
+      type="button"
+      role="radio"
+      class="segmented__option segmented__option--expense"
+      [class.segmented__option--active]="type() === 'expense'"
+      [attr.aria-checked]="type() === 'expense'"
+      (click)="setType('expense')"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">arrow_downward</span>
+      Gasto
+    </button>
+    <button
+      type="button"
+      role="radio"
+      class="segmented__option segmented__option--income"
+      [class.segmented__option--active]="type() === 'income'"
+      [attr.aria-checked]="type() === 'income'"
+      (click)="setType('income')"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">arrow_upward</span>
+      Ganho
+    </button>
+  </div>
+
+  <!-- Valor + Data -->
+  <div class="tx-form__row">
+    <app-input
+      [label]="installed() ? 'Valor da parcela' : 'Valor'"
+      prefix="R$"
+      type="number"
+      inputmode="decimal"
+      step="0.01"
+      min="0"
+      placeholder="0,00"
+      formControlName="amount"
+      [autofocus]="true"
+      [error]="errorFor('amount')"
+    />
+    <app-input
+      [label]="installed() ? 'Data da 1ª parcela' : 'Data'"
+      type="date"
+      formControlName="date"
+      [error]="errorFor('date')"
+    />
+  </div>
+
+  <!-- Parcelamento (só para gastos) -->
+  @if (type() === 'expense') {
+    <div class="installments" [class.installments--on]="installed()">
+      <label class="installments__toggle">
+        <input
+          type="checkbox"
+          class="visually-hidden"
+          [checked]="installed()"
+          (change)="setInstalled(!installed())"
+        />
+        <span class="switch" aria-hidden="true"><span class="switch__knob"></span></span>
+        <span class="installments__text">
+          <span class="installments__label">Compra parcelada</span>
+          <span class="installments__hint">
+            @if (installmentSummary(); as summary) {
+              {{ summary }}
+            } @else {
+              As parcelas entram sozinhas nos meses seguintes.
+            }
+          </span>
+        </span>
+      </label>
+
+      @if (installed()) {
+        <app-input
+          class="installments__count"
+          label="Parcelas"
+          type="number"
+          inputmode="numeric"
+          step="1"
+          [min]="'' + minInstallments"
+          placeholder="Ex.: 10"
+          formControlName="installments"
+          [error]="errorFor('installments')"
+        />
+      }
+    </div>
+  }
+
+  <app-input
+    label="Descrição"
+    placeholder="Ex.: Almoço, Netflix, Salário"
+    formControlName="description"
+    [maxlength]="maxDescription"
+    [error]="errorFor('description')"
+  />
+
+  <!-- Categoria -->
+  <div class="tx-form__field">
+    <span class="tx-form__label">Categoria</span>
+    <app-category-picker [type]="type()" [value]="categoryId()" (valueChange)="setCategory($event)" />
+    @if (errorFor('categoryId'); as error) {
+      <p class="tx-form__error" role="alert">{{ error }}</p>
+    }
+  </div>
+
+  <!-- Conta / cartão -->
+  <div class="tx-form__field">
+    <span class="tx-form__label">
+      Conta ou cartão <span class="tx-form__optional">opcional</span>
+    </span>
+    <app-account-picker [value]="accountId()" (valueChange)="setAccount($event)" />
+  </div>
+
+  <footer class="tx-form__actions">
+    <app-button variant="tonal" (click)="cancelled.emit()">Cancelar</app-button>
+    <app-button type="submit" icon="check">Salvar</app-button>
+  </footer>
+</form>

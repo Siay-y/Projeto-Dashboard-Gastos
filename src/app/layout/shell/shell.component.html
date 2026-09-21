@@ -1,0 +1,84 @@
+<div class="shell">
+  <!-- Sidebar (desktop) -->
+  <aside class="sidebar">
+    <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos — Visão geral">
+      <span class="brand__mark" aria-hidden="true">
+        <span class="material-symbols-rounded filled">account_balance_wallet</span>
+      </span>
+      <span class="brand__name">Meus Gastos</span>
+    </a>
+
+    <nav class="sidebar__nav" aria-label="Principal">
+      @for (item of navItems; track item.path) {
+        <a
+          class="nav-link"
+          [routerLink]="item.path"
+          routerLinkActive="nav-link--active"
+          [routerLinkActiveOptions]="{ exact: !!item.exact }"
+          ariaCurrentWhenActive="page"
+        >
+          <span class="material-symbols-rounded nav-link__icon" aria-hidden="true">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar__user">
+      <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+      <div class="sidebar__user-info">
+        <span class="sidebar__user-name">{{ user.name() }}</span>
+        <span class="sidebar__user-hint">Dados locais</span>
+      </div>
+      <button
+        type="button"
+        class="icon-button"
+        title="Trocar nome"
+        aria-label="Trocar nome"
+        (click)="switchUser()"
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">switch_account</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Top bar (mobile) -->
+  <header class="topbar">
+    <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos — Visão geral">
+      <span class="brand__mark" aria-hidden="true">
+        <span class="material-symbols-rounded filled">account_balance_wallet</span>
+      </span>
+      <span class="brand__name">Meus Gastos</span>
+    </a>
+
+    <button
+      type="button"
+      class="topbar__user"
+      title="Trocar nome"
+      aria-label="Trocar nome"
+      (click)="switchUser()"
+    >
+      <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+    </button>
+  </header>
+
+  <!-- Conteúdo -->
+  <main class="content">
+    <router-outlet />
+  </main>
+
+  <!-- Bottom navigation (mobile) -->
+  <nav class="bottom-nav" aria-label="Principal">
+    @for (item of navItems; track item.path) {
+      <a
+        class="bottom-nav__link"
+        [routerLink]="item.path"
+        routerLinkActive="bottom-nav__link--active"
+        [routerLinkActiveOptions]="{ exact: !!item.exact }"
+        ariaCurrentWhenActive="page"
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>
+        <span class="bottom-nav__label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</div>

@@ -1,0 +1,23 @@
+// Padrões de página compartilhados entre as features do painel.
+
+// ---- Cabeçalho de página: overline + título à esquerda, ação à direita ----
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.page-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+
+  h1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

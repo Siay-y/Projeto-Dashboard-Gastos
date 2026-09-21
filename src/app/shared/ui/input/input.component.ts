@@ -42,6 +42,11 @@ export class InputComponent implements ControlValueAccessor {
   readonly maxlength = input<number>();
   readonly autofocus = input(false);
   readonly autocomplete = input('off');
+  /** Texto fixo antes do valor (ex.: "R$"). */
+  readonly prefix = input<string>();
+  readonly inputmode = input<'text' | 'decimal' | 'numeric'>();
+  readonly step = input<string>();
+  readonly min = input<string>();
 
   readonly id = `app-input-${nextId++}`;
 
@@ -58,6 +63,8 @@ export class InputComponent implements ControlValueAccessor {
 
   constructor() {
     // `autofocus` nativo não dispara em componentes lazy; foca após o render.
+    // O atributo é mantido no <input> porque `<dialog>.showModal()` o usa
+    // para decidir qual elemento recebe o foco ao abrir.
     afterNextRender(() => {
       if (this.autofocus()) this.inputRef().nativeElement.focus();
     });

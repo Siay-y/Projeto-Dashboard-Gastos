@@ -1,0 +1,122 @@
+@if (showFilters()) {
+  <div class="filters" role="radiogroup" aria-label="Filtrar histórico">
+    @for (option of filters; track option.value) {
+      @let active = filter() === option.value;
+      <button
+        type="button"
+        role="radio"
+        class="filter-chip"
+        [class.filter-chip--active]="active"
+        [attr.aria-checked]="active"
+        (click)="setFilter(option.value)"
+      >
+        {{ option.label }}
+        <span class="filter-chip__count">{{ counts()[option.value] }}</span>
+      </button>
+    }
+  </div>
+}
+
+@if (groups().length === 0) {
+  <p class="filters__empty">
+    @if (filter() === 'settled') {
+      Nenhuma compra parcelada quitada ainda.
+    } @else {
+      Nenhuma compra parcelada em andamento.
+    }
+  </p>
+}
+
+@for (group of groups(); track group.key) {
+  <section class="month">
+    <header class="month__header">
+      <h2 class="month__title">{{ group.label }}</h2>
+      <div class="month__totals tabular">
+        @if (group.income > 0) {
+          <span class="month__total month__total--income">+{{ group.income | currency }}</span>
+        }
+        @if (group.expense > 0) {
+          <span class="month__total month__total--expense">−{{ group.expense | currency }}</span>
+        }
+      </div>
+    </header>
+
+    <div class="table" role="table" [attr.aria-label]="'Transações de ' + group.label">
+      <div class="table__head" role="row">
+        <span role="columnheader" class="col-icon"></span>
+        <span role="columnheader" class="col-desc">Descrição</span>
+        <span role="columnheader" class="col-date">Data</span>
+        <span role="columnheader" class="col-amount">Valor</span>
+        <span role="columnheader" class="col-actions"></span>
+      </div>
+
+      @for (row of group.rows; track row.transaction.id) {
+        @let t = row.transaction;
+        @let inst = row.installments;
+
+        <div
+          class="table__row"
+          role="row"
+          [class.table__row--settled]="inst?.remaining === 0"
+          [class.table__row--confirming]="confirmingId() === t.id"
+        >
+          <button
+            type="button"
+            class="row-main"
+            [attr.aria-label]="'Editar ' + t.description"
+            (click)="edit.emit(t)"
+          >
+            <span role="cell" class="col-icon">
+              <app-tile-icon [source]="row.category" />
+            </span>
+
+            <span role="cell" class="col-desc">
+              <span class="desc">
+                {{ t.description }}
+                @if (inst) {
+                  <span class="badge" [class.badge--done]="inst.remaining === 0">
+                    {{ inst.paid }}/{{ inst.count }}
+                  </span>
+                }
+              </span>
+              <span class="meta">
+                {{ row.category.label }}
+                @if (row.account; as account) {
+                  · {{ account.label }}
+                }
+                @if (inst) {
+                  @if (inst.remaining === 0) {
+                    · quitado
+                  } @else {
+                    · {{ inst.remaining }} {{ inst.remaining === 1 ? 'restante' : 'restantes' }}
+                    @if (inst.nextDate; as next) {
+                      · próxima {{ next | date: 'dd/MM' }}
+                    }
+                  }
+                }
+                <span class="meta__date">· {{ t.date | date: 'dd/MM' }}</span>
+              </span>
+            </span>
+
+            <span role="cell" class="col-date">{{ t.date | date: 'dd/MM/y' }}</span>
+
+            <span role="cell" class="col-amount" [class.col-amount--income]="t.type === 'income'">
+              <span class="tabular">{{ t.type === 'income' ? '+' : '−' }}{{ t.amount | currency }}</span>
+              @if (inst) {
+                <span class="col-amount__total tabular">{{ inst.count }}× · {{ inst.total | currency }}</span>
+              }
+            </span>
+          </button>
+
+          <span role="cell" class="col-actions">
+            <app-delete-button
+              [itemLabel]="t.description"
+              (confirmingChange)="setConfirming(t.id, $event)"
+              (confirmed)="remove.emit(t.id)"
+            />
+          </span>
+        </div>
+      }
+    </div>
+  </section>
+}

@@ -1,0 +1,50 @@
+// Tile: fundo = cor a 12%, glifo = cor. Por padrão a cor é a primária do sistema.
+:host {
+  --cat-color: var(--color-primary);
+  --tile: 36px;
+  --glyph: 20px;
+
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--cat-color) 12%, var(--color-surface));
+  color: var(--cat-color);
+  transition:
+    background-color var(--duration-short) var(--ease-standard),
+    color var(--duration-short) var(--ease-standard);
+}
+
+:host([data-size='sm']) {
+  --tile: 30px;
+  --glyph: 16px;
+  border-radius: var(--radius-sm);
+}
+
+:host([data-size='lg']) {
+  --tile: 44px;
+  --glyph: 24px;
+}
+
+:host([data-solid]) {
+  background: var(--cat-color);
+  color: #fff;
+}
+
+svg {
+  width: var(--glyph);
+  height: var(--glyph);
+}
+
+.material-symbols-rounded {
+  font-size: var(--glyph);
+}
+
+.letter {
+  font-size: calc(var(--glyph) * 0.72);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}

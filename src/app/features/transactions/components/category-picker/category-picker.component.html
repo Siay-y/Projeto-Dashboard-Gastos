@@ -1,0 +1,43 @@
+<div class="picker" role="radiogroup" aria-label="Categoria">
+  @for (group of groups(); track group.label; let i = $index) {
+    @let open = openGroup() === group.label;
+    @let selectedLabel = selectedIn(group);
+
+    <div class="group" [class.group--open]="open">
+      <button
+        type="button"
+        class="group__header"
+        [attr.aria-expanded]="open"
+        [attr.aria-controls]="panelId(i)"
+        (click)="toggleGroup(group.label)"
+      >
+        <span class="group__chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        <span class="group__label">{{ group.label }}</span>
+        @if (selectedLabel) {
+          <span class="group__selected">{{ selectedLabel }}</span>
+        } @else {
+          <span class="group__count">{{ group.items.length }}</span>
+        }
+      </button>
+
+      <div class="group__panel" [id]="panelId(i)" [attr.inert]="open ? null : ''">
+        <div class="group__grid">
+          @for (category of group.items; track category.id) {
+            @let selected = value() === category.id;
+            <button
+              type="button"
+              role="radio"
+              class="chip"
+              [class.chip--selected]="selected"
+              [attr.aria-checked]="selected"
+              (click)="select(category.id)"
+            >
+              <app-tile-icon [source]="category" size="sm" [solid]="selected" />
+              <span class="chip__label">{{ category.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

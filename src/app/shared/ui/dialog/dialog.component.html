@@ -1,0 +1,22 @@
+<dialog
+  #dialog
+  class="dialog"
+  [attr.aria-label]="title()"
+  (close)="handleClose()"
+  (click)="handleBackdropClick($event)"
+>
+  <div class="dialog__panel">
+    <span class="dialog__handle" aria-hidden="true"></span>
+
+    <header class="dialog__header">
+      <h2 class="dialog__title">{{ title() }}</h2>
+      <button type="button" class="dialog__close" aria-label="Fechar" (click)="close()">
+        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+      </button>
+    </header>
+
+    <div class="dialog__body">
+      <ng-content />
+    </div>
+  </div>
+</dialog>

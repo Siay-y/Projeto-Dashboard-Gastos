@@ -29,6 +29,15 @@
   transition: color var(--duration-short) var(--ease-standard);
 }
 
+.field__prefix {
+  position: absolute;
+  left: var(--space-3);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
 .field__input {
   width: 100%;
   min-height: 46px;
@@ -48,6 +57,22 @@
 
   .field--with-icon & {
     padding-left: calc(var(--space-3) + 20px + var(--space-2));
+  }
+
+  .field--with-prefix & {
+    padding-left: calc(var(--space-3) + 2ch + var(--space-2));
+  }
+
+  // Esconde os spinners do type="number" — o campo de valor usa prefixo "R$"
+  &[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 
   &:hover:not(:disabled) {

@@ -1,0 +1,157 @@
+$breakpoint-sheet: 640px;
+
+.dialog {
+  // Reset do <dialog> nativo
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  overflow: hidden;
+
+  // Mobile: painel ancorado na base (bottom sheet)
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+
+  &[open] {
+    display: flex;
+  }
+
+  &::backdrop {
+    background: rgba(28, 28, 26, 0.4);
+    animation: backdrop-in var(--duration-medium) var(--ease-standard) both;
+  }
+
+  @media (min-width: $breakpoint-sheet) {
+    align-items: center;
+    padding: var(--space-6);
+  }
+}
+
+.dialog__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100dvh - var(--space-10));
+  background: var(--color-surface);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  box-shadow: var(--shadow-3);
+  animation: sheet-in var(--duration-medium) var(--ease-emphasized) both;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  @media (min-width: $breakpoint-sheet) {
+    max-width: 520px;
+    max-height: calc(100dvh - var(--space-12));
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-outline);
+    animation-name: modal-in;
+
+    :host([data-size='lg']) & {
+      max-width: 720px;
+    }
+  }
+}
+
+// Alça do bottom sheet (só mobile)
+.dialog__handle {
+  align-self: center;
+  width: 36px;
+  height: 4px;
+  margin-top: var(--space-2);
+  border-radius: 2px;
+  background: var(--color-outline-strong);
+
+  @media (min-width: $breakpoint-sheet) {
+    display: none;
+  }
+}
+
+.dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5) var(--space-3);
+
+  @media (min-width: $breakpoint-sheet) {
+    padding: var(--space-5) var(--space-6) var(--space-3);
+  }
+}
+
+.dialog__title {
+  font-size: 1.125rem;
+}
+
+.dialog__close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: background-color var(--duration-short) var(--ease-standard);
+
+  .material-symbols-rounded {
+    font-size: 22px;
+  }
+
+  &:hover {
+    background: var(--color-surface-variant);
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+}
+
+.dialog__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--space-5) var(--space-5);
+
+  @media (min-width: $breakpoint-sheet) {
+    padding: 0 var(--space-6) var(--space-6);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

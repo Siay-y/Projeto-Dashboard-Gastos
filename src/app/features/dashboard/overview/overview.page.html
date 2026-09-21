@@ -1,0 +1,69 @@
+<header class="page-header" appFadeInUp>
+  <div class="page-header__text">
+    <span class="overline">{{ today }}</span>
+    <h1>{{ greeting }}, {{ user.name() }}</h1>
+  </div>
+
+  <app-button icon="add" [routerLink]="routes.TRANSACTIONS" [queryParams]="{ novo: 1 }">
+    Nova transação
+  </app-button>
+</header>
+
+<section class="summary-grid" aria-label="Resumo financeiro">
+  <app-summary-card
+    appFadeInUp
+    [delay]="1"
+    label="Saldo total"
+    icon="account_balance"
+    [value]="settings.totalBalance()"
+    [hint]="balanceHint()"
+    [editable]="true"
+    editLabel="Informar saldo"
+    (edit)="openAdjust('balance')"
+  />
+
+  <app-summary-card
+    appFadeInUp
+    [delay]="2"
+    label="Ganhos do mês"
+    icon="trending_up"
+    tone="positive"
+    [value]="transactions.monthlyIncome()"
+    [hint]="incomeHint()"
+    [editable]="true"
+    editLabel="Definir renda mensal"
+    (edit)="openAdjust('income')"
+  />
+
+  <app-summary-card
+    appFadeInUp
+    [delay]="3"
+    label="Gastos do mês"
+    icon="trending_down"
+    tone="negative"
+    [value]="transactions.monthlyExpenses()"
+    [hint]="expenseHint()"
+  />
+</section>
+
+@if (!transactions.hasTransactions()) {
+  <app-empty-state
+    appFadeInUp
+    [delay]="4"
+    icon="receipt_long"
+    title="Nenhuma transação ainda"
+    description="Registre sua primeira entrada ou gasto para ver o resumo do mês ganhar vida."
+  >
+    <app-button variant="tonal" icon="add" [routerLink]="routes.TRANSACTIONS" [queryParams]="{ novo: 1 }">
+      Registrar transação
+    </app-button>
+  </app-empty-state>
+}
+
+<app-amount-dialog
+  [title]="adjustCopy().title"
+  [label]="adjustCopy().label"
+  [description]="adjustCopy().description"
+  [allowNegative]="adjustMode() === 'balance'"
+  (saved)="saveAdjust($event)"
+/>

@@ -1,0 +1,25 @@
+<app-dialog #dlg [title]="title()">
+  <form class="amount-form" (ngSubmit)="submit()" novalidate>
+    @if (description()) {
+      <p class="amount-form__description">{{ description() }}</p>
+    }
+
+    <app-input
+      name="amount"
+      [label]="label()"
+      prefix="R$"
+      type="number"
+      inputmode="decimal"
+      step="0.01"
+      placeholder="0,00"
+      [autofocus]="true"
+      [error]="error()"
+      [(ngModel)]="raw"
+    />
+
+    <footer class="amount-form__actions">
+      <app-button variant="tonal" (click)="dlg.close()">Cancelar</app-button>
+      <app-button type="submit" icon="check">Salvar</app-button>
+    </footer>
+  </form>
+</app-dialog>
