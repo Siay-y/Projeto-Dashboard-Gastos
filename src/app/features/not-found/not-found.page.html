@@ -1,0 +1,34 @@
+<div class="not-found">
+  <header class="not-found__brand" appFadeInUp>
+    <span class="brand-mark" aria-hidden="true">
+      <span class="material-symbols-rounded filled">account_balance_wallet</span>
+    </span>
+    <span class="brand-name">Meus Gastos</span>
+  </header>
+
+  <main class="not-found__main">
+    <app-card class="not-found__card" [elevation]="2" appFadeInUp [delay]="1">
+      <!-- Recibo com ponto de interrogação: line-art na cor do sistema -->
+      <svg class="art" viewBox="0 0 72 72" aria-hidden="true">
+        <path class="art-stroke" d="M20 10h32v50l-5.3-4-5.4 4-5.3-4-5.3 4-5.4-4-5.3 4z" />
+        <path class="art-stroke" d="M28 22h16M28 46h8" />
+        <path class="art-stroke" d="M32.5 31.5a3.5 3.5 0 1 1 5 3.2c-1.2.6-1.5 1.3-1.5 2.3" />
+        <circle class="art-accent" cx="36" cy="41.5" r="1.6" />
+      </svg>
+
+      <div class="not-found__text">
+        <span class="not-found__code">Erro 404</span>
+        <h1>Página não encontrada</h1>
+        <p class="not-found__lead">
+          O endereço <code class="not-found__path">{{ path }}</code> não existe ou foi movido.
+          Seus dados continuam salvos; nada foi perdido.
+        </p>
+      </div>
+
+      <div class="not-found__actions">
+        <app-button variant="tonal" icon="arrow_back" (click)="goBack()">Voltar</app-button>
+        <app-button icon="space_dashboard" [routerLink]="routes.DASHBOARD">Ir para a visão geral</app-button>
+      </div>
+    </app-card>
+  </main>
+</div>

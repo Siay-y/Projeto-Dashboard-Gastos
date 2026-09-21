@@ -1,0 +1,115 @@
+.not-found {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-4);
+
+  @media (min-width: 640px) {
+    padding: var(--space-8);
+  }
+}
+
+// ---- Marca (canto superior esquerdo), igual ao primeiro acesso ----
+.not-found__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+
+  .material-symbols-rounded {
+    font-size: 18px;
+  }
+}
+
+.brand-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+// ---- Área central ----
+.not-found__main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding-block: var(--space-8);
+}
+
+.not-found__card {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.art {
+  width: 88px;
+  height: 88px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.art-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.art-accent {
+  fill: var(--color-accent);
+}
+
+.not-found__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.not-found__code {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.not-found__lead {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.not-found__path {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-variant);
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, monospace;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+.not-found__actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+
+  @media (min-width: 480px) {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

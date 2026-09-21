@@ -179,7 +179,8 @@ projeto-gastos/
 │   │   │   ├── onboarding/         Primeiro acesso
 │   │   │   ├── dashboard/          Visão geral, rotas filhas e seus componentes
 │   │   │   ├── transactions/       Gastos fixos + histórico, formulários e listas
-│   │   │   └── calendar/           Calendário mensal
+│   │   │   ├── calendar/           Calendário mensal
+│   │   │   └── not-found/          Página 404
 │   │   ├── layout/                 Shell (sidebar, barra inferior) e itens de navegação
 │   │   ├── shared/
 │   │   │   ├── directives/         appFadeInUp, appSwipeAction
@@ -188,7 +189,7 @@ projeto-gastos/
 │   │   │   │                       TileIcon, CollapsibleSection, EmptyState...
 │   │   │   └── utils/              Datas e saudação
 │   │   ├── app.config.ts           Providers, locale pt-BR e moeda BRL
-│   │   ├── app.routes.ts           Onboarding, shell e fallback
+│   │   ├── app.routes.ts           Onboarding, shell e página 404
 │   │   └── app.ts                  Componente raiz
 │   ├── styles/
 │   │   ├── _tokens.scss            Paleta, raios, sombras, espaçamento, motion, fontes
@@ -267,6 +268,7 @@ posteriores do modelo, para que dados antigos continuem válidos.
 | `/` | Visão geral | `hasUserGuard` |
 | `/transacoes` | Gastos fixos e histórico | `hasUserGuard` |
 | `/calendario` | Calendário | `hasUserGuard` |
+| `**` | Página 404, fora do shell | nenhum |
 
 Os guards são `CanMatchFn` que devolvem `UrlTree`, de modo que a rota errada
 nem chega a carregar seu chunk. `withComponentInputBinding` liga query params a
@@ -505,8 +507,8 @@ O fallback de SPA é obrigatório: diferente de um site de página única com
 âncoras, aqui existem rotas reais (`/transacoes`, `/calendario`). Sem ele,
 recarregar a página em uma dessas URLs devolveria 404 do host. A Vercel serve
 primeiro o que existe em disco (JS, CSS, favicon) e só então aplica o rewrite,
-então os assets não são afetados; um caminho desconhecido cai no app, que o
-redireciona para a visão geral.
+então os assets não são afetados; um caminho desconhecido cai no app, que
+mostra a página 404 com o endereço digitado e atalhos para voltar.
 
 Em outro host estático (Netlify, Cloudflare Pages), reproduza o mesmo
 comportamento: Netlify aceita um `_redirects` com `/* /index.html 200`.
