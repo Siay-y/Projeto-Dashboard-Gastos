@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-export type ButtonVariant = 'filled' | 'tonal' | 'text';
+export type ButtonVariant = 'filled' | 'tonal' | 'text' | 'danger';
 
 @Component({
   selector: 'app-button',

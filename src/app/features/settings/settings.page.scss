@@ -1,0 +1,224 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 760px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.section__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.section__title {
+  font-size: 1.0625rem;
+}
+
+.section__lead {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  max-width: 64ch;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+    align-items: flex-end;
+
+    app-input {
+      flex: 1;
+    }
+
+    app-button {
+      min-width: 120px;
+    }
+  }
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+}
+
+.option__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.option__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.option__hint {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--color-outline-strong);
+  transition: background-color var(--duration-short) var(--ease-standard);
+
+  &[aria-checked='true'] {
+    background: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform var(--duration-short) var(--ease-emphasized);
+
+  .switch[aria-checked='true'] & {
+    transform: translateX(20px);
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.note {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-soft);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text);
+
+  .material-symbols-rounded {
+    flex-shrink: 0;
+    font-size: 20px;
+    color: var(--color-warning);
+  }
+}
+
+.section--danger {
+  border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-outline));
+
+  .section__title {
+    color: var(--color-danger);
+  }
+}
+
+.danger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 30%, var(--color-outline));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger-soft) 55%, transparent);
+
+  @media (min-width: 560px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.danger__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.danger__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.danger__hint {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.code__text {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.code__value {
+  display: block;
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-outline-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-variant);
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-align: center;
+  color: var(--color-primary-deep);
+  user-select: all;
+}
+
+.code__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.wipe__text {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.wipe__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-6);
+}

@@ -84,6 +84,21 @@
   }
 }
 
+.btn--danger {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: var(--shadow-1);
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-danger) 85%, #000);
+    box-shadow: var(--shadow-2);
+  }
+
+  &:focus-visible {
+    outline-color: var(--color-danger);
+  }
+}
+
 .btn__icon {
   font-size: 20px;
 }

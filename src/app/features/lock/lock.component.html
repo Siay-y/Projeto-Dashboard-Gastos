@@ -1,0 +1,103 @@
+<div class="lock">
+  <header class="lock__brand" appFadeInUp>
+    <span class="brand-mark" aria-hidden="true">
+      <span class="material-symbols-rounded filled">account_balance_wallet</span>
+    </span>
+    <span class="brand-name">Meus Gastos</span>
+  </header>
+
+  <main class="lock__main">
+    <app-card class="lock__card" [elevation]="2" appFadeInUp [delay]="1">
+      <span class="lock__icon" aria-hidden="true">
+        <span class="material-symbols-rounded">lock</span>
+      </span>
+
+      <div class="lock__text">
+        <h1>Painel bloqueado</h1>
+        <p class="lock__lead">
+          @if (supported) {
+            Digite seu PIN de {{ pinLength }} dígitos para abrir. Seus dados estão guardados
+            cifrados neste aparelho.
+          } @else {
+            Este navegador não oferece as APIs de criptografia necessárias para abrir seus dados.
+            Tente em um navegador atualizado, por HTTPS.
+          }
+        </p>
+      </div>
+
+      @if (supported) {
+        <app-pin-input
+          [length]="pinLength"
+          [disabled]="checking()"
+          [error]="error() ?? undefined"
+          (completed)="submit($event)"
+        />
+
+        @if (checking()) {
+          <span class="lock__status">Verificando…</span>
+        }
+      }
+
+      <button type="button" class="lock__forgot" (click)="openReset()">Esqueci meu PIN</button>
+    </app-card>
+  </main>
+</div>
+
+<app-dialog title="Esqueceu o PIN?" (closed)="clearRecovery()">
+  @if (recovered()) {
+    <p class="reset__text">Código aceito. Seu PIN é:</p>
+    <strong class="reset__pin">{{ recovered() }}</strong>
+    <p class="reset__text">
+      Continua sendo o mesmo PIN de sempre, então anote-o. Se preferir outro, troque em
+      Configurações depois de entrar.
+    </p>
+
+    <footer class="reset__actions">
+      <app-button icon="lock_open" (click)="enterRecovered()">Entrar</app-button>
+    </footer>
+  } @else {
+    @if (recoverable()) {
+      <p class="reset__text">
+        O PIN é a chave que decifra seus dados e não fica guardado em lugar nenhum. O que dá para
+        usar é o código de recuperação mostrado quando você o definiu.
+      </p>
+
+      <div class="recover">
+        <label class="recover__label" for="recovery-code">Código de recuperação</label>
+        <input
+          id="recovery-code"
+          class="recover__input"
+          placeholder="B2D-AC9"
+          autocomplete="off"
+          spellcheck="false"
+          [attr.maxlength]="codeLength + 2"
+          [value]="code()"
+          (input)="onCode($event)"
+          (keydown.enter)="submitCode()"
+        />
+        @if (codeError()) {
+          <span class="recover__error" role="alert">{{ codeError() }}</span>
+        }
+        <app-button [loading]="recovering()" [disabled]="!codeReady()" (click)="submitCode()">
+          Recuperar PIN
+        </app-button>
+      </div>
+    } @else {
+      <p class="reset__text">
+        O PIN não fica guardado em lugar nenhum: ele é a chave que decifra seus dados. Sem ele, não
+        há como recuperá-los, nem por aqui nem por nós.
+      </p>
+    }
+
+    <p class="reset__text reset__text--muted">
+      Sem o PIN e sem o código, a única saída é apagar tudo e começar de novo. Se você exportou uma
+      planilha antes, poderá importá-la depois.
+    </p>
+
+    <footer class="reset__actions">
+      <app-button variant="danger" icon="delete_forever" (click)="reset()">
+        Apagar tudo e recomeçar
+      </app-button>
+    </footer>
+  }
+</app-dialog>

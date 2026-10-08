@@ -8,3 +8,4 @@ export * from './empty-state/empty-state.component';
 export * from './input/input.component';
 export * from './menu/menu.component';
 export * from './money/money.component';
+export * from './pin-input/pin-input.component';

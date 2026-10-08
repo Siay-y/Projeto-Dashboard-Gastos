@@ -270,6 +270,7 @@ $breakpoint-desktop: 1024px;
 .bottom-nav__label {
   font-size: 0.6875rem;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .bottom-nav__link--active {

@@ -1,0 +1,17 @@
+<app-dialog [title]="copy().title" (closed)="onClosed()">
+  <div class="pin-dialog">
+    <p class="pin-dialog__hint">{{ copy().hint }}</p>
+
+    <app-pin-input
+      [length]="pinLength"
+      [label]="label()"
+      [disabled]="busy()"
+      [error]="error() ?? undefined"
+      (completed)="submit($event)"
+    />
+
+    @if (busy()) {
+      <span class="pin-dialog__status">Processando…</span>
+    }
+  </div>
+</app-dialog>

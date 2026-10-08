@@ -1,0 +1,24 @@
+:host {
+  display: contents;
+}
+
+.pin-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding-block: var(--space-2) var(--space-4);
+  text-align: center;
+}
+
+.pin-dialog__hint {
+  max-width: 44ch;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.pin-dialog__status {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}

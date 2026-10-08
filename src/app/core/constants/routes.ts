@@ -3,4 +3,5 @@ export const APP_ROUTES = {
   DASHBOARD: '/',
   TRANSACTIONS: '/transacoes',
   CALENDAR: '/calendario',
+  SETTINGS: '/configuracoes',
 } as const;

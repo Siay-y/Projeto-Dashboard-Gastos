@@ -1,0 +1,25 @@
+@if (label(); as text) {
+  <span class="pin__label">{{ text }}</span>
+}
+
+<div class="pin__boxes">
+  @for (slot of slots(); track slot) {
+    <input
+      #box
+      type="password"
+      class="pin__box"
+      inputmode="numeric"
+      autocomplete="off"
+      maxlength="1"
+      [disabled]="disabled()"
+      [attr.aria-label]="'Dígito ' + (slot + 1)"
+      (input)="onInput(slot, $event)"
+      (keydown)="onKeydown(slot, $event)"
+      (paste)="onPaste($event)"
+    />
+  }
+</div>
+
+@if (error(); as message) {
+  <span class="pin__error" role="alert">{{ message }}</span>
+}

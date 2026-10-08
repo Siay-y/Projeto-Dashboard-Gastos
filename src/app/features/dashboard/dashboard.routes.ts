@@ -17,4 +17,9 @@ export const DASHBOARD_ROUTES: Routes = [
     loadComponent: () => import('../calendar/calendar.page').then((m) => m.CalendarPage),
     title: 'Calendário · Meus Gastos',
   },
+  {
+    path: 'configuracoes',
+    loadComponent: () => import('../settings/settings.page').then((m) => m.SettingsPage),
+    title: 'Configurações · Meus Gastos',
+  },
 ];
