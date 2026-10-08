@@ -2,10 +2,6 @@ import { ChangeDetectionStrategy, Component, OnDestroy, input, output, signal } 
 
 const CONFIRM_TIMEOUT_MS = 4000;
 
-/**
- * Lixeira com confirmação inline ("Excluir? ✓ ✕") que expira sozinha.
- * Evita dialogs de confirmação para uma ação pequena e reversível de re-lançar.
- */
 @Component({
   selector: 'app-delete-button',
   templateUrl: './delete-button.component.html',
@@ -16,11 +12,9 @@ const CONFIRM_TIMEOUT_MS = 4000;
   },
 })
 export class DeleteButtonComponent implements OnDestroy {
-  /** Nome do item, usado no aria-label ("Excluir Netflix"). */
   readonly itemLabel = input.required<string>();
   readonly confirmed = output<void>();
 
-  /** Exposto para o pai destacar a linha enquanto confirma. */
   readonly confirmingChange = output<boolean>();
 
   protected readonly confirming = signal(false);

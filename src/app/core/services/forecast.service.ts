@@ -7,45 +7,26 @@ import { TransactionService } from './transaction.service';
 export type ForecastStatus = 'ok' | 'tight' | 'over';
 
 export interface Forecast {
-  /** Dia de hoje (1–31). */
   day: number;
   daysInMonth: number;
-  /** Dias que ainda faltam depois de hoje. */
   daysLeft: number;
-  /** Quanto do mês já passou (0..1). */
   monthProgress: number;
 
-  /** Gastos fixos ativos — comprometidos no mês inteiro. */
   fixed: number;
-  /** Parcelas que vencem neste mês (pagas ou não) — também comprometidas. */
   installments: number;
-  /** Lançamentos avulsos até hoje (sem parcelas). Base da média diária. */
   variableToDate: number;
-  /** `variableToDate / day` */
   dailyAverage: number;
-  /** Avulsos projetados para o mês inteiro no ritmo atual. */
   projectedVariable: number;
 
-  /** Gastos até hoje (o mesmo "Gastos do mês" da visão geral). */
   spentToDate: number;
-  /** Gastos esperados até o fim do mês. */
   projectedExpenses: number;
-  /** Ganhos do mês (renda fixa + entradas). */
   income: number;
-  /** `income − projectedExpenses` — quanto sobra (ou falta) no fim do mês. */
   projectedBalance: number;
   status: ForecastStatus;
 }
 
-/** Abaixo desta fração dos ganhos, a sobra prevista é considerada "apertada". */
 const TIGHT_RATIO = 0.1;
 
-/**
- * Previsão de gastos até o fim do mês atual.
- *
- * Fixos e parcelas são valores conhecidos; os lançamentos avulsos são
- * projetados pela média diária do que já foi gasto até hoje.
- */
 @Injectable({ providedIn: 'root' })
 export class ForecastService {
   private readonly transactions = inject(TransactionService);
@@ -77,7 +58,6 @@ export class ForecastService {
 
     const fixed = this.recurring.monthlyTotal();
     const dailyAverage = variableToDate / day;
-    // Nunca projeta menos do que já está lançado para o mês.
     const projectedVariable = Math.max(variableAll, dailyAverage * total);
 
     const spentToDate = fixed + installments + variableAll;

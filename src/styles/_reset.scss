@@ -1,4 +1,3 @@
-// Reset mínimo e sensato.
 *,
 *::before,
 *::after {
@@ -27,7 +26,6 @@ body {
   background: var(--color-background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  // Alternates do Inter: "a" e "t" menos genéricos, números tabulares.
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 

@@ -13,12 +13,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 let nextId = 0;
 
-/**
- * Campo de texto no estilo "outlined" do Material.
- *
- * Implementa ControlValueAccessor, então funciona com `[(ngModel)]`,
- * `formControl` e `formControlName` sem adaptação.
- */
 @Component({
   selector: 'app-input',
   templateUrl: './input.component.html',
@@ -42,7 +36,6 @@ export class InputComponent implements ControlValueAccessor {
   readonly maxlength = input<number>();
   readonly autofocus = input(false);
   readonly autocomplete = input('off');
-  /** Texto fixo antes do valor (ex.: "R$"). */
   readonly prefix = input<string>();
   readonly inputmode = input<'text' | 'decimal' | 'numeric'>();
   readonly step = input<string>();
@@ -62,15 +55,11 @@ export class InputComponent implements ControlValueAccessor {
   private onTouched: () => void = () => {};
 
   constructor() {
-    // `autofocus` nativo não dispara em componentes lazy; foca após o render.
-    // O atributo é mantido no <input> porque `<dialog>.showModal()` o usa
-    // para decidir qual elemento recebe o foco ao abrir.
     afterNextRender(() => {
       if (this.autofocus()) this.inputRef().nativeElement.focus();
     });
   }
 
-  // ---- Eventos do <input> nativo ----
   protected handleInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.value.set(value);
@@ -82,7 +71,6 @@ export class InputComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-  // ---- ControlValueAccessor ----
   writeValue(value: string | null): void {
     this.value.set(value ?? '');
   }

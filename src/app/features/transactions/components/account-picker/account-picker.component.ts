@@ -2,9 +2,6 @@ import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { ACCOUNTS } from '../../../../core/constants/accounts';
 import { TileIconComponent } from '../../../../shared/ui';
 
-/**
- * Chips compactos para escolher a conta/cartão. Opcional: clicar de novo desmarca.
- */
 @Component({
   selector: 'app-account-picker',
   imports: [TileIconComponent],

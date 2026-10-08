@@ -3,14 +3,9 @@ import { STORAGE_KEYS } from '../constants/storage-keys';
 import { StorageService } from './storage.service';
 
 interface UiPreferences {
-  /** Seções recolhíveis: id → aberta? */
   expanded: Record<string, boolean>;
 }
 
-/**
- * Preferências de interface que valem a pena lembrar entre visitas
- * (ex.: quais seções o usuário deixou abertas).
- */
 @Injectable({ providedIn: 'root' })
 export class UiPreferencesService {
   private readonly storage = inject(StorageService);

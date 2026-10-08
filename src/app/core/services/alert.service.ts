@@ -9,29 +9,22 @@ import { UpcomingItem, UpcomingService } from './upcoming.service';
 
 export type AlertTone = 'info' | 'warning' | 'danger';
 
-/** Ações que a tela pode executar a partir de um alerta. */
 export type AlertAction = 'set-income' | 'set-balance' | 'view-fixed' | 'view-history';
 
 export interface Alert {
   id: string;
   tone: AlertTone;
-  /** Material Symbol. */
+
   icon: string;
   title: string;
   description: string;
   action?: { label: string; id: AlertAction };
 }
 
-/** Vencimentos até este número de dias à frente viram alerta. */
 const DUE_WINDOW_DAYS = 3;
 
-/** Depois de tanto tempo sem atualizar o saldo, sugere conferir. */
 const STALE_BALANCE_DAYS = 30;
 
-/**
- * Avisos da visão geral: contas vencendo, mês no vermelho, saldo desatualizado…
- * Tudo derivado — nada é persistido.
- */
 @Injectable({ providedIn: 'root' })
 export class AlertService {
   private readonly locale = inject(LOCALE_ID);
@@ -55,8 +48,6 @@ export class AlertService {
   });
 
   readonly hasAlerts = computed(() => this.alerts().length > 0);
-
-  // ---- Orçamento do mês ----
 
   private pushBudgetAlert(list: Alert[]): void {
     const f = this.forecastService.forecast();
@@ -84,8 +75,6 @@ export class AlertService {
       });
     }
   }
-
-  // ---- Vencimentos ----
 
   private pushDueAlert(list: Alert[], kind: UpcomingItem['kind']): void {
     const items = this.upcoming
@@ -131,8 +120,6 @@ export class AlertService {
     });
   }
 
-  // ---- Configuração ----
-
   private pushSetupAlerts(list: Alert[]): void {
     const hasData = this.transactions.hasTransactions() || this.recurring.activeCount() > 0;
 
@@ -163,8 +150,6 @@ export class AlertService {
     }
   }
 
-  // ---- Texto ----
-
   private money(value: number): string {
     return formatCurrency(value, this.locale, 'R$');
   }
@@ -180,7 +165,6 @@ export class AlertService {
   }
 }
 
-/** "A, B e C" */
 function joinNames(names: string[]): string {
   if (names.length <= 1) return names.join('');
   return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`;

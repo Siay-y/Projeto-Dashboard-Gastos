@@ -3,7 +3,6 @@
   display: inline-block;
 }
 
-// ---- Gatilho (três pontos) — mesma altura do botão tonal ----
 .trigger {
   display: grid;
   place-items: center;
@@ -38,7 +37,6 @@
   }
 }
 
-// ---- Painel ----
 .panel {
   position: absolute;
   top: calc(100% + var(--space-1));

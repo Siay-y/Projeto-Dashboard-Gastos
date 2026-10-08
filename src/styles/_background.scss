@@ -1,7 +1,3 @@
-// Pattern de fundo: quadriculado inclinado (losangos) — duas diagonais por tile.
-// Tile de 40×40 sem emendas; traço na cor primária com opacidade baixa.
-// Uma máscara radial faz o pattern se dissolver nas bordas da tela para não
-// competir com o conteúdo.
 $diagonal-grid-tile: "data:image/svg+xml;utf8," +
   "<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>" +
   "<g fill='none' stroke='%231e5e4b' stroke-opacity='0.12' stroke-width='1'>" +

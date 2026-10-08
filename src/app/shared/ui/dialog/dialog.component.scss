@@ -1,7 +1,6 @@
 $breakpoint-sheet: 640px;
 
 .dialog {
-  // Reset do <dialog> nativo
   position: fixed;
   inset: 0;
   width: 100%;
@@ -15,7 +14,6 @@ $breakpoint-sheet: 640px;
   color: inherit;
   overflow: hidden;
 
-  // Mobile: painel ancorado na base (bottom sheet)
   display: none;
   align-items: flex-end;
   justify-content: center;
@@ -39,7 +37,6 @@ $breakpoint-sheet: 640px;
   display: flex;
   flex-direction: column;
   width: 100%;
-  // Sheet curto: deixa o fundo visível para ficar claro que é uma folha sobre a página
   max-height: 85dvh;
   background: var(--color-surface);
   border-top-left-radius: var(--radius-xl);
@@ -48,8 +45,6 @@ $breakpoint-sheet: 640px;
   animation: sheet-in var(--duration-medium) var(--ease-emphasized) both;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 
-  // Formulários (`size="lg"`) no celular: diálogo em tela cheia, padrão Material.
-  // Evita o sheet quase inteiro com uma tira de fundo em cima.
   @media (max-width: ($breakpoint-sheet - 1px)) {
     :host([data-size='lg']) & {
       height: 100dvh;
@@ -73,7 +68,6 @@ $breakpoint-sheet: 640px;
   }
 }
 
-// Alça do bottom sheet (só mobile)
 .dialog__handle {
   align-self: center;
   width: 36px;
@@ -86,7 +80,6 @@ $breakpoint-sheet: 640px;
     display: none;
   }
 
-  // Em tela cheia não há o que "puxar"
   @media (max-width: ($breakpoint-sheet - 1px)) {
     :host([data-size='lg']) & {
       display: none;
@@ -105,7 +98,6 @@ $breakpoint-sheet: 640px;
     padding: var(--space-5) var(--space-6) var(--space-3);
   }
 
-  // Tela cheia: cabeçalho fixo com divisória, como uma barra de app
   @media (max-width: ($breakpoint-sheet - 1px)) {
     :host([data-size='lg']) & {
       padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);

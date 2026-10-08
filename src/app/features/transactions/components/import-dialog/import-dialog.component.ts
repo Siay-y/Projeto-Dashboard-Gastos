@@ -18,23 +18,16 @@ import { ButtonComponent, DialogComponent } from '../../../../shared/ui';
 
 export type ImportKind = 'history' | 'recurring';
 
-/** Linha da prévia, já em formato de exibição. */
 interface PreviewRow {
   description: string;
   amount: number;
-  /** Ganho = positivo, gasto = negativo (só no histórico). */
   signed: number;
   meta: string;
 }
 
-/** Quantas linhas mostrar na prévia antes do "+ N mais". */
 const PREVIEW_LIMIT = 6;
 const ISSUE_LIMIT = 8;
 
-/**
- * Prévia do que será importado: quantos entram, quantos já existem,
- * linhas com problema. Só confirma quando o usuário clica em Importar.
- */
 @Component({
   selector: 'app-import-dialog',
   imports: [CurrencyPipe, ButtonComponent, DialogComponent],
@@ -84,7 +77,6 @@ export class ImportDialogComponent {
     });
   });
 
-  /** Mostra a prévia (ou o erro) e abre o diálogo. */
   show(preview: ImportPreview<TransactionInput | RecurringImportItem> | null, error: string | null = null): void {
     this.preview.set(preview);
     this.error.set(error);
@@ -105,7 +97,6 @@ export class ImportDialogComponent {
   }
 }
 
-/** "2026-09-21" → "21/09" sem depender do pipe dentro do computed. */
 function formatDay(dateKey: string): string {
   const [, month, day] = dateKey.split('-');
   return `${day}/${month}`;

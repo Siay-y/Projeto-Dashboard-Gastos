@@ -28,7 +28,6 @@ const MAX_DESCRIPTION = 60;
 const MIN_INSTALLMENTS = 2;
 const MAX_INSTALLMENTS = 48;
 
-/** Converte "12,50" / "12.50" em número; NaN se inválido. */
 function parseAmount(raw: string): number {
   return Number(String(raw).replace(',', '.'));
 }
@@ -45,10 +44,6 @@ function installmentsValidator(control: AbstractControl<string>): ValidationErro
     : { installments: true };
 }
 
-/**
- * Formulário de criação/edição de transação (Reactive Forms).
- * Não persiste nada: emite `saved` com os dados normalizados.
- */
 @Component({
   selector: 'app-transaction-form',
   imports: [
@@ -74,7 +69,6 @@ export class TransactionFormComponent {
   protected readonly maxInstallments = MAX_INSTALLMENTS;
   protected readonly submitted = signal(false);
 
-  /** Espelhos em Signal dos campos que a UI precisa observar. */
   protected readonly type = signal<TransactionType>('expense');
   protected readonly categoryId = signal('');
   protected readonly accountId = signal<string | null>(null);
@@ -92,7 +86,6 @@ export class TransactionFormComponent {
     installments: [''],
   });
 
-  /** Resumo "10× de R$ 100,00 = R$ 1.000,00" enquanto preenche. */
   protected readonly installmentSummary = computed(() => {
     const count = Number(this.installmentsRaw());
     const amount = parseAmount(this.amountRaw());
@@ -113,7 +106,6 @@ export class TransactionFormComponent {
       .subscribe((v) => this.installmentsRaw.set(v));
   }
 
-  /** Carrega uma transação para edição, ou limpa para criação. */
   load(transaction: Transaction | null): void {
     this.submitted.set(false);
 
@@ -139,10 +131,8 @@ export class TransactionFormComponent {
     this.type.set(type);
     this.form.controls.type.setValue(type);
 
-    // Parcelamento só existe para gastos.
     if (type === 'income') this.setInstalled(false);
 
-    // Categoria atual pode não existir no outro tipo — limpa se for o caso.
     const stillValid = categoriesFor(type).some((c) => c.id === this.categoryId());
     if (!stillValid) this.setCategory('');
   }
@@ -158,7 +148,6 @@ export class TransactionFormComponent {
     this.form.controls.accountId.setValue(id);
   }
 
-  /** Liga/desliga o parcelamento, ajustando a validação do campo de parcelas. */
   protected setInstalled(value: boolean): void {
     this.installed.set(value);
     const control = this.form.controls.installments;

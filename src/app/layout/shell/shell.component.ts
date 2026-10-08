@@ -4,10 +4,6 @@ import { APP_ROUTES } from '../../core/constants/routes';
 import { UserService } from '../../core/services/user.service';
 import { NAV_ITEMS } from '../nav-items';
 
-/**
- * Estrutura do painel.
- * Desktop: sidebar fixa à esquerda. Mobile: top bar + navegação inferior.
- */
 @Component({
   selector: 'app-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive],

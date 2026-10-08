@@ -3,7 +3,6 @@
   height: 100%;
 }
 
-// Tons de branco sobre o verde profundo
 $on-dark: #ffffff;
 $on-dark-muted: rgba(255, 255, 255, 0.68);
 $on-dark-faint: rgba(255, 255, 255, 0.14);
@@ -16,18 +15,14 @@ $on-dark-faint: rgba(255, 255, 255, 0.14);
   height: 100%;
   padding: var(--space-5);
   border-radius: var(--radius-lg);
-  // Verde profundo com uma luz suave no canto superior direito: tira o
-  // aspecto "chapado" sem virar degradê chamativo.
   background:
     radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 55%),
     var(--color-primary-deep);
-  // Fio de luz na borda de cima para dar profundidade
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: $on-dark;
   overflow: hidden;
   isolation: isolate;
 
-  // Marca da carteira em marca-d'água, saindo pelo canto inferior direito
   &::after {
     content: '';
     position: absolute;
@@ -47,14 +42,12 @@ $on-dark-faint: rgba(255, 255, 255, 0.14);
     padding: var(--space-6);
   }
 
-  // Lado a lado: saldo à esquerda, vencimentos à direita
   @media (min-width: 768px) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-6);
   }
 }
 
-// ---- Saldo ----
 .balance {
   display: flex;
   flex-direction: column;
@@ -117,7 +110,6 @@ $on-dark-faint: rgba(255, 255, 255, 0.14);
   color: $on-dark-muted;
 }
 
-// ---- Resultado do mês (ganhos − gastos) ----
 .result {
   display: inline-flex;
   align-items: center;
@@ -149,7 +141,6 @@ $on-dark-faint: rgba(255, 255, 255, 0.14);
   }
 }
 
-// ---- Próximos vencimentos ----
 .upcoming {
   display: flex;
   flex-direction: column;
@@ -220,7 +211,6 @@ $on-dark-faint: rgba(255, 255, 255, 0.14);
   white-space: nowrap;
 }
 
-// Vence hoje ou amanhã: valor em âmbar para chamar atenção
 .due--soon .due__amount {
   color: var(--color-accent-bright);
 }

@@ -2,7 +2,6 @@
   display: contents;
 }
 
-// ---- Erro de arquivo ----
 .state {
   display: flex;
   gap: var(--space-4);
@@ -40,7 +39,6 @@
   }
 }
 
-// ---- Resumo ----
 .summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -95,7 +93,6 @@
   }
 }
 
-// ---- Prévia ----
 .rows {
   margin-top: var(--space-5);
   list-style: none;
@@ -167,7 +164,6 @@
   }
 }
 
-// ---- Problemas ----
 .issues {
   margin-top: var(--space-4);
   padding: var(--space-3) var(--space-4);
@@ -200,7 +196,6 @@
   color: var(--color-text-secondary);
 }
 
-// ---- Rodapé ----
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

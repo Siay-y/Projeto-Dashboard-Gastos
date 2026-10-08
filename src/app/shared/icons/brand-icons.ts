@@ -24,16 +24,10 @@ import {
 
 export interface BrandIcon {
   title: string;
-  /** Path SVG em viewBox 0 0 24 24. */
   path: string;
 }
 
-/**
- * Registro explícito de marcas — só o que está listado entra no bundle.
- * Para adicionar uma marca: importe o ícone da `simple-icons` e registre aqui.
- */
 export const BRAND_ICONS: Readonly<Record<string, BrandIcon>> = {
-  // Categorias
   apple: siApple,
   claude: siClaude,
   crunchyroll: siCrunchyroll,
@@ -49,7 +43,6 @@ export const BRAND_ICONS: Readonly<Record<string, BrandIcon>> = {
   uber: siUber,
   youtube: siYoutube,
 
-  // Contas / carteiras
   mercadopago: siMercadopago,
   neon: siNeon,
   nubank: siNubank,

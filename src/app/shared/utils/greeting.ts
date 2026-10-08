@@ -1,4 +1,3 @@
-/** Saudação conforme o horário local. Reutilizada no header do painel. */
 export function getGreeting(date: Date = new Date()): string {
   const hour = date.getHours();
 

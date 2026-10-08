@@ -14,7 +14,6 @@ $breakpoint-desktop: 1024px;
   }
 }
 
-// ---- Marca (compartilhada entre sidebar e topbar) ----
 .brand {
   display: inline-flex;
   align-items: center;
@@ -86,7 +85,6 @@ $breakpoint-desktop: 1024px;
   }
 }
 
-// ---- Sidebar (desktop) ----
 .sidebar {
   display: none;
 
@@ -186,7 +184,6 @@ $breakpoint-desktop: 1024px;
   color: var(--color-text-disabled);
 }
 
-// ---- Top bar (mobile) ----
 .topbar {
   position: sticky;
   top: 0;
@@ -214,7 +211,6 @@ $breakpoint-desktop: 1024px;
   }
 }
 
-// ---- Conteúdo ----
 .content {
   width: 100%;
   max-width: 1120px;
@@ -231,7 +227,6 @@ $breakpoint-desktop: 1024px;
   }
 }
 
-// ---- Bottom navigation (mobile) ----
 .bottom-nav {
   position: fixed;
   inset-inline: 0;

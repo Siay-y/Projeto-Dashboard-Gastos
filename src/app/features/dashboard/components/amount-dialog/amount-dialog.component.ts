@@ -10,10 +10,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent, DialogComponent, InputComponent } from '../../../../shared/ui';
 
-/**
- * Dialog genérico para informar um único valor monetário
- * (usado em "Ajustar saldo" e "Renda mensal").
- */
 @Component({
   selector: 'app-amount-dialog',
   imports: [FormsModule, DialogComponent, InputComponent, ButtonComponent],

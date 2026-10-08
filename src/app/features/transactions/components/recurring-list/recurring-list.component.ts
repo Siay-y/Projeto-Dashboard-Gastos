@@ -11,10 +11,6 @@ interface Row {
   account: Account | undefined;
 }
 
-/**
- * Lista compacta de gastos fixos. Clique na linha → editar.
- * O switch pausa/reativa sem apagar o item.
- */
 @Component({
   selector: 'app-recurring-list',
   imports: [CurrencyPipe, TileIconComponent, DeleteButtonComponent],

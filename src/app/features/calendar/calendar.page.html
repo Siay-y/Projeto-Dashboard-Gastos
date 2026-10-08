@@ -31,7 +31,6 @@
 </header>
 
 <div class="layout">
-  <!-- ---- Grade do mês ---- -->
   <app-card class="grid-card" [padded]="false" appFadeInUp [delay]="1">
     <div class="weekdays" aria-hidden="true">
       @for (wd of weekdays; track wd) {
@@ -57,14 +56,12 @@
           <span class="day__num">{{ d.day }}</span>
 
           @if (d.events.length > 0) {
-            <!-- Celular: pontinhos coloridos -->
             <span class="day__dots" aria-hidden="true">
               @for (e of d.events.slice(0, 4); track e.id) {
                 <i class="dot" [attr.data-kind]="e.kind"></i>
               }
             </span>
 
-            <!-- Desktop: chips com o nome -->
             <span class="day__chips" aria-hidden="true">
               @for (e of d.events.slice(0, chipsPerDay); track e.id) {
                 <span class="chip" [attr.data-kind]="e.kind">{{ e.label }}</span>
@@ -89,7 +86,6 @@
     </ul>
   </app-card>
 
-  <!-- ---- Agenda do dia ---- -->
   <app-card class="agenda" appFadeInUp [delay]="2">
     <div class="agenda__head">
       <span class="overline">Agenda do dia</span>

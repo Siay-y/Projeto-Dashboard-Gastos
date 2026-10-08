@@ -21,7 +21,7 @@ interface Row {
   transaction: Transaction;
   category: Category;
   account: Account | undefined;
-  /** Presente apenas em compras parceladas. */
+
   installments: InstallmentProgress | null;
 }
 
@@ -41,12 +41,6 @@ const FILTERS: readonly { value: HistoryFilter; label: string }[] = [
   { value: 'settled', label: 'Quitadas' },
 ];
 
-/**
- * Histórico em formato de tabela minimalista, agrupado por mês.
- * Uma linha por compra; parceladas mostram o progresso (ex.: 5/12).
- * Clique na linha → editar. Excluir pede confirmação inline.
- * No toque: deslizar para a direita edita, para a esquerda apaga (appSwipeAction).
- */
 @Component({
   selector: 'app-transaction-list',
   imports: [CurrencyPipe, DatePipe, TileIconComponent, DeleteButtonComponent, SwipeActionDirective],
@@ -61,7 +55,6 @@ export class TransactionListComponent {
   readonly edit = output<Transaction>();
   readonly remove = output<string>();
 
-  /** Id da linha com confirmação de exclusão aberta (para destacar). */
   protected readonly confirmingId = signal<string | null>(null);
 
   protected readonly filters = FILTERS;
@@ -76,7 +69,6 @@ export class TransactionListComponent {
     })),
   );
 
-  /** Quantidade por filtro, exibida nos chips. */
   protected readonly counts = computed<Record<HistoryFilter, number>>(() => {
     const rows = this.rows();
     return {
@@ -86,7 +78,6 @@ export class TransactionListComponent {
     };
   });
 
-  /** Mostra os chips só quando há alguma compra parcelada — senão não fazem sentido. */
   protected readonly showFilters = computed(() => this.counts().ongoing + this.counts().settled > 0);
 
   private readonly filteredRows = computed(() => {
@@ -116,7 +107,6 @@ export class TransactionListComponent {
 
       group.rows.push(row);
 
-      // No cabeçalho do mês conta o que saiu naquele mês (a parcela, não o total).
       if (transaction.type === 'income') group.income += transaction.amount;
       else group.expense += transaction.amount;
     }

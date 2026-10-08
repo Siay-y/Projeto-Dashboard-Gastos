@@ -7,26 +7,20 @@ import { fromDateKey, toDateKey, toMonthKey } from '../../shared/utils/date';
 import { RecurringExpenseService } from './recurring-expense.service';
 import { TransactionService } from './transaction.service';
 
-// Formatos do Excel. `[$R$-416]` = símbolo em pt-BR, independente do idioma do Excel.
+// `[$R$-416]`: moeda em pt-BR independente do idioma do Excel.
 const CURRENCY = '[$R$-416] #,##0.00';
 const DATE = 'dd/mm/yyyy';
 const MONTH = 'mmmm/yyyy';
 
-// Cores do cabeçalho — mesmas do sistema.
 const HEADER_BG = '#e4efea';
 const HEADER_TEXT = '#1e5e4b';
 const BORDER = '#c9c6bb';
 
-/**
- * Exporta os dados do usuário para planilhas `.xlsx`.
- * A biblioteca é carregada sob demanda, só quando o usuário clica em exportar.
- */
 @Injectable({ providedIn: 'root' })
 export class ExportService {
   private readonly transactions = inject(TransactionService);
   private readonly recurring = inject(RecurringExpenseService);
 
-  /** Gastos fixos (ativos e pausados) com total dos ativos no fim. */
   async exportRecurring(): Promise<void> {
     const items = this.recurring.items();
 
@@ -72,7 +66,6 @@ export class ExportService {
     ]);
   }
 
-  /** Histórico completo (uma linha por compra) + totais por mês. */
   async exportHistory(): Promise<void> {
     const today = toDateKey();
 
@@ -136,10 +129,6 @@ export class ExportService {
     ]);
   }
 
-  /**
-   * Totais por mês a partir das ocorrências (parcelas contam no mês em que vencem).
-   * Renda fixa e gastos fixos não entram — a planilha mostra só o que foi lançado.
-   */
   private monthlyRows(): Row[] {
     const byMonth = new Map<string, { income: number; expense: number; entries: number }>();
 
@@ -171,12 +160,10 @@ export class ExportService {
     link.href = url;
     link.download = `meus-gastos-${name}-${toDateKey()}.xlsx`;
     link.click();
-    // Dá tempo do navegador iniciar o download antes de liberar a URL.
+
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 }
-
-// ---- Células ----
 
 function header(labels: string[]): Row {
   return labels.map((label) => ({
@@ -196,7 +183,6 @@ function text(value: string): CellObject {
   return { value, type: String };
 }
 
-/** Célula vazia quando a conta não foi informada. */
 function account(id: string | null): CellObject | null {
   const found = findAccount(id);
   return found ? text(found.label) : null;
@@ -214,7 +200,6 @@ function money(value: number): CellObject {
   return { value, type: Number, format: CURRENCY };
 }
 
-/** `YYYY-MM-DD` → célula de data (local, sem deslocamento de fuso). */
 function date(dateKey: string): CellObject {
   return { value: fromDateKey(dateKey), type: Date, format: DATE };
 }

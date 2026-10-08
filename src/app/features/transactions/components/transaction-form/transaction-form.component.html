@@ -1,5 +1,4 @@
 <form class="tx-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <!-- Tipo -->
   <div class="segmented" role="radiogroup" aria-label="Tipo de transação">
     <button
       type="button"
@@ -25,7 +24,6 @@
     </button>
   </div>
 
-  <!-- Valor + Data -->
   <div class="tx-form__row">
     <app-input
       [label]="installed() ? 'Valor da parcela' : 'Valor'"
@@ -47,7 +45,6 @@
     />
   </div>
 
-  <!-- Parcelamento (só para gastos) -->
   @if (type() === 'expense') {
     <div class="installments" [class.installments--on]="installed()">
       <label class="installments__toggle">
@@ -94,7 +91,6 @@
     [error]="errorFor('description')"
   />
 
-  <!-- Categoria -->
   <div class="tx-form__field">
     <span class="tx-form__label">Categoria</span>
     <app-category-picker [type]="type()" [value]="categoryId()" (valueChange)="setCategory($event)" />
@@ -103,7 +99,6 @@
     }
   </div>
 
-  <!-- Conta / cartão -->
   <div class="tx-form__field">
     <span class="tx-form__label">
       Conta ou cartão <span class="tx-form__optional">opcional</span>

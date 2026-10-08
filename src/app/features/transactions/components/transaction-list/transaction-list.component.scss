@@ -1,6 +1,5 @@
 $breakpoint-table: 768px;
 
-// Colunas compartilhadas entre cabeçalho e linhas
 $cols-mobile: 36px minmax(0, 1fr) auto;
 $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
 
@@ -10,7 +9,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   gap: var(--space-6);
 }
 
-// ---- Filtros (só aparecem quando há compras parceladas) ----
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -73,7 +71,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   color: var(--color-text-secondary);
 }
 
-// ---- Cabeçalho do mês ----
 .month {
   display: flex;
   flex-direction: column;
@@ -109,7 +106,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   color: var(--color-text-secondary);
 }
 
-// ---- Tabela ----
 .table {
   background: var(--color-surface);
   border: 1px solid var(--color-outline);
@@ -135,7 +131,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   }
 }
 
-// Invólucro de cada linha: recebe o deslize (appSwipeAction) e a divisória
 .swipe {
   border-bottom: 1px solid var(--color-outline);
 
@@ -156,7 +151,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   }
 }
 
-// Compra parcelada já quitada: esmaecida para diferenciar do que ainda pesa
 .table__row--settled {
   .col-icon,
   .desc,
@@ -174,7 +168,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   }
 }
 
-// Área clicável (editar) — contém as células de dados
 .row-main {
   display: grid;
   grid-template-columns: $cols-mobile;
@@ -198,7 +191,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   }
 }
 
-// ---- Células ----
 .col-desc {
   display: flex;
   flex-direction: column;
@@ -214,7 +206,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   white-space: nowrap;
 }
 
-// Selo "3/10" da parcela
 .badge {
   display: inline-block;
   margin-left: var(--space-1);
@@ -269,7 +260,6 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   color: var(--color-text);
 }
 
-// Total da compra parcelada ("12× · R$ 1.200,00")
 .col-amount__total {
   font-size: 0.75rem;
   font-weight: 500;
@@ -286,4 +276,3 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   justify-content: flex-end;
   padding-inline: var(--space-2);
 }
-

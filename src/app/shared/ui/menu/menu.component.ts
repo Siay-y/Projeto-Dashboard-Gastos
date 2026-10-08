@@ -11,17 +11,10 @@ import {
 export interface MenuItem {
   id: string;
   label: string;
-  /** Material Symbol exibido antes do rótulo. */
   icon?: string;
   disabled?: boolean;
 }
 
-/**
- * Menu de ações secundárias: botão de três pontos que abre um painel.
- * Fecha ao escolher um item, clicar fora ou pressionar Esc.
- *
- *   <app-menu [items]="[{ id: 'export', label: 'Exportar', icon: 'download' }]" (select)="…" />
- */
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
@@ -36,7 +29,6 @@ export class MenuComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly items = input.required<MenuItem[]>();
-  /** Rótulo acessível do botão de três pontos. */
   readonly label = input('Mais opções');
 
   readonly select = output<string>();

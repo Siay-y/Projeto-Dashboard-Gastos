@@ -7,7 +7,6 @@
   <app-button icon="add" (click)="openNew()">Nova transação</app-button>
 </header>
 
-<!-- ---- Gastos fixos ---- -->
 <app-collapsible-section id="recurring" title="Gastos fixos" [defaultExpanded]="false" appFadeInUp [delay]="1">
   <span subtitle>
     {{ recurringSummary() }} ·
@@ -41,7 +40,6 @@
   }
 </app-collapsible-section>
 
-<!-- ---- Histórico ---- -->
 <app-collapsible-section id="history" title="Histórico" appFadeInUp [delay]="2">
   <span subtitle>Lançamentos pontuais: mercado, almoço, Uber, entradas extras.</span>
   <app-menu
@@ -68,7 +66,6 @@
   }
 </app-collapsible-section>
 
-<!-- ---- Dialogs ---- -->
 <app-dialog #txDialog size="lg" [title]="txDialogTitle()" (closed)="editing.set(null)">
   <app-transaction-form (saved)="save($event)" (cancelled)="txDialog.close()" />
 </app-dialog>
@@ -77,7 +74,6 @@
   <app-recurring-form (saved)="saveRecurring($event)" (cancelled)="recDialog.close()" />
 </app-dialog>
 
-<!-- ---- Importação ---- -->
 <input
   #fileInput
   type="file"

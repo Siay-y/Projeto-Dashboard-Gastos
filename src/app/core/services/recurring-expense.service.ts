@@ -5,9 +5,6 @@ import { StorageService } from './storage.service';
 
 export type RecurringExpenseInput = Omit<RecurringExpense, 'id' | 'createdAt' | 'active'>;
 
-/**
- * Gastos fixos mensais. Os ativos entram automaticamente nos gastos de todo mês.
- */
 @Injectable({ providedIn: 'root' })
 export class RecurringExpenseService {
   private readonly storage = inject(StorageService);
@@ -18,7 +15,6 @@ export class RecurringExpenseService {
     ),
   );
 
-  /** Todos, ordenados por dia de cobrança (sem dia por último) e descrição. */
   readonly items = computed(() =>
     [...this._items()].sort(
       (a, b) =>
@@ -30,7 +26,6 @@ export class RecurringExpenseService {
   readonly active = computed(() => this.items().filter((i) => i.active));
   readonly activeCount = computed(() => this.active().length);
 
-  /** Soma dos gastos fixos ativos — o que sai todo mês. */
   readonly monthlyTotal = computed(() => this.active().reduce((acc, i) => acc + i.amount, 0));
 
   constructor() {

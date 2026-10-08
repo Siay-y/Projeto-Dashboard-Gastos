@@ -5,10 +5,6 @@ import { APP_ROUTES } from '../../core/constants/routes';
 import { FadeInUpDirective } from '../../shared/directives/fade-in-up.directive';
 import { ButtonComponent, CardComponent } from '../../shared/ui';
 
-/**
- * Página 404: mostrada para qualquer caminho que não exista.
- * Fora do shell (sem sidebar), para funcionar também antes do primeiro acesso.
- */
 @Component({
   selector: 'app-not-found-page',
   imports: [RouterLink, ButtonComponent, CardComponent, FadeInUpDirective],
@@ -22,10 +18,8 @@ export class NotFoundPage {
 
   protected readonly routes = APP_ROUTES;
 
-  /** Caminho que o usuário tentou abrir, sem query string. */
   protected readonly path = this.router.url.split('?')[0];
 
-  /** Volta no histórico; sem histórico (link aberto direto), vai para a visão geral. */
   protected goBack(): void {
     if (history.length > 1) this.location.back();
     else void this.router.navigateByUrl(this.routes.DASHBOARD);

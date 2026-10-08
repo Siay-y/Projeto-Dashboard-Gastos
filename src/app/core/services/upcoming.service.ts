@@ -7,21 +7,17 @@ import { TransactionService } from './transaction.service';
 export interface UpcomingItem {
   id: string;
   kind: 'fixed' | 'installment';
-  /** Descrição do gasto (ex.: "Netflix", "Notebook"). */
+
   label: string;
-  /** Complemento, só em parcelas (ex.: "Parcela 6/12"). */
+
   detail: string | null;
   amount: number;
-  /** Dias até vencer (0 = hoje). */
+
   days: number;
-  /** Data do vencimento (`YYYY-MM-DD`). */
+
   date: string;
 }
 
-/**
- * O que vence em breve: gastos fixos com dia de cobrança e próximas parcelas,
- * do mais próximo ao mais distante. Alimenta o herói da visão geral e os alertas.
- */
 @Injectable({ providedIn: 'root' })
 export class UpcomingService {
   private readonly transactions = inject(TransactionService);
@@ -47,7 +43,8 @@ export class UpcomingService {
       .filter((r) => r.dueDay !== null)
       .map((r) => {
         const dueDay = r.dueDay!;
-        // Dia 31 num mês de 30 cai no último dia.
+
+        // Dia 31 em mês de 30 cai no último dia; se já passou, vale o mês seguinte.
         const thisMonthDay = Math.min(dueDay, inThisMonth);
         const date =
           thisMonthDay >= day

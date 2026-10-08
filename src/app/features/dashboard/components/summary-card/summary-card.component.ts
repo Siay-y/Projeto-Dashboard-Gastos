@@ -3,10 +3,6 @@ import { CardComponent, MoneyComponent } from '../../../../shared/ui';
 
 export type SummaryTone = 'neutral' | 'positive' | 'negative';
 
-/**
- * Card de indicador: rótulo, valor monetário em destaque e uma linha de apoio.
- * Com `editable`, mostra um botão de ajuste que emite `edit`.
- */
 @Component({
   selector: 'app-summary-card',
   imports: [CardComponent, MoneyComponent],

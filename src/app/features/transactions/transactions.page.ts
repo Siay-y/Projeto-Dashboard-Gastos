@@ -41,16 +41,11 @@ import { RecurringListComponent } from './components/recurring-list/recurring-li
 import { TransactionFormComponent } from './components/transaction-form/transaction-form.component';
 import { TransactionListComponent } from './components/transaction-list/transaction-list.component';
 
-/** `?secao=` → id da seção recolhível a abrir. */
 const SECTION_PARAMS: Record<string, string | undefined> = {
   fixos: 'recurring',
   historico: 'history',
 };
 
-/**
- * Gastos fixos + histórico de transações.
- * Abre o formulário de transação automaticamente quando chega com `?novo=1`.
- */
 @Component({
   selector: 'app-transactions-page',
   imports: [
@@ -80,12 +75,10 @@ export class TransactionsPage {
   protected readonly service = inject(TransactionService);
   protected readonly recurring = inject(RecurringExpenseService);
 
-  /** Query param `?novo=1` — vindo do CTA da visão geral. */
   readonly novo = input<string>();
-  /** Query param `?secao=fixos|historico` — abre a seção (vindo dos alertas). */
+
   readonly secao = input<string>();
 
-  // ---- Transações ----
   private readonly txDialog = viewChild.required<DialogComponent>('txDialog');
   private readonly txForm = viewChild.required(TransactionFormComponent);
   protected readonly editing = signal<Transaction | null>(null);
@@ -93,7 +86,6 @@ export class TransactionsPage {
     this.editing() ? 'Editar transação' : 'Nova transação',
   );
 
-  // ---- Gastos fixos ----
   private readonly recDialog = viewChild.required<DialogComponent>('recDialog');
   private readonly recForm = viewChild.required(RecurringFormComponent);
   protected readonly editingRecurring = signal<RecurringExpense | null>(null);
@@ -106,13 +98,11 @@ export class TransactionsPage {
     return n === 1 ? '1 registro' : `${n} registros`;
   });
 
-  // ---- Exportar / importar ----
   private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
   private readonly importDialog = viewChild.required(ImportDialogComponent);
 
-  /** Qual seção está exportando/importando (desabilita o item do menu enquanto isso). */
   protected readonly busy = signal<ImportKind | null>(null);
-  /** Seção alvo da importação em andamento (define o diálogo e o que salvar). */
+
   protected readonly importKind = signal<ImportKind>('history');
   private pendingImport: ImportPreview<TransactionInput | RecurringImportItem> | null = null;
 
@@ -137,14 +127,12 @@ export class TransactionsPage {
 
       if (this.novo()) this.openNew();
 
-      // Remove os query params para o refresh não repetir a ação.
       if (this.novo() || this.secao()) {
+        // Limpa os params para o refresh não repetir a ação.
         void this.router.navigate([], { queryParams: {}, replaceUrl: true });
       }
     });
   }
-
-  // ---- Transações ----
 
   protected openNew(): void {
     this.editing.set(null);
@@ -169,8 +157,6 @@ export class TransactionsPage {
   protected remove(id: string): void {
     this.service.remove(id);
   }
-
-  // ---- Gastos fixos ----
 
   protected openNewRecurring(): void {
     this.editingRecurring.set(null);
@@ -199,8 +185,6 @@ export class TransactionsPage {
   protected removeRecurring(id: string): void {
     this.recurring.remove(id);
   }
-
-  // ---- Menus: exportar / importar ----
 
   protected onRecurringMenu(action: string): void {
     this.onMenu('recurring', action);
@@ -235,11 +219,10 @@ export class TransactionsPage {
     ];
   }
 
-  /** Arquivo escolhido no seletor: lê, monta a prévia e abre o diálogo. */
   protected onFileChosen(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    input.value = ''; // permite escolher o mesmo arquivo de novo
+    input.value = '';
     if (!file) return;
 
     const kind = this.importKind();
@@ -259,7 +242,6 @@ export class TransactionsPage {
     });
   }
 
-  /** Usuário confirmou a prévia: grava os registros e abre a seção. */
   protected confirmImport(): void {
     const preview = this.pendingImport;
     this.pendingImport = null;

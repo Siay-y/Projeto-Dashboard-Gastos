@@ -23,7 +23,6 @@ function amountValidator(control: AbstractControl<string>): ValidationErrors | n
   return Number.isFinite(value) && value > 0 ? null : { amount: true };
 }
 
-/** Vazio é permitido; se preenchido, precisa ser um dia entre 1 e 31. */
 function dueDayValidator(control: AbstractControl<string>): ValidationErrors | null {
   const raw = control.value.trim();
   if (raw === '') return null;
@@ -31,10 +30,6 @@ function dueDayValidator(control: AbstractControl<string>): ValidationErrors | n
   return Number.isInteger(day) && day >= 1 && day <= 31 ? null : { dueDay: true };
 }
 
-/**
- * Formulário de gasto fixo: descrição, valor, dia de cobrança e categoria.
- * Emite `saved` com os dados normalizados; não persiste.
- */
 @Component({
   selector: 'app-recurring-form',
   imports: [

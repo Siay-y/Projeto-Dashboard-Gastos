@@ -8,31 +8,26 @@ import { RecurringExpenseInput, RecurringExpenseService } from './recurring-expe
 import { TransactionInput, TransactionService } from './transaction.service';
 
 export interface ImportIssue {
-  /** Número da linha na planilha (como o Excel mostra). */
   row: number;
   message: string;
 }
 
 export interface ImportPreview<T> {
-  /** Nome da aba lida. */
   sheet: string;
-  /** Prontos para importar. */
+
   items: T[];
-  /** Linhas iguais a registros já existentes — serão ignoradas. */
+
   duplicates: number;
-  /** Linhas que não puderam ser lidas. */
+
   issues: ImportIssue[];
 }
 
-/** Gasto fixo importado: o input normal + se entra ativo ou pausado. */
 export type RecurringImportItem = RecurringExpenseInput & { active: boolean };
 
-/** Erro amigável quando o arquivo não serve. */
 export class ImportError extends Error {}
 
 type Cell = CellValue | null | undefined;
 
-/** Nomes de coluna aceitos (normalizados: minúsculas, sem acento). */
 const COLUMNS = {
   description: ['descricao', 'nome', 'item', 'description'],
   amount: ['valor', 'valor (parcela)', 'valor parcela', 'valor mensal', 'amount'],
@@ -51,11 +46,6 @@ type ColumnIndex = Partial<Record<ColumnKey, number>>;
 const INCOME_WORDS = ['ganho', 'entrada', 'receita', 'income'];
 const PAUSED_WORDS = ['pausado', 'pausada', 'inativo', 'inativa', 'paused'];
 
-/**
- * Lê planilhas `.xlsx` (de preferência as exportadas pelo próprio app) e
- * prepara os registros para importação, apontando linhas com problema.
- * A biblioteca é carregada sob demanda.
- */
 @Injectable({ providedIn: 'root' })
 export class ImportService {
   private readonly transactions = inject(TransactionService);
@@ -166,12 +156,6 @@ export class ImportService {
     return { sheet, items, duplicates, issues };
   }
 
-  // ---- Leitura ----
-
-  /**
-   * Abre o arquivo, escolhe a aba (`preferred` se existir, senão a primeira)
-   * e localiza o cabeçalho. Devolve as linhas de dados abaixo dele.
-   */
   private async read(file: File, preferred: string) {
     if (!/\.xlsx$/i.test(file.name)) {
       throw new ImportError('Escolha um arquivo .xlsx (Excel).');
@@ -192,7 +176,6 @@ export class ImportService {
       throw new ImportError('A planilha está vazia.');
     }
 
-    // Cabeçalho = primeira linha (entre as 10 primeiras) que tenha "Descrição" e "Valor".
     for (let i = 0; i < Math.min(10, chosen.data.length); i++) {
       const columns = mapColumns(chosen.data[i]);
       if (columns.description !== undefined && columns.amount !== undefined) {
@@ -200,7 +183,7 @@ export class ImportService {
           sheet: chosen.sheet,
           columns,
           rows: chosen.data.slice(i + 1),
-          firstRow: i + 2, // linhas do Excel começam em 1; dados começam após o cabeçalho
+          firstRow: i + 2,
         };
       }
     }
@@ -210,8 +193,6 @@ export class ImportService {
     );
   }
 }
-
-// ---- Auxiliares de parsing ----
 
 function mapColumns(header: Row): ColumnIndex {
   const index: ColumnIndex = {};
@@ -227,7 +208,6 @@ function mapColumns(header: Row): ColumnIndex {
   return index;
 }
 
-/** Rodapés como "Total" / "Total dos ativos por mês" não são registros. */
 function isTotalRow(description: string): boolean {
   return /^(sub)?total\b/.test(normalize(description));
 }
@@ -236,7 +216,6 @@ function cell(row: Row, index: number | undefined): Cell {
   return index === undefined ? null : row[index];
 }
 
-/** Minúsculas, sem acentos, sem espaços nas pontas. */
 function normalize(value: string): string {
   return value
     .normalize('NFD')
@@ -251,7 +230,6 @@ function text(value: Cell): string {
   return String(value).trim();
 }
 
-/** Aceita número, "1.234,56", "R$ 35,90", "-35.9", "(35,90)". */
 function parseAmount(value: Cell): number | null {
   if (typeof value === 'number') return Number.isFinite(value) ? round(value) : null;
 
@@ -261,7 +239,6 @@ function parseAmount(value: Cell): number | null {
   const negative = /^\(.*\)$/.test(s) || s.includes('-') || s.includes('−');
   s = s.replace(/[^\d.,]/g, '');
 
-  // Decide o separador decimal pelo último símbolo: "1.234,56" → vírgula; "1,234.56" → ponto.
   const lastComma = s.lastIndexOf(',');
   const lastDot = s.lastIndexOf('.');
   if (lastComma > lastDot) s = s.replace(/\./g, '').replace(',', '.');
@@ -278,12 +255,10 @@ function parseInteger(value: Cell): number | null {
   return s ? Number(s) : null;
 }
 
-/** Aceita `Date`, "dd/mm/aaaa", "aaaa-mm-dd" e número serial do Excel. */
 function parseDate(value: Cell): string | null {
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : toDateKey(value);
 
   if (typeof value === 'number') {
-    // Serial do Excel: dias desde 30/12/1899.
     const ms = Math.round((value - 25569) * 86_400_000);
     const d = new Date(ms);
     return toDateKey(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -307,12 +282,6 @@ function validDate(year: number, month: number, day: number): string | null {
   return toDateKey(d);
 }
 
-/**
- * Só a coluna "Tipo" define um ganho ("Ganho", "Entrada", "Receita"…).
- * Sem ela — ou com a célula vazia — a linha é um gasto, o caso comum.
- * O sinal do valor não é usado: o app exporta gastos negativos, mas quem
- * monta a planilha à mão costuma digitar tudo positivo.
- */
 function parseType(value: Cell): TransactionType {
   const word = normalize(text(value));
   return INCOME_WORDS.some((w) => word.startsWith(w)) ? 'income' : 'expense';

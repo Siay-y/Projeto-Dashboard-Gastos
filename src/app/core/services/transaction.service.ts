@@ -6,17 +6,8 @@ import { RecurringExpenseService } from './recurring-expense.service';
 import { StorageService } from './storage.service';
 import { addMonthsClamped, toDateKey, toMonthKey } from '../../shared/utils/date';
 
-/** Dados necessários para criar/editar uma transação. */
 export type TransactionInput = Omit<Transaction, 'id' | 'createdAt'>;
 
-/**
- * Estado das transações e totais mensais derivados.
- *
- * O histórico mostra uma linha por compra. Para os TOTAIS, compras parceladas
- * são expandidas em uma "ocorrência" por mês (até o mês atual), de modo que
- * cada mês conte apenas a parcela que vence nele.
- * O saldo total NÃO é calculado aqui — é informado pelo usuário (FinanceSettingsService).
- */
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
   private readonly storage = inject(StorageService);
@@ -30,10 +21,8 @@ export class TransactionService {
     (this.storage.get<Partial<Transaction>[]>(STORAGE_KEYS.TRANSACTIONS) ?? []).map(migrate),
   );
 
-  /** Mês de referência (`YYYY-MM`) usado nos totais mensais. */
   readonly referenceMonth = signal(this.currentMonth);
 
-  /** Transações brutas (uma por compra), mais recentes primeiro. */
   readonly transactions = computed(() =>
     [...this._transactions()].sort(
       (a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
@@ -42,32 +31,23 @@ export class TransactionService {
 
   readonly hasTransactions = computed(() => this._transactions().length > 0);
 
-  /**
-   * Cobranças efetivas até o mês atual (base dos totais mensais).
-   * À vista → 1 ocorrência. Parcelada → uma por mês já iniciado.
-   */
   readonly occurrences = computed<TransactionOccurrence[]>(() =>
     this.transactions().flatMap((t) => this.expand(t)),
   );
 
-  /** Ocorrências do mês de referência. */
   readonly monthOccurrences = computed(() => {
     const month = this.referenceMonth();
     return this.occurrences().filter((o) => toMonthKey(o.date) === month);
   });
 
-  /** Renda fixa informada pelo usuário (conta em todo mês). */
   readonly monthlyFixedIncome = computed(() => this.settings.monthlyIncome());
 
-  /** Entradas lançadas manualmente no mês de referência. */
   readonly monthlyExtraIncome = computed(() => this.sumByType(this.monthOccurrences(), 'income'));
 
   readonly monthlyIncome = computed(() => this.monthlyFixedIncome() + this.monthlyExtraIncome());
 
-  /** Gastos fixos ativos (assinaturas, aluguel…) — contam em todo mês. */
   readonly monthlyFixedExpenses = computed(() => this.recurring.monthlyTotal());
 
-  /** Gastos lançados manualmente no mês de referência (parcelas do mês inclusas). */
   readonly monthlyVariableExpenses = computed(() =>
     this.sumByType(this.monthOccurrences(), 'expense'),
   );
@@ -84,13 +64,10 @@ export class TransactionService {
   );
 
   constructor() {
-    // Persiste automaticamente a cada mudança no estado.
     effect(() => {
       this.storage.set(STORAGE_KEYS.TRANSACTIONS, this._transactions());
     });
   }
-
-  // ---- Escrita ----
 
   add(input: TransactionInput): Transaction {
     const transaction: Transaction = {
@@ -113,9 +90,6 @@ export class TransactionService {
     this._transactions.update((list) => list.filter((t) => t.id !== id));
   }
 
-  // ---- Auxiliares ----
-
-  /** Gera as ocorrências de uma transação até o mês atual. */
   private expand(t: Transaction): TransactionOccurrence[] {
     if (!t.installments || t.installments < 2) {
       return [{ key: `${t.id}#0`, transaction: t, date: t.date, amount: t.amount, installment: null }];
@@ -124,6 +98,7 @@ export class TransactionService {
     const list: TransactionOccurrence[] = [];
     for (let i = 0; i < t.installments; i++) {
       const date = addMonthsClamped(t.date, i);
+      // Uma ocorrência por mês: cada mês soma só a parcela que vence nele.
       if (toMonthKey(date) > this.currentMonth) break;
 
       list.push({
@@ -131,7 +106,6 @@ export class TransactionService {
         transaction: t,
         date,
         amount: t.amount,
-        // "Paga" quando o dia de vencimento já chegou.
         installment: { number: i + 1, count: t.installments, paid: date <= this.today },
       });
     }
@@ -158,7 +132,6 @@ export class TransactionService {
   }
 }
 
-/** Preenche campos adicionados depois da primeira versão do modelo. */
 function migrate(raw: Partial<Transaction>): Transaction {
   return {
     ...(raw as Transaction),

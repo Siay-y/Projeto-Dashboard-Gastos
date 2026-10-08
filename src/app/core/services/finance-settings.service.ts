@@ -4,9 +4,6 @@ import { DEFAULT_FINANCE_SETTINGS, FinanceSettings } from '../domain/models';
 import { toDateKey } from '../../shared/utils/date';
 import { StorageService } from './storage.service';
 
-/**
- * Valores informados manualmente: saldo total e renda fixa mensal.
- */
 @Injectable({ providedIn: 'root' })
 export class FinanceSettingsService {
   private readonly storage = inject(StorageService);
@@ -36,7 +33,6 @@ export class FinanceSettingsService {
     this._settings.update((s) => ({ ...s, monthlyIncome: round(Math.max(0, amount)) }));
   }
 
-  /** Lê do storage ignorando campos de versões anteriores do modelo. */
   private load(): FinanceSettings {
     const stored = this.storage.get<Partial<FinanceSettings>>(STORAGE_KEYS.FINANCE_SETTINGS);
     return {

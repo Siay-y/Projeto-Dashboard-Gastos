@@ -19,11 +19,6 @@ interface CategoryGroup {
 
 let nextId = 0;
 
-/**
- * Seletor de categoria em acordeão: um grupo aberto por vez
- * (Essenciais, Estilo de vida, Assinaturas…). Abre sozinho o grupo da
- * categoria selecionada.
- */
 @Component({
   selector: 'app-category-picker',
   imports: [TileIconComponent],
@@ -49,7 +44,6 @@ export class CategoryPickerComponent {
   });
 
   constructor() {
-    // Ao trocar tipo ou valor vindo de fora, abre o grupo certo.
     effect(() => {
       const groups = this.groups();
       const selected = this.value();
@@ -61,7 +55,6 @@ export class CategoryPickerComponent {
     });
   }
 
-  /** Rótulo da categoria selecionada dentro do grupo (para mostrar com o grupo fechado). */
   protected selectedIn(group: CategoryGroup): string | null {
     return group.items.find((c) => c.id === this.value())?.label ?? null;
   }

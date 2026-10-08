@@ -9,7 +9,6 @@
   }
 }
 
-// ---- Marca (canto superior esquerdo) ----
 .onboarding__brand {
   display: inline-flex;
   align-items: center;
@@ -36,7 +35,6 @@
   letter-spacing: -0.01em;
 }
 
-// ---- Área central ----
 .onboarding__main {
   flex: 1;
   display: grid;
@@ -71,7 +69,6 @@
   max-width: 34ch;
 }
 
-// ---- Prévia ao vivo ----
 .preview {
   display: flex;
   flex-direction: column;
@@ -128,7 +125,6 @@
   }
 }
 
-// A letra é recriada a cada mudança (via @for), então a animação reexecuta.
 .preview__letter {
   font-size: 1.125rem;
   font-weight: 600;
@@ -168,7 +164,6 @@
   }
 }
 
-// Espaço reservado para o nome enquanto o campo está vazio
 .preview__blank {
   display: inline-block;
   width: 84px;
@@ -183,7 +178,6 @@
   color: var(--color-text-disabled);
 }
 
-// ---- Nota de privacidade ----
 .onboarding__note {
   display: flex;
   align-items: flex-start;

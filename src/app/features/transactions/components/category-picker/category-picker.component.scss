@@ -6,7 +6,6 @@
   overflow: hidden;
 }
 
-// ---- Grupo (acordeão) ----
 .group {
   border-bottom: 1px solid var(--color-outline);
 
@@ -65,7 +64,6 @@
   color: var(--color-text-disabled);
 }
 
-// Categoria selecionada, visível mesmo com o grupo fechado
 .group__selected {
   max-width: 45%;
   padding: 2px var(--space-2);
@@ -79,7 +77,6 @@
   white-space: nowrap;
 }
 
-// Animação de altura (grid 0fr → 1fr)
 .group__panel {
   display: grid;
   grid-template-rows: 0fr;
@@ -112,7 +109,6 @@
   }
 }
 
-// ---- Chip de categoria ----
 .chip {
   display: flex;
   align-items: center;

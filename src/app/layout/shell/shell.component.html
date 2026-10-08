@@ -1,5 +1,5 @@
 <div class="shell">
-  <!-- Sidebar (desktop) -->
+
   <aside class="sidebar">
     <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos: visão geral">
       <span class="brand__mark" aria-hidden="true">
@@ -41,7 +41,6 @@
     </div>
   </aside>
 
-  <!-- Top bar (mobile) -->
   <header class="topbar">
     <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos: visão geral">
       <span class="brand__mark" aria-hidden="true">
@@ -61,12 +60,10 @@
     </button>
   </header>
 
-  <!-- Conteúdo -->
   <main class="content">
     <router-outlet />
   </main>
 
-  <!-- Bottom navigation (mobile) -->
   <nav class="bottom-nav" aria-label="Principal">
     @for (item of navItems; track item.path) {
       <a

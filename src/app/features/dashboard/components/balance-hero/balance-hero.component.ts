@@ -3,13 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { UpcomingItem } from '../../../../core/services/upcoming.service';
 import { MoneyComponent } from '../../../../shared/ui';
 
-/** Quantos vencimentos aparecem no herói. */
 const UPCOMING_LIMIT = 3;
 
-/**
- * Card herói da visão geral: saldo total em destaque (com o resultado do mês
- * logo abaixo) e, ao lado, os próximos vencimentos (gastos fixos e parcelas).
- */
 @Component({
   selector: 'app-balance-hero',
   imports: [CurrencyPipe, DatePipe, MoneyComponent],
@@ -19,11 +14,11 @@ const UPCOMING_LIMIT = 3;
 })
 export class BalanceHeroComponent {
   readonly balance = input.required<number>();
-  /** Linha de apoio do saldo (ex.: "Informado em 12/09"). */
+
   readonly balanceHint = input.required<string>();
-  /** Ganhos − gastos do mês. */
+
   readonly monthResult = input.required<number>();
-  /** Vencimentos ordenados do mais próximo ao mais distante. */
+
   readonly upcoming = input.required<UpcomingItem[]>();
 
   readonly edit = output<void>();

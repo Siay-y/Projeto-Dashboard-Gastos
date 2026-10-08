@@ -9,7 +9,6 @@
   list-style: none;
 }
 
-// Tom padrão: informativo (cor primária). Os outros trocam as variáveis.
 .alert {
   --tone: var(--color-primary);
   --tone-soft: var(--color-primary-soft);

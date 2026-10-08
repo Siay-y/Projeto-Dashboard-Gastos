@@ -4,7 +4,7 @@ export interface NavItem {
   label: string;
   icon: string;
   path: string;
-  /** Ativo apenas quando a URL é exatamente esta (necessário para "/"). */
+
   exact?: boolean;
 }
 

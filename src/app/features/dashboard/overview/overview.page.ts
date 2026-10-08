@@ -42,10 +42,6 @@ const ADJUST_COPY: Record<AdjustMode, { title: string; label: string; descriptio
   },
 };
 
-/**
- * Visão geral: saudação, indicadores do mês e avisos.
- * Saldo e renda mensal podem ser ajustados direto nos cards.
- */
 @Component({
   selector: 'app-overview-page',
   imports: [
@@ -77,15 +73,12 @@ export class OverviewPage {
   protected readonly routes = APP_ROUTES;
   protected readonly greeting = getGreeting();
 
-  /** Ex.: "Segunda-feira, 21 de setembro" */
   protected readonly today = capitalizeFirst(formatDate(new Date(), "EEEE, d 'de' MMMM", this.locale));
 
-  /** Ex.: "setembro" — nome do mês de referência dos totais. */
   protected readonly monthName = computed(() =>
     formatDate(`${this.transactions.referenceMonth()}-01`, 'MMMM', this.locale),
   );
 
-  /** Há algo para prever? Sem lançamentos nem gastos fixos, mostra o convite. */
   protected readonly hasData = computed(
     () => this.transactions.hasTransactions() || this.recurring.activeCount() > 0,
   );

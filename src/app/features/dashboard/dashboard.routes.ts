@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 
-/** Rotas filhas do shell do painel. */
 export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',

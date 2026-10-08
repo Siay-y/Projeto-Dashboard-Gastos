@@ -63,7 +63,6 @@
     padding-left: calc(var(--space-3) + 2ch + var(--space-2));
   }
 
-  // Esconde os spinners do type="number" — o campo de valor usa prefixo "R$"
   &[type='number'] {
     -moz-appearance: textfield;
     appearance: textfield;
