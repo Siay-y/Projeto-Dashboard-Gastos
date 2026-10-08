@@ -8,9 +8,9 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { categoriesFor, findCategory } from '../../../../core/constants/categories';
-import { Category, TransactionType } from '../../../../core/domain/models';
-import { TileIconComponent } from '../../../../shared/ui';
+import { categoriesFor, findCategory } from '../../../core/constants/categories';
+import { Category, TransactionType } from '../../../core/domain/models';
+import { TileIconComponent } from '../tile-icon/tile-icon.component';
 
 interface CategoryGroup {
   label: string;

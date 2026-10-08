@@ -1,0 +1,44 @@
+<app-card class="budgets">
+  <header class="budgets__head">
+    <div class="budgets__text">
+      <h2 class="budgets__title">Orçamento do mês</h2>
+      <p class="budgets__lead">{{ summary() }}</p>
+    </div>
+
+    <app-button variant="text" icon="tune" [routerLink]="settingsRoute">Ajustar</app-button>
+  </header>
+
+  <ul class="budgets__list">
+    @for (item of budgets(); track item.category.id) {
+      <li class="budget" [attr.data-status]="item.status">
+        <app-tile-icon [source]="item.category" size="sm" />
+
+        <div class="budget__body">
+          <div class="budget__top">
+            <span class="budget__label">{{ item.category.label }}</span>
+            <span class="budget__value tabular">
+              {{ item.spent | currency }}
+              <span class="budget__of">de {{ item.limit | currency }}</span>
+            </span>
+          </div>
+
+          <div
+            class="budget__track"
+            role="progressbar"
+            [attr.aria-label]="'Orçamento de ' + item.category.label"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuemax]="item.limit"
+            [attr.aria-valuenow]="item.spent"
+          >
+            @if (item.willExceed) {
+              <span class="budget__projected" [style.width.%]="projectedWidth(item)"></span>
+            }
+            <span class="budget__fill" [style.width.%]="width(item)"></span>
+          </div>
+
+          <span class="budget__note">{{ note(item) }}</span>
+        </div>
+      </li>
+    }
+  </ul>
+</app-card>

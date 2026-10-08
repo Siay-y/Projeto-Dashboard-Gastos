@@ -60,14 +60,14 @@ próximos dias e leve seus dados para o Excel quando quiser.
 1. **Primeiro acesso**: pergunta "Como devo te chamar?" e mostra uma prévia do
    painel enquanto o nome é digitado.
 2. **Visão geral**: saudação com a data, card herói com o saldo total (informado
-   por você) e os próximos vencimentos, cards de ganhos e gastos do mês e uma
-   lista de avisos.
+   por você) e os próximos vencimentos, cards de ganhos e gastos do mês, lista de
+   avisos e as barras de orçamento das categorias com limite.
 3. **Transações**: seção de gastos fixos e histórico agrupado por mês, com
    formulários em diálogo, filtros de parcelas e menu de exportar/importar.
 4. **Calendário**: grade do mês com vencimentos e lançamentos marcados por dia,
    e a agenda do dia selecionado.
-5. **Configurações**: nome, segurança (PIN e código de recuperação) e gestão dos
-   dados do aparelho.
+5. **Configurações**: nome, orçamento por categoria, segurança (PIN e código de
+   recuperação) e gestão dos dados do aparelho.
 6. **Bloqueio**: pedida do PIN antes de qualquer tela, quando a proteção está ativa.
 
 ---
@@ -86,11 +86,15 @@ próximos dias e leve seus dados para o Excel quando quiser.
   vence nele. Filtro por "Em andamento" e "Quitadas".
 - **Categorias** em grupos (Essenciais, Estilo de vida, Assinaturas, Ganhos) com
   ícone e cor, incluindo marcas como Netflix, Spotify, iFood e Uber.
+- **Orçamento por categoria.** Um teto mensal opcional por categoria, com barra
+  de uso no painel e aviso quando o ritmo de gastos aponta para um estouro antes
+  do fim do mês.
 - **Contas e cartões** (Nubank, Itaú, PicPay, Pix, dinheiro...) associados a
   cada lançamento.
 - **Próximos vencimentos** no card herói e **alertas** na visão geral: conta
   vencendo hoje ou amanhã, parcela vencendo, gastos acima dos ganhos, previsão
-  de fechar o mês no vermelho, renda não definida, saldo desatualizado.
+  de fechar o mês no vermelho, categoria acima do limite, renda não definida,
+  saldo desatualizado.
 - **Calendário mensal** com gastos fixos, parcelas, gastos e ganhos por dia.
 - **Exportar e importar Excel** para gastos fixos e histórico, com prévia,
   detecção de duplicados e relatório de linhas com problema.
@@ -180,8 +184,9 @@ projeto-gastos/
 │   │   │   ├── security/           Derivação de chave e cifragem (Web Crypto)
 │   │   │   ├── guards/             hasUserGuard / noUserGuard
 │   │   │   └── services/           Storage, usuário, transações, gastos fixos,
-│   │   │                           configurações, previsão, alertas, vencimentos,
-│   │   │                           calendário, exportação, importação, preferências
+│   │   │                           configurações, previsão, orçamento, alertas,
+│   │   │                           vencimentos, calendário, exportação, importação,
+│   │   │                           segurança, preferências
 │   │   ├── features/               Uma pasta por tela
 │   │   │   ├── onboarding/         Primeiro acesso
 │   │   │   ├── dashboard/          Visão geral, rotas filhas e seus componentes
@@ -194,8 +199,8 @@ projeto-gastos/
 │   │   ├── shared/
 │   │   │   ├── directives/         appFadeInUp, appSwipeAction
 │   │   │   ├── icons/              Registro explícito de marcas do Simple Icons
-│   │   │   ├── ui/                 Button, Card, Dialog, Input, Menu, Money,
-│   │   │   │                       TileIcon, CollapsibleSection, EmptyState...
+│   │   │   ├── ui/                 Button, Card, Dialog, Input, Menu, Money, PinInput,
+│   │   │   │                       TileIcon, CategoryPicker, EmptyState...
 │   │   │   └── utils/              Datas e saudação
 │   │   ├── app.config.ts           Providers, locale pt-BR e moeda BRL
 │   │   ├── app.routes.ts           Onboarding, shell e página 404
@@ -263,6 +268,7 @@ calendário.
 | `gastos:user-profile` | Nome e data do primeiro acesso |
 | `gastos:transactions` | Lista de transações |
 | `gastos:recurring-expenses` | Lista de gastos fixos |
+| `gastos:budgets` | Limite mensal por categoria (`{ categoria: valor }`) |
 | `gastos:finance-settings` | Saldo total, `balanceUpdatedAt` e renda mensal |
 | `gastos:ui-preferences` | Estado das seções recolhíveis |
 | `gastos:security` | Sais, verificador do PIN e o PIN cifrado sob o código de recuperação |
@@ -362,6 +368,23 @@ gastos previstos    = fixos + parcelas do mês + avulsos projetados
 
 A previsão alimenta os alertas "no ritmo atual, o mês fecha no vermelho" e
 "os gastos passaram os ganhos".
+
+### Orçamento por categoria
+
+Cada categoria de gasto aceita um teto mensal, guardado em `gastos:budgets`. O
+uso soma tudo que pesa naquela categoria no mês: gastos fixos ativos, parcelas
+que vencem no mês e lançamentos avulsos. A projeção usa a mesma fórmula da
+previsão, aplicada só à categoria:
+
+```
+usado      = fixos + parcelas do mês + avulsos
+projetado  = fixos + parcelas do mês + max(avulsos, média diária × dias do mês)
+```
+
+Daí saem três estados: `ok`, `near` a partir de 80% do limite e `over` acima
+dele. Quando o uso ainda cabe no limite mas a projeção não, a barra ganha a
+faixa listrada da previsão e o alerta "no ritmo atual, X estoura o limite".
+Sem nenhum limite definido, nada disso aparece no painel.
 
 ### Vencimentos e alertas
 

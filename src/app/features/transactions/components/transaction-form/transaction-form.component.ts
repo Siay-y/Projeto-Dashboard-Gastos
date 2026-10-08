@@ -22,7 +22,7 @@ import { TransactionInput } from '../../../../core/services/transaction.service'
 import { ButtonComponent, InputComponent } from '../../../../shared/ui';
 import { toDateKey } from '../../../../shared/utils/date';
 import { AccountPickerComponent } from '../account-picker/account-picker.component';
-import { CategoryPickerComponent } from '../category-picker/category-picker.component';
+import { CategoryPickerComponent } from '../../../../shared/ui/category-picker/category-picker.component';
 
 const MAX_DESCRIPTION = 60;
 const MIN_INSTALLMENTS = 2;

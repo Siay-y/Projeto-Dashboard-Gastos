@@ -1,11 +1,21 @@
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { BudgetService } from '../../core/services/budget.service';
 import { SecurityService } from '../../core/services/security.service';
 import { StorageService } from '../../core/services/storage.service';
 import { UserService } from '../../core/services/user.service';
 import { FadeInUpDirective } from '../../shared/directives/fade-in-up.directive';
-import { ButtonComponent, CardComponent, DialogComponent, InputComponent } from '../../shared/ui';
+import {
+  ButtonComponent,
+  CardComponent,
+  DeleteButtonComponent,
+  DialogComponent,
+  InputComponent,
+  TileIconComponent,
+} from '../../shared/ui';
+import { BudgetDialogComponent, BudgetLimit } from './components/budget-dialog/budget-dialog.component';
 import { PinDialogComponent } from './components/pin-dialog/pin-dialog.component';
 
 /** O que fazer quando o PIN atual for confirmado; `null` = criar. */
@@ -14,11 +24,15 @@ type PendingAction = 'disable' | 'change' | 'reissue' | null;
 @Component({
   selector: 'app-settings-page',
   imports: [
+    CurrencyPipe,
     ButtonComponent,
     CardComponent,
+    DeleteButtonComponent,
     DialogComponent,
     InputComponent,
+    TileIconComponent,
     ReactiveFormsModule,
+    BudgetDialogComponent,
     PinDialogComponent,
     FadeInUpDirective,
   ],
@@ -30,8 +44,10 @@ export class SettingsPage {
   private readonly storage = inject(StorageService);
   protected readonly user = inject(UserService);
   protected readonly security = inject(SecurityService);
+  protected readonly budget = inject(BudgetService);
 
   private readonly pinDialog = viewChild.required(PinDialogComponent);
+  private readonly budgetDialog = viewChild.required(BudgetDialogComponent);
   private readonly wipeDialog = viewChild.required('wipeDialog', { read: DialogComponent });
   private readonly codeDialog = viewChild.required('codeDialog', { read: DialogComponent });
 
@@ -55,6 +71,18 @@ export class SettingsPage {
     this.user.identify(value);
     this.nameSaved.set(true);
     setTimeout(() => this.nameSaved.set(false), 2500);
+  }
+
+  protected addLimit(): void {
+    this.budgetDialog().open();
+  }
+
+  protected editLimit(categoryId: string, limit: number): void {
+    this.budgetDialog().open(categoryId, limit);
+  }
+
+  protected saveLimit({ categoryId, limit }: BudgetLimit): void {
+    this.budget.setLimit(categoryId, limit);
   }
 
   protected togglePin(enabled: boolean): void {

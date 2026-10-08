@@ -1,5 +1,6 @@
 export * from './button/button.component';
 export * from './card/card.component';
+export * from './category-picker/category-picker.component';
 export * from './tile-icon/tile-icon.component';
 export * from './collapsible-section/collapsible-section.component';
 export * from './delete-button/delete-button.component';

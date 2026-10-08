@@ -11,6 +11,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { APP_ROUTES } from '../../../core/constants/routes';
 import { AlertAction, AlertService } from '../../../core/services/alert.service';
+import { BudgetService } from '../../../core/services/budget.service';
 import { FinanceSettingsService } from '../../../core/services/finance-settings.service';
 import { RecurringExpenseService } from '../../../core/services/recurring-expense.service';
 import { TransactionService } from '../../../core/services/transaction.service';
@@ -22,6 +23,7 @@ import { capitalizeFirst, daysBetween, toDateKey } from '../../../shared/utils/d
 import { getGreeting } from '../../../shared/utils/greeting';
 import { AlertListComponent } from '../components/alert-list/alert-list.component';
 import { BalanceHeroComponent } from '../components/balance-hero/balance-hero.component';
+import { BudgetListComponent } from '../components/budget-list/budget-list.component';
 import { AmountDialogComponent } from '../components/amount-dialog/amount-dialog.component';
 import { SummaryCardComponent } from '../components/summary-card/summary-card.component';
 
@@ -52,6 +54,7 @@ const ADJUST_COPY: Record<AdjustMode, { title: string; label: string; descriptio
     AmountDialogComponent,
     AlertListComponent,
     BalanceHeroComponent,
+    BudgetListComponent,
     FadeInUpDirective,
   ],
   templateUrl: './overview.page.html',
@@ -67,6 +70,7 @@ export class OverviewPage {
   protected readonly transactions = inject(TransactionService);
   protected readonly alerts = inject(AlertService);
   protected readonly upcoming = inject(UpcomingService);
+  protected readonly budget = inject(BudgetService);
 
   private readonly amountDialog = viewChild.required(AmountDialogComponent);
 

@@ -26,6 +26,51 @@
 
 <app-card class="section" appFadeInUp [delay]="2">
   <div class="section__head">
+    <h2 class="section__title">Orçamento por categoria</h2>
+    <p class="section__lead">
+      Um teto mensal por categoria. O painel passa a mostrar quanto já foi usado e avisa quando o
+      ritmo do mês aponta para um estouro, antes de ele acontecer.
+    </p>
+  </div>
+
+  @if (budget.hasLimits()) {
+    <ul class="limits">
+      @for (item of budget.budgets(); track item.category.id) {
+        <li class="limit">
+          <button
+            type="button"
+            class="limit__main"
+            [attr.aria-label]="'Editar o limite de ' + item.category.label"
+            (click)="editLimit(item.category.id, item.limit)"
+          >
+            <app-tile-icon [source]="item.category" />
+            <span class="limit__text">
+              <span class="limit__label">{{ item.category.label }}</span>
+              <span class="limit__meta">{{ item.spent | currency }} usados neste mês</span>
+            </span>
+            <span class="limit__value tabular">{{ item.limit | currency }}</span>
+          </button>
+
+          <app-delete-button
+            [itemLabel]="'o limite de ' + item.category.label"
+            (confirmed)="budget.removeLimit(item.category.id)"
+          />
+        </li>
+      }
+    </ul>
+  }
+
+  @if (budget.available().length > 0) {
+    <div class="actions">
+      <app-button variant="tonal" icon="add" (click)="addLimit()">
+        {{ budget.hasLimits() ? 'Adicionar limite' : 'Definir o primeiro limite' }}
+      </app-button>
+    </div>
+  }
+</app-card>
+
+<app-card class="section" appFadeInUp [delay]="3">
+  <div class="section__head">
     <h2 class="section__title">Segurança</h2>
     <p class="section__lead">
       Com o PIN ativo, seus lançamentos são gravados cifrados (AES-GCM, chave derivada do PIN) e
@@ -78,7 +123,7 @@
   </p>
 </app-card>
 
-<app-card class="section section--danger" appFadeInUp [delay]="3">
+<app-card class="section section--danger" appFadeInUp [delay]="4">
   <div class="section__head">
     <h2 class="section__title">Seus dados</h2>
     <p class="section__lead">
@@ -99,6 +144,8 @@
     </app-button>
   </div>
 </app-card>
+
+<app-budget-dialog (saved)="saveLimit($event)" />
 
 <app-pin-dialog (confirmed)="onPin($event)" />
 

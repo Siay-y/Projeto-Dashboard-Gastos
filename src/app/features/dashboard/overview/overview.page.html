@@ -49,6 +49,10 @@
   <app-alert-list appFadeInUp [delay]="4" [alerts]="alerts.alerts()" (action)="handleAlert($event)" />
 }
 
+@if (budget.hasLimits()) {
+  <app-budget-list appFadeInUp [delay]="5" />
+}
+
 @if (!hasData()) {
   <app-empty-state
     appFadeInUp

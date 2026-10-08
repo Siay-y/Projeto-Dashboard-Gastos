@@ -1,6 +1,7 @@
 import { formatCurrency } from '@angular/common';
 import { Injectable, LOCALE_ID, computed, inject } from '@angular/core';
 import { daysBetween, toDateKey } from '../../shared/utils/date';
+import { BudgetService } from './budget.service';
 import { FinanceSettingsService } from './finance-settings.service';
 import { ForecastService } from './forecast.service';
 import { RecurringExpenseService } from './recurring-expense.service';
@@ -33,6 +34,7 @@ export class AlertService {
   private readonly recurring = inject(RecurringExpenseService);
   private readonly forecastService = inject(ForecastService);
   private readonly upcoming = inject(UpcomingService);
+  private readonly budgets = inject(BudgetService);
 
   private readonly today = toDateKey();
 
@@ -40,6 +42,7 @@ export class AlertService {
     const list: Alert[] = [];
 
     this.pushBudgetAlert(list);
+    this.pushCategoryAlerts(list);
     this.pushDueAlert(list, 'fixed');
     this.pushDueAlert(list, 'installment');
     this.pushSetupAlerts(list);
@@ -74,6 +77,49 @@ export class AlertService {
         description: `Previsão de ${this.money(f.projectedExpenses)} em gastos contra ${this.money(f.income)} de ganhos. Faltariam ${this.money(-f.projectedBalance)}.`,
       });
     }
+  }
+
+  private pushCategoryAlerts(list: Alert[]): void {
+    const over = this.budgets.over();
+
+    if (over.length === 1) {
+      const [item] = over;
+      list.push({
+        id: 'budget-over',
+        tone: 'danger',
+        icon: 'flag',
+        title: `${item.category.label} passou do limite`,
+        description: `${this.money(item.spent)} de ${this.money(item.limit)}, ${this.money(-item.remaining)} a mais.`,
+      });
+    } else if (over.length > 1) {
+      list.push({
+        id: 'budget-over',
+        tone: 'danger',
+        icon: 'flag',
+        title: `${over.length} categorias passaram do limite`,
+        description: `${joinNames(over.map((b) => b.category.label))} · ${this.money(
+          over.reduce((sum, b) => sum + -b.remaining, 0),
+        )} a mais no total.`,
+      });
+    }
+
+    const willExceed = this.budgets.willExceed();
+    if (willExceed.length === 0) return;
+
+    const [first] = willExceed;
+    list.push({
+      id: 'budget-forecast',
+      tone: 'warning',
+      icon: 'speed',
+      title:
+        willExceed.length === 1
+          ? `No ritmo atual, ${first.category.label} estoura o limite`
+          : `${willExceed.length} categorias devem estourar o limite`,
+      description:
+        willExceed.length === 1
+          ? `Previsão de ${this.money(first.projected)} contra um limite de ${this.money(first.limit)}.`
+          : `${joinNames(willExceed.map((b) => b.category.label))}, pela média de gastos até aqui.`,
+    });
   }
 
   private pushDueAlert(list: Alert[], kind: UpcomingItem['kind']): void {

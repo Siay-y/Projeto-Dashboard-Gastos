@@ -1,0 +1,53 @@
+:host {
+  display: contents;
+}
+
+.budget-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.budget-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.budget-form__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.budget-form__error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.budget-form__chosen {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.budget-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+
+  @media (min-width: 480px) {
+    display: flex;
+    justify-content: flex-end;
+
+    app-button {
+      min-width: 130px;
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<app-dialog #dlg [title]="title()">
+  <form class="budget-form" (ngSubmit)="submit()" novalidate>
+    @if (editing()) {
+      @if (category(); as chosen) {
+        <div class="budget-form__chosen">
+          <app-tile-icon [source]="chosen" />
+          <span>{{ chosen.label }}</span>
+        </div>
+      }
+    } @else {
+      <div class="budget-form__field">
+        <span class="budget-form__label">Categoria</span>
+        <app-category-picker type="expense" [(value)]="categoryId" />
+        @if (categoryError(); as error) {
+          <p class="budget-form__error" role="alert">{{ error }}</p>
+        }
+      </div>
+    }
+
+    <app-input
+      name="limit"
+      label="Limite mensal"
+      prefix="R$"
+      type="number"
+      inputmode="decimal"
+      step="0.01"
+      min="0"
+      placeholder="0,00"
+      hint="Contam os gastos fixos, as parcelas e os lançamentos desta categoria."
+      [autofocus]="editing()"
+      [error]="amountError()"
+      [(ngModel)]="raw"
+    />
+
+    <footer class="budget-form__actions">
+      <app-button variant="tonal" (click)="dlg.close()">Cancelar</app-button>
+      <app-button type="submit" icon="check">Salvar</app-button>
+    </footer>
+  </form>
+</app-dialog>
