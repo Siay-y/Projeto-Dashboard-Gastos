@@ -1,0 +1,18 @@
+@if (failure()) {
+  <div class="bar" role="alert">
+    <span class="material-symbols-rounded bar__icon" aria-hidden="true">cloud_off</span>
+
+    <p class="bar__text">
+      <strong class="bar__title">{{ message() }}</strong>
+      <span class="bar__hint">Exporte seus lançamentos para não perder o que está na tela.</span>
+    </p>
+
+    @if (retryable()) {
+      <button type="button" class="bar__action" (click)="retry()">Tentar de novo</button>
+    }
+
+    <button type="button" class="bar__close" aria-label="Dispensar aviso" (click)="dismiss()">
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
+  </div>
+}

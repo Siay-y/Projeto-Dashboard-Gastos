@@ -1,14 +1,27 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { ENCRYPTED_KEYS, StorageKey } from '../constants/storage-keys';
 import { Envelope, isEnvelope, seal } from '../security/crypto';
 
+export type StorageFailureReason = 'quota' | 'unavailable' | 'unknown';
+
+export interface StorageFailure {
+  reason: StorageFailureReason;
+  /** Sobe a cada falha nova: é o que distingue uma falha de outra já dispensada. */
+  seq: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class StorageService {
+  readonly failure = signal<StorageFailure | null>(null);
+
+  // Declarado antes de `storage`: `resolveStorage` já reporta falha.
   private readonly storage: Storage | null = this.resolveStorage();
 
   // Com PIN ativo é a única forma de ler: o disco guarda apenas envelopes.
   private readonly cache = new Map<StorageKey, unknown>();
   private readonly writes = new Map<StorageKey, Promise<void>>();
+
+  private readonly failed = new Map<StorageKey, unknown>();
 
   private cryptoKey: CryptoKey | null = null;
 
@@ -85,11 +98,21 @@ export class StorageService {
     await Promise.all([...this.writes.values()]);
   }
 
+  retry(): void {
+    if (!this.storage) return;
+
+    const pending = [...this.failed];
+    this.failed.clear();
+    this.failure.set(null);
+
+    for (const [key, value] of pending) this.write(key, value);
+  }
+
   private write(key: StorageKey, value: unknown): void {
     if (!this.storage) return;
 
     if (!this.cryptoKey || !ENCRYPTED_KEYS.includes(key)) {
-      this.writePlain(key, value);
+      this.commit(key, value, value);
       return;
     }
 
@@ -98,19 +121,32 @@ export class StorageService {
     const next = previous
       .then(async () => {
         const sealed = await seal(this.cryptoKey!, value);
-        this.writePlain(key, sealed);
+        this.commit(key, value, sealed);
       })
-      .catch((error) => console.warn(`[StorageService] Falha ao cifrar "${key}"`, error));
+      .catch((error) => {
+        console.warn(`[StorageService] Falha ao cifrar "${key}"`, error);
+        this.report(key, value, 'unknown');
+      });
 
     this.writes.set(key, next);
   }
 
-  private writePlain(key: StorageKey, value: unknown): void {
+  /** `raw` é o valor em claro, que a retentativa reusa; `payload` é o que vai ao disco. */
+  private commit(key: StorageKey, raw: unknown, payload: unknown): void {
     try {
-      this.storage?.setItem(key, JSON.stringify(value));
+      this.storage?.setItem(key, JSON.stringify(payload));
+      this.failed.delete(key);
+      if (this.failed.size === 0 && this.failure()?.reason !== 'unavailable') {
+        this.failure.set(null);
+      }
     } catch (error) {
-      console.warn(`[StorageService] Falha ao salvar "${key}"`, error);
+      this.report(key, raw, isQuotaError(error) ? 'quota' : 'unknown');
     }
+  }
+
+  private report(key: StorageKey, raw: unknown, reason: StorageFailureReason): void {
+    this.failed.set(key, raw);
+    this.failure.update((current) => ({ reason, seq: (current?.seq ?? 0) + 1 }));
   }
 
   private readRaw(key: StorageKey): unknown {
@@ -133,8 +169,15 @@ export class StorageService {
       window.localStorage.removeItem(probe);
       return window.localStorage;
     } catch {
-      console.warn('[StorageService] LocalStorage indisponível; dados não serão persistidos.');
+      this.failure.set({ reason: 'unavailable', seq: 1 });
       return null;
     }
   }
+}
+
+function isQuotaError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+  );
 }

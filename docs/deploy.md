@@ -21,7 +21,29 @@ configurar nada no painel.
 | Versão do Node | 20 ou superior (`engines` no `package.json`) |
 | Fallback de SPA | Rewrite de qualquer caminho para `/index.html`; arquivos existentes têm prioridade |
 | Cache | Assets com hash (`*-XXXXXXXX.js/css`) imutáveis por um ano; `index.html` sem cache |
-| Cabeçalhos | `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, HSTS |
+| Cabeçalhos | CSP, `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, HSTS |
+
+## CSP e o HTML gerado
+
+O `script-src` libera o script de tema embutido por hash SHA-256, então o HTML
+publicado precisa bater com o cabeçalho. Depois de `npm run build`, rode:
+
+```bash
+npm run check:csp
+```
+
+Ele falha se o hash não corresponder, se o HTML ganhar um handler inline ou se
+passar a apontar para uma origem que o CSP não permite. Vale rodar sempre que o
+script de tema, o `index.html` ou a versão do Angular mudarem.
+
+Por isso o build de produção desliga o `inlineCritical`
+(`optimization.styles.inlineCritical: false` no `angular.json`): com ele ligado,
+o Angular injeta `<link ... media="print" onload="this.media='all'">`, e um
+handler inline não pode ser liberado por hash. Sem `'unsafe-inline'` no
+`script-src`, o navegador bloquearia o `onload` e a página ficaria sem estilo.
+Desligar troca o CSS crítico embutido por uma folha de estilo da mesma origem,
+que passa a contar no caminho crítico: o total inicial sai de 85,4 kB para
+86,2 kB transferidos.
 
 O fallback de SPA é obrigatório: diferente de um site de página única com
 âncoras, aqui existem rotas reais (`/transacoes`, `/calendario`). Sem ele,

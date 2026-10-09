@@ -55,3 +55,34 @@ formato não entrega.
 A única recuperação é o código: o PIN é a chave e não fica guardado em lugar
 nenhum. Sem o PIN e sem o código, os dados não voltam, nem por aqui nem por
 ninguém; a tela de bloqueio só pode oferecer apagar tudo e recomeçar.
+
+## Content Security Policy
+
+Como todos os dados vivem no `localStorage`, um XSS seria a falha mais grave
+possível: leria tudo, com PIN ou sem PIN, já que o app mantém o espelho
+decifrado em memória. O `vercel.json` define um CSP para fechar essa porta:
+
+| Diretiva | Valor | Por quê |
+| --- | --- | --- |
+| `default-src` | `'self'` | Nada de origem externa por omissão |
+| `script-src` | `'self'` + hash SHA-256 | Só o bundle e o script de tema embutido, por hash. Sem `'unsafe-inline'` |
+| `style-src` | `'self' 'unsafe-inline'` + Google Fonts | Ver a ressalva abaixo |
+| `font-src` | `'self' https://fonts.gstatic.com` | Os arquivos `.woff2` |
+| `img-src` | `'self' data:` | O favicon e os padrões SVG embutidos no CSS |
+| `connect-src` | `'self'` | O app não faz nenhuma requisição a terceiros |
+| `object-src` | `'none'` | Sem plugin, sem `<embed>` |
+| `base-uri` | `'self'` | Impede reescrever o `<base href>` |
+| `form-action` | `'self'` | Nenhum formulário posta para fora |
+| `frame-ancestors` | `'none'` | Mesma proteção do `X-Frame-Options` |
+
+**A ressalva:** `style-src` precisa de `'unsafe-inline'`. O Angular injeta os
+estilos de componente como `<style>` em tempo de execução, e a alternativa
+oficial (`ngCspNonce`) exige um nonce gerado por requisição, o que um host
+estático não faz. É uma brecha de CSS, não de script: não executa código.
+
+O script de tema do `index.html` é liberado por **hash**, não por nonce, porque
+o hash funciona em host estático. O preço é que qualquer alteração naquele
+script muda o hash e exige atualizar o `vercel.json`. Para isso não falhar em
+silêncio, `npm run check:csp` compara o HTML gerado com o cabeçalho e falha se
+o hash não corresponder, se aparecer um handler inline (que nenhum hash cobre)
+ou se o HTML passar a referenciar uma origem que o CSP não permite.

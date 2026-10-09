@@ -147,6 +147,7 @@ qualquer host estático com fallback de SPA.
 | `npm run build` | Build de produção |
 | `npm run watch` | Build de desenvolvimento em modo observador |
 | `npm test` | Executa os testes com Vitest |
+| `npm run check:csp` | Confere o CSP contra o HTML gerado (rode depois do build) |
 | `npm run ng` | Acesso direto ao Angular CLI |
 
 ---
@@ -183,8 +184,10 @@ então basta importar o projeto na Vercel. Os detalhes estão em
 - **Exportação é o backup.** Como o `localStorage` pertence ao navegador, limpar
   os dados do site apaga tudo. Exporte periodicamente; o arquivo reimporta sem
   duplicar.
-- A escrita no `localStorage` é protegida contra cota excedida e modo privado
-  restritivo, e JSON corrompido é descartado em vez de derrubar o app.
+- **Falha de gravação aparece na tela.** Se o armazenamento estiver cheio ou
+  bloqueado pelo navegador, um aviso em vermelho diz que o dado não foi salvo e
+  oferece tentar de novo, em vez de deixar você acreditar que salvou. JSON
+  corrompido é descartado sem derrubar o app.
 
 ---
 

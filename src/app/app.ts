@@ -3,11 +3,14 @@ import { Router, RouterOutlet } from '@angular/router';
 import { SecurityService } from './core/services/security.service';
 import { ThemeService } from './core/services/theme.service';
 import { LockComponent } from './features/lock/lock.component';
+import { StorageAlertComponent } from './shared/ui/storage-alert/storage-alert.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LockComponent],
+  imports: [RouterOutlet, LockComponent, StorageAlertComponent],
   template: `
+    <app-storage-alert />
+
     @if (security.locked()) {
       <app-lock />
     } @else {

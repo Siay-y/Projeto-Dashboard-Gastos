@@ -36,7 +36,7 @@ projeto-gastos/
 │   │   │   ├── directives/         appFadeInUp, appSwipeAction
 │   │   │   ├── icons/              Registro explícito de marcas do Simple Icons
 │   │   │   ├── ui/                 Button, Calculator, Card, Dialog, Input, Menu, Money,
-│   │   │   │                       PinInput, Tabs, TileIcon, CategoryPicker, EmptyState...
+│   │   │   │                       PinInput, StorageAlert, Tabs, TileIcon, EmptyState...
 │   │   │   └── utils/              Datas e saudação
 │   │   ├── app.config.ts           Providers, locale pt-BR e moeda BRL
 │   │   ├── app.routes.ts           Onboarding, shell e página 404
@@ -81,7 +81,7 @@ mudança, então nenhum componente chama "salvar".
 
 | Serviço | Responsabilidade |
 | --- | --- |
-| `StorageService` | Leitura e escrita tipadas no `localStorage`, com tolerância a JSON inválido e cota excedida |
+| `StorageService` | Leitura e escrita tipadas no `localStorage`; descarta JSON inválido e expõe `failure()` quando a gravação não chega ao disco |
 | `UserService` | Nome do usuário e se já foi identificado |
 | `FinanceSettingsService` | Saldo total, data em que foi informado e renda mensal |
 | `TransactionService` | Transações, ocorrências mensais e totais do mês |
@@ -187,9 +187,13 @@ correspondente; ambos são removidos da URL depois de aplicados.
 - **Bibliotecas pesadas por `import()` dinâmico**, para não entrar no bundle
   inicial.
 - **Testes onde o erro é silencioso.** Não há meta de cobertura: o alvo é a
-  lógica que quebra sem aparecer na tela, como as contas do orçamento, a
-  calculadora, o ciclo do PIN e o arrasto da janela. Layout e aparência seguem
-  verificados a olho, pelo build com `strictTemplates` e pelo navegador.
+  lógica que quebra sem aparecer na tela. Em primeiro lugar a matemática do
+  dinheiro, onde um erro entra como dado válido e contamina o histórico sem
+  avisar: progresso de parcelas, totais do mês, previsão, orçamento e o parser
+  de planilha (separador decimal, data serial do Excel, duplicados). Depois a
+  calculadora, o ciclo do PIN, a falha de gravação e o arrasto da janela.
+  Layout e aparência seguem verificados a olho, pelo build com
+  `strictTemplates` e pelo navegador.
 - **Estilos de host via `:host(...)`.** Com encapsulamento emulado, uma classe
   global aplicada ao host perde para `:host {}`; por isso variantes de
   componente usam atributos `data-*` lidos com `:host([data-...])`.
