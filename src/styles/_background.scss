@@ -1,8 +1,9 @@
-$diagonal-grid-tile: "data:image/svg+xml;utf8," +
-  "<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>" +
-  "<g fill='none' stroke='%231e5e4b' stroke-opacity='0.12' stroke-width='1'>" +
-  "<path d='M0 0L40 40M40 0L0 40'/>" +
-  "</g></svg>";
+@function diagonal-grid($stroke, $opacity) {
+  @return "data:image/svg+xml;utf8," +
+    "<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>" +
+    "<g fill='none' stroke='#{$stroke}' stroke-opacity='#{$opacity}' stroke-width='1'>" +
+    "<path d='M0 0L40 40M40 0L0 40'/>" + "</g></svg>";
+}
 
 body::before {
   content: '';
@@ -10,8 +11,13 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url($diagonal-grid-tile);
+  background-image: url(diagonal-grid('%231e5e4b', 0.12));
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 100%);
+}
+
+// O verde a 12% desaparece no fundo escuro: o traço clareia para seguir visível.
+:root[data-theme='dark'] body::before {
+  background-image: url(diagonal-grid('%235eb092', 0.1));
 }

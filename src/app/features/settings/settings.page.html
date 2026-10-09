@@ -5,145 +5,201 @@
   </div>
 </header>
 
-<app-card class="section" appFadeInUp [delay]="1">
-  <div class="section__head">
-    <h2 class="section__title">Perfil</h2>
-    <p class="section__lead">O nome aparece na saudação do painel. Nada é enviado para fora.</p>
-  </div>
+<app-tabs name="settings" appFadeInUp [delay]="1" [items]="tabs" [(value)]="tab" />
 
-  <form class="profile" (submit)="saveName($event)">
-    <app-input
-      label="Seu nome"
-      placeholder="Meu nome"
-      [maxlength]="40"
-      [formControl]="nameControl"
-    />
-    <app-button type="submit" variant="tonal" [disabled]="name().trim().length < 2">
-      {{ nameSaved() ? 'Salvo' : 'Salvar' }}
-    </app-button>
-  </form>
-</app-card>
+<div
+  class="panel"
+  role="tabpanel"
+  [id]="'settings-panel-' + tab()"
+  [attr.aria-labelledby]="'settings-tab-' + tab()"
+>
+  @switch (tab()) {
+    @case ('geral') {
+      <app-card class="section" appFadeInUp [delay]="2">
+        <div class="section__head">
+          <h2 class="section__title">Perfil</h2>
+          <p class="section__lead">O nome aparece na saudação do painel. Nada é enviado para fora.</p>
+        </div>
 
-<app-card class="section" appFadeInUp [delay]="2">
-  <div class="section__head">
-    <h2 class="section__title">Orçamento por categoria</h2>
-    <p class="section__lead">
-      Um teto mensal por categoria. O painel passa a mostrar quanto já foi usado e avisa quando o
-      ritmo do mês aponta para um estouro, antes de ele acontecer.
-    </p>
-  </div>
+        <form class="profile" (submit)="saveName($event)">
+          <app-input
+            label="Seu nome"
+            placeholder="Meu nome"
+            [maxlength]="40"
+            [formControl]="nameControl"
+          />
+          <app-button type="submit" variant="tonal" [disabled]="name().trim().length < 2">
+            {{ nameSaved() ? 'Salvo' : 'Salvar' }}
+          </app-button>
+        </form>
+      </app-card>
 
-  @if (budget.hasLimits()) {
-    <ul class="limits">
-      @for (item of budget.budgets(); track item.category.id) {
-        <li class="limit">
+      <app-card class="section" appFadeInUp [delay]="3">
+        <div class="section__head">
+          <h2 class="section__title">Aparência</h2>
+          <p class="section__lead">
+            Vale só para este navegador. Em "Sistema", o painel acompanha o tema do seu aparelho.
+          </p>
+        </div>
+
+        <div class="choices" role="radiogroup" aria-label="Tema">
+          @for (option of themeOptions; track option.id) {
+            @let active = theme.choice() === option.id;
+
+            <button
+              type="button"
+              role="radio"
+              class="choice"
+              [class.choice--active]="active"
+              [attr.aria-checked]="active"
+              (click)="theme.set(option.id)"
+            >
+              <span class="material-symbols-rounded choice__icon" aria-hidden="true">
+                {{ option.icon }}
+              </span>
+              {{ option.label }}
+            </button>
+          }
+        </div>
+
+        @if (theme.choice() === 'system') {
+          <p class="section__lead">
+            Seguindo o sistema: tema {{ theme.theme() === 'dark' ? 'escuro' : 'claro' }} agora.
+          </p>
+        }
+      </app-card>
+    }
+
+    @case ('orcamento') {
+      <app-card class="section" appFadeInUp [delay]="2">
+        <div class="section__head">
+          <h2 class="section__title">Orçamento por categoria</h2>
+          <p class="section__lead">
+            Um teto mensal por categoria. O painel passa a mostrar quanto já foi usado e avisa
+            quando o ritmo do mês aponta para um estouro, antes de ele acontecer.
+          </p>
+        </div>
+
+        @if (budget.hasLimits()) {
+          <ul class="limits">
+            @for (item of budget.budgets(); track item.category.id) {
+              <li class="limit">
+                <button
+                  type="button"
+                  class="limit__main"
+                  [attr.aria-label]="'Editar o limite de ' + item.category.label"
+                  (click)="editLimit(item.category.id, item.limit)"
+                >
+                  <app-tile-icon [source]="item.category" />
+                  <span class="limit__text">
+                    <span class="limit__label">{{ item.category.label }}</span>
+                    <span class="limit__meta">{{ item.spent | currency }} usados neste mês</span>
+                  </span>
+                  <span class="limit__value tabular">{{ item.limit | currency }}</span>
+                </button>
+
+                <app-delete-button
+                  [itemLabel]="'o limite de ' + item.category.label"
+                  (confirmed)="budget.removeLimit(item.category.id)"
+                />
+              </li>
+            }
+          </ul>
+        }
+
+        @if (budget.available().length > 0) {
+          <div class="actions">
+            <app-button variant="tonal" icon="add" (click)="addLimit()">
+              {{ budget.hasLimits() ? 'Adicionar limite' : 'Definir o primeiro limite' }}
+            </app-button>
+          </div>
+        }
+      </app-card>
+    }
+
+    @case ('seguranca') {
+      <app-card class="section" appFadeInUp [delay]="2">
+        <div class="section__head">
+          <h2 class="section__title">Segurança</h2>
+          <p class="section__lead">
+            Com o PIN ativo, seus lançamentos são gravados cifrados (AES-GCM, chave derivada do
+            PIN) e só voltam a ser legíveis quando você o digita.
+          </p>
+        </div>
+
+        <div class="option">
+          <div class="option__text">
+            <span class="option__label">Exigir PIN ao abrir</span>
+            <span class="option__hint">
+              @if (!security.supported) {
+                Este navegador não oferece as APIs de criptografia necessárias.
+              } @else if (security.enabled()) {
+                Ativo. Seus dados estão cifrados neste aparelho.
+              } @else {
+                Quatro dígitos, pedidos sempre que o painel for aberto.
+              }
+            </span>
+          </div>
+
           <button
             type="button"
-            class="limit__main"
-            [attr.aria-label]="'Editar o limite de ' + item.category.label"
-            (click)="editLimit(item.category.id, item.limit)"
+            role="switch"
+            class="switch"
+            [disabled]="!security.supported"
+            [attr.aria-checked]="security.enabled()"
+            aria-label="Exigir PIN ao abrir"
+            (click)="togglePin(!security.enabled())"
           >
-            <app-tile-icon [source]="item.category" />
-            <span class="limit__text">
-              <span class="limit__label">{{ item.category.label }}</span>
-              <span class="limit__meta">{{ item.spent | currency }} usados neste mês</span>
-            </span>
-            <span class="limit__value tabular">{{ item.limit | currency }}</span>
+            <span class="switch__knob"></span>
           </button>
+        </div>
 
-          <app-delete-button
-            [itemLabel]="'o limite de ' + item.category.label"
-            (confirmed)="budget.removeLimit(item.category.id)"
-          />
-        </li>
-      }
-    </ul>
-  }
-
-  @if (budget.available().length > 0) {
-    <div class="actions">
-      <app-button variant="tonal" icon="add" (click)="addLimit()">
-        {{ budget.hasLimits() ? 'Adicionar limite' : 'Definir o primeiro limite' }}
-      </app-button>
-    </div>
-  }
-</app-card>
-
-<app-card class="section" appFadeInUp [delay]="3">
-  <div class="section__head">
-    <h2 class="section__title">Segurança</h2>
-    <p class="section__lead">
-      Com o PIN ativo, seus lançamentos são gravados cifrados (AES-GCM, chave derivada do PIN) e
-      só voltam a ser legíveis quando você o digita.
-    </p>
-  </div>
-
-  <div class="option">
-    <div class="option__text">
-      <span class="option__label">Exigir PIN ao abrir</span>
-      <span class="option__hint">
-        @if (!security.supported) {
-          Este navegador não oferece as APIs de criptografia necessárias.
-        } @else if (security.enabled()) {
-          Ativo. Seus dados estão cifrados neste aparelho.
-        } @else {
-          Quatro dígitos, pedidos sempre que o painel for aberto.
+        @if (security.enabled()) {
+          <div class="actions">
+            <app-button variant="tonal" icon="password" (click)="changePin()">Alterar PIN</app-button>
+            <app-button variant="tonal" icon="vpn_key" (click)="reissueCode()">
+              Gerar novo código
+            </app-button>
+            <app-button variant="text" icon="lock" (click)="lockNow()">Bloquear agora</app-button>
+          </div>
         }
-      </span>
-    </div>
 
-    <button
-      type="button"
-      role="switch"
-      class="switch"
-      [disabled]="!security.supported"
-      [attr.aria-checked]="security.enabled()"
-      aria-label="Exigir PIN ao abrir"
-      (click)="togglePin(!security.enabled())"
-    >
-      <span class="switch__knob"></span>
-    </button>
-  </div>
+        <p class="note">
+          <span class="material-symbols-rounded" aria-hidden="true">info</span>
+          Quatro dígitos são 10.000 combinações: isso protege contra quem pega seu aparelho
+          destravado, não contra alguém com acesso técnico ao armazenamento e tempo de sobra. Ao
+          definir o PIN você recebe um código de recuperação. Sem o PIN e sem o código, os dados
+          não voltam.
+        </p>
+      </app-card>
+    }
 
-  @if (security.enabled()) {
-    <div class="actions">
-      <app-button variant="tonal" icon="password" (click)="changePin()">Alterar PIN</app-button>
-      <app-button variant="tonal" icon="vpn_key" (click)="reissueCode()">
-        Gerar novo código
-      </app-button>
-      <app-button variant="text" icon="lock" (click)="lockNow()">Bloquear agora</app-button>
-    </div>
+    @case ('dados') {
+      <app-card class="section section--danger" appFadeInUp [delay]="2">
+        <div class="section__head">
+          <h2 class="section__title">Seus dados</h2>
+          <p class="section__lead">
+            Tudo fica no armazenamento deste navegador. Limpar os dados do site apaga o histórico,
+            então exporte as planilhas em Transações de vez em quando.
+          </p>
+        </div>
+
+        <div class="danger">
+          <div class="danger__text">
+            <span class="danger__label">Apagar todos os dados</span>
+            <span class="danger__hint">
+              Remove transações, gastos fixos, limites, saldo, renda, seu nome e o PIN. Não há como
+              desfazer.
+            </span>
+          </div>
+          <app-button variant="danger" icon="delete_forever" (click)="openWipe()">
+            Apagar todos os dados
+          </app-button>
+        </div>
+      </app-card>
+    }
   }
-
-  <p class="note">
-    <span class="material-symbols-rounded" aria-hidden="true">info</span>
-    Quatro dígitos são 10.000 combinações: isso protege contra quem pega seu aparelho destravado,
-    não contra alguém com acesso técnico ao armazenamento e tempo de sobra. Ao definir o PIN você
-    recebe um código de recuperação. Sem o PIN e sem o código, os dados não voltam.
-  </p>
-</app-card>
-
-<app-card class="section section--danger" appFadeInUp [delay]="4">
-  <div class="section__head">
-    <h2 class="section__title">Seus dados</h2>
-    <p class="section__lead">
-      Tudo fica no armazenamento deste navegador. Limpar os dados do site apaga o histórico, então
-      exporte as planilhas em Transações de vez em quando.
-    </p>
-  </div>
-
-  <div class="danger">
-    <div class="danger__text">
-      <span class="danger__label">Apagar todos os dados</span>
-      <span class="danger__hint">
-        Remove transações, gastos fixos, saldo, renda, seu nome e o PIN. Não há como desfazer.
-      </span>
-    </div>
-    <app-button variant="danger" icon="delete_forever" (click)="openWipe()">
-      Apagar todos os dados
-    </app-button>
-  </div>
-</app-card>
+</div>
 
 <app-budget-dialog (saved)="saveLimit($event)" />
 
@@ -167,8 +223,8 @@
 
 <app-dialog #wipeDialog title="Apagar todos os dados?">
   <p class="wipe__text">
-    Isto remove transações, gastos fixos, saldo, renda, seu nome e o PIN deste navegador. Não há
-    como desfazer.
+    Isto remove transações, gastos fixos, limites, saldo, renda, seu nome e o PIN deste navegador.
+    Não há como desfazer.
   </p>
   <footer class="wipe__actions">
     <app-button variant="danger" icon="delete_forever" (click)="wipe()">Apagar tudo</app-button>

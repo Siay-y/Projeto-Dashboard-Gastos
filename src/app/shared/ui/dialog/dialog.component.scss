@@ -23,7 +23,8 @@ $breakpoint-sheet: 640px;
   }
 
   &::backdrop {
-    background: rgba(28, 28, 26, 0.4);
+    // Fallback porque `::backdrop` só herda custom properties em navegadores recentes.
+    background: var(--color-backdrop, rgba(28, 28, 26, 0.4));
     animation: backdrop-in var(--duration-medium) var(--ease-standard) both;
   }
 

@@ -5,7 +5,14 @@
       <p class="budgets__lead">{{ summary() }}</p>
     </div>
 
-    <app-button variant="text" icon="tune" [routerLink]="settingsRoute">Ajustar</app-button>
+    <app-button
+      variant="text"
+      icon="tune"
+      [routerLink]="settingsRoute"
+      [queryParams]="{ aba: 'orcamento' }"
+    >
+      Ajustar
+    </app-button>
   </header>
 
   <ul class="budgets__list">

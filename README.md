@@ -66,8 +66,8 @@ próximos dias e leve seus dados para o Excel quando quiser.
    formulários em diálogo, filtros de parcelas e menu de exportar/importar.
 4. **Calendário**: grade do mês com vencimentos e lançamentos marcados por dia,
    e a agenda do dia selecionado.
-5. **Configurações**: nome, orçamento por categoria, segurança (PIN e código de
-   recuperação) e gestão dos dados do aparelho.
+5. **Configurações**, em abas: Geral (nome e aparência), Orçamento (limites por
+   categoria), Segurança (PIN e código de recuperação) e Dados.
 6. **Bloqueio**: pedida do PIN antes de qualquer tela, quando a proteção está ativa.
 
 ---
@@ -100,6 +100,8 @@ próximos dias e leve seus dados para o Excel quando quiser.
   detecção de duplicados e relatório de linhas com problema.
 - **Deslizar para editar ou apagar** no celular, com feedback tátil.
 - **PIN opcional** que cifra os dados no aparelho e bloqueia o painel ao abrir.
+- **Tema claro, escuro ou do sistema**, aplicado antes do primeiro pixel para
+  não piscar branco ao abrir.
 - **Responsivo**: sidebar no desktop, barra inferior no celular, diálogos que
   viram folha ou tela cheia conforme o conteúdo.
 
@@ -200,7 +202,7 @@ projeto-gastos/
 │   │   │   ├── directives/         appFadeInUp, appSwipeAction
 │   │   │   ├── icons/              Registro explícito de marcas do Simple Icons
 │   │   │   ├── ui/                 Button, Card, Dialog, Input, Menu, Money, PinInput,
-│   │   │   │                       TileIcon, CategoryPicker, EmptyState...
+│   │   │   │                       Tabs, TileIcon, CategoryPicker, EmptyState...
 │   │   │   └── utils/              Datas e saudação
 │   │   ├── app.config.ts           Providers, locale pt-BR e moeda BRL
 │   │   ├── app.routes.ts           Onboarding, shell e página 404
@@ -271,6 +273,7 @@ calendário.
 | `gastos:budgets` | Limite mensal por categoria (`{ categoria: valor }`) |
 | `gastos:finance-settings` | Saldo total, `balanceUpdatedAt` e renda mensal |
 | `gastos:ui-preferences` | Estado das seções recolhíveis |
+| `gastos:theme` | Tema escolhido: `system`, `light` ou `dark` |
 | `gastos:security` | Sais, verificador do PIN e o PIN cifrado sob o código de recuperação |
 
 Cada serviço tem uma função `migrate` que preenche campos adicionados em versões
@@ -405,6 +408,7 @@ fonte de cor, raio, sombra, espaçamento e motion.
 | Ação | Verde-pinho `#1e5e4b`, com variantes hover, active, soft e um verde profundo para o card herói |
 | Acento | Âmbar `#b7791f`, usado com parcimônia: parcelas, mês selecionado, vencimento de hoje |
 | Neutros | Quentes, não cinza-puro: fundo `#f5f4f0`, superfície branca, contornos `#e3e1d9` |
+| Tema escuro | Mesma estrutura em `:root[data-theme='dark']`: fundo `#131311`, superfície `#1c1c19`, verde clareado `#5eb092` |
 | Semânticas | Sucesso, perigo, atenção e informação, cada uma com versão soft |
 | Raios | 4, 8, 12 e 16 px |
 | Espaçamento | Escala de 4 px (`--space-1` a `--space-16`) |
@@ -422,6 +426,28 @@ Decisões de identidade:
 - O fundo da página é um quadriculado inclinado em SVG com máscara radial.
 - Ícones de categoria aparecem na cor do sistema por padrão; a cor da marca só
   entra onde a legibilidade exige (`brandColor`).
+
+### Tema claro e escuro
+
+A escolha fica em **Configurações → Geral → Aparência**: claro, escuro ou
+sistema. O `ThemeService` resolve "sistema" pelo `prefers-color-scheme`,
+acompanha a mudança do sistema operacional em tempo real e escreve o resultado
+em `data-theme` no `<html>`. Por isso o CSS precisa de um bloco só,
+`:root[data-theme='dark']`, sem duplicar regras em media query.
+
+Um script de cinco linhas no `index.html` aplica o tema antes do primeiro pixel,
+lendo `gastos:theme` direto do `localStorage`. Sem ele, quem usa escuro veria um
+flash claro enquanto o bundle carrega. O mesmo script atualiza
+`<meta name="theme-color">`, que pinta a barra do navegador no celular.
+
+Três pontos precisaram de tratamento específico no escuro:
+
+- `--color-primary-deep` continua escuro nos dois temas: é a superfície verde do
+  card herói, não uma cor de texto.
+- Categorias de cor quase preta (Uber, Steam) ficariam invisíveis, então o
+  `TileIcon` clareia a cor da marca via `color-mix` sob `:host-context`.
+- O vermelho clareia no escuro, então texto sobre ele escurece
+  (`--color-on-danger`), senão o contraste cai abaixo do mínimo.
 
 ---
 
@@ -493,6 +519,8 @@ puladas.
 - Menus com `aria-haspopup`, `role="menu"` e fechamento por `Esc` ou clique fora.
 - Filtros e alternadores com `role="radiogroup"` / `role="switch"` e estado
   anunciado.
+- Abas no padrão ARIA: `role="tablist"`, seta esquerda e direita com volta nas
+  pontas, `Home` e `End`, e só a aba ativa na ordem de tabulação.
 - Estados de foco visíveis com `:focus-visible` na cor primária.
 - Alvos de toque de no mínimo 40 px; botões principais com 46 px.
 - `prefers-reduced-motion: reduce` desliga entradas, count-up, molas do swipe e

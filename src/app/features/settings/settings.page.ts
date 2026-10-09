@@ -1,10 +1,19 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BudgetService } from '../../core/services/budget.service';
 import { SecurityService } from '../../core/services/security.service';
 import { StorageService } from '../../core/services/storage.service';
+import { THEME_OPTIONS, ThemeService } from '../../core/services/theme.service';
 import { UserService } from '../../core/services/user.service';
 import { FadeInUpDirective } from '../../shared/directives/fade-in-up.directive';
 import {
@@ -13,6 +22,8 @@ import {
   DeleteButtonComponent,
   DialogComponent,
   InputComponent,
+  TabItem,
+  TabsComponent,
   TileIconComponent,
 } from '../../shared/ui';
 import { BudgetDialogComponent, BudgetLimit } from './components/budget-dialog/budget-dialog.component';
@@ -20,6 +31,13 @@ import { PinDialogComponent } from './components/pin-dialog/pin-dialog.component
 
 /** O que fazer quando o PIN atual for confirmado; `null` = criar. */
 type PendingAction = 'disable' | 'change' | 'reissue' | null;
+
+const TABS: readonly TabItem[] = [
+  { id: 'geral', label: 'Geral', icon: 'tune' },
+  { id: 'orcamento', label: 'Orçamento', icon: 'savings' },
+  { id: 'seguranca', label: 'Segurança', icon: 'lock' },
+  { id: 'dados', label: 'Dados', icon: 'database' },
+];
 
 @Component({
   selector: 'app-settings-page',
@@ -31,6 +49,7 @@ type PendingAction = 'disable' | 'change' | 'reissue' | null;
     DialogComponent,
     InputComponent,
     TileIconComponent,
+    TabsComponent,
     ReactiveFormsModule,
     BudgetDialogComponent,
     PinDialogComponent,
@@ -45,6 +64,18 @@ export class SettingsPage {
   protected readonly user = inject(UserService);
   protected readonly security = inject(SecurityService);
   protected readonly budget = inject(BudgetService);
+  protected readonly theme = inject(ThemeService);
+
+  /** Permite chegar direto numa aba, como em `/configuracoes?aba=orcamento`. */
+  readonly aba = input<string>();
+
+  protected readonly tabs = TABS;
+  protected readonly themeOptions = THEME_OPTIONS;
+
+  protected readonly tab = linkedSignal(() => {
+    const requested = this.aba();
+    return TABS.some((t) => t.id === requested) ? requested! : TABS[0].id;
+  });
 
   private readonly pinDialog = viewChild.required(PinDialogComponent);
   private readonly budgetDialog = viewChild.required(BudgetDialogComponent);

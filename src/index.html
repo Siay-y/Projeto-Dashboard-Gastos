@@ -10,6 +10,21 @@
   <meta name="theme-color" content="#f5f4f0">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
+  <script>
+    // Antes do primeiro pixel: o app só inicia depois, e quem usa escuro veria um flash claro.
+    try {
+      var raw = localStorage.getItem('gastos:theme');
+      var choice = raw ? JSON.parse(raw) : 'system';
+      var dark = choice === 'dark'
+        || (choice !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      if (dark) {
+        document.querySelector('meta[name="theme-color"]').content = '#131311';
+      }
+    } catch (e) {}
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link

@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
   RECURRING_EXPENSES: 'gastos:recurring-expenses',
   BUDGETS: 'gastos:budgets',
   UI_PREFERENCES: 'gastos:ui-preferences',
+  THEME: 'gastos:theme',
   SECURITY: 'gastos:security',
 } as const;
 

@@ -86,7 +86,7 @@
 
 .btn--danger {
   background: var(--color-danger);
-  color: #fff;
+  color: var(--color-on-danger);
   box-shadow: var(--shadow-1);
 
   &:hover:not(:disabled) {

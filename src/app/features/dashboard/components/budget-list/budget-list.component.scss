@@ -10,9 +10,21 @@
 
 .budgets__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-2) var(--space-3);
+
+  // No celular o botão não divide a linha com o texto: ele desce e alinha à direita.
+  @media (max-width: 639px) {
+    .budgets__text {
+      flex-basis: 100%;
+    }
+
+    app-button {
+      margin-left: auto;
+    }
+  }
 }
 
 .budgets__text {
@@ -82,6 +94,12 @@
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
+
+  // "R$ 320,00 de R$ 600,00" é longo: no celular ele encolhe para o nome da
+  // categoria não ficar só com reticências.
+  @media (max-width: 479px) {
+    font-size: 0.8125rem;
+  }
 }
 
 .budget__of {
