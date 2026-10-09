@@ -1,4 +1,5 @@
 <div class="shell">
+  <app-calculator #calculator />
 
   <aside class="sidebar">
     <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos: visão geral">
@@ -49,15 +50,28 @@
       <span class="brand__name">Meus Gastos</span>
     </a>
 
-    <button
-      type="button"
-      class="topbar__user"
-      title="Trocar nome"
-      aria-label="Trocar nome"
-      (click)="switchUser()"
-    >
-      <span class="avatar" aria-hidden="true">{{ initial() }}</span>
-    </button>
+    <div class="topbar__actions">
+      <button
+        type="button"
+        class="icon-button"
+        data-calc-trigger
+        title="Calculadora"
+        aria-label="Calculadora"
+        (click)="calculator.toggle()"
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">calculate</span>
+      </button>
+
+      <button
+        type="button"
+        class="topbar__user"
+        title="Trocar nome"
+        aria-label="Trocar nome"
+        (click)="switchUser()"
+      >
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+      </button>
+    </div>
   </header>
 
   <main class="content">

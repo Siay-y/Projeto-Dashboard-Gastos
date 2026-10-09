@@ -17,7 +17,6 @@ body::before {
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 100%);
 }
 
-// O verde a 12% desaparece no fundo escuro: o traço clareia para seguir visível.
 :root[data-theme='dark'] body::before {
   background-image: url(diagonal-grid('%235eb092', 0.1));
 }

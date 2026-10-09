@@ -28,6 +28,7 @@ import { UiPreferencesService } from '../../core/services/ui-preferences.service
 import { FadeInUpDirective } from '../../shared/directives/fade-in-up.directive';
 import {
   ButtonComponent,
+  CalculatorComponent,
   CardComponent,
   CollapsibleSectionComponent,
   DialogComponent,
@@ -50,6 +51,7 @@ const SECTION_PARAMS: Record<string, string | undefined> = {
   selector: 'app-transactions-page',
   imports: [
     CurrencyPipe,
+    CalculatorComponent,
     CardComponent,
     ButtonComponent,
     DialogComponent,

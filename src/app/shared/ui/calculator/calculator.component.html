@@ -1,0 +1,81 @@
+@if (visible() && isOpen()) {
+  <div
+    #panel
+    class="calc"
+    tabindex="-1"
+    role="dialog"
+    aria-label="Calculadora"
+    [style.transform]="transform()"
+    (keydown)="onKeydown($event)"
+  >
+    <div
+      class="calc__bar"
+      [class.calc__bar--draggable]="isDesktop()"
+      (pointerdown)="startDrag($event)"
+      (pointermove)="onDrag($event)"
+      (pointerup)="endDrag()"
+      (pointercancel)="endDrag()"
+    >
+      @if (isDesktop()) {
+        <span class="material-symbols-rounded calc__grip" aria-hidden="true">drag_indicator</span>
+      }
+
+      <span class="calc__title">Calculadora</span>
+
+      <button type="button" class="calc__icon-btn" aria-label="Fechar calculadora" (click)="close()">
+        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div class="calc__display">
+      <span class="calc__pending tabular">{{ pending() }}</span>
+
+      <div class="calc__row">
+        <output class="calc__value tabular" [class.calc__value--message]="error()">
+          {{ display() }}
+        </output>
+
+        <button
+          type="button"
+          class="calc__icon-btn"
+          [title]="copied() ? 'Copiado' : 'Copiar valor'"
+          [attr.aria-label]="copied() ? 'Copiado' : 'Copiar valor'"
+          (click)="copy()"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">
+            {{ copied() ? 'check' : 'content_copy' }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="calc__keys">
+      @for (item of keys; track item.label) {
+        <button
+          type="button"
+          class="calc__key"
+          [attr.data-variant]="item.variant"
+          [class.calc__key--active]="isActiveOperator(item.key)"
+          (click)="tap(item.key)"
+        >
+          {{ item.label }}
+        </button>
+      }
+    </div>
+  </div>
+}
+
+@if (visible()) {
+  <button
+    type="button"
+    class="fab"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-label]="isOpen() ? 'Fechar calculadora' : 'Abrir calculadora'"
+    [title]="isOpen() ? 'Fechar calculadora' : 'Calculadora'"
+    (click)="toggle()"
+  >
+    <span class="material-symbols-rounded" aria-hidden="true">
+      {{ isOpen() ? 'close' : 'calculate' }}
+    </span>
+  </button>
+}

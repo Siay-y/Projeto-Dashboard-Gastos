@@ -62,9 +62,6 @@
   --font-display: 'Manrope', var(--font-family);
 }
 
-// O ThemeService resolve "sistema" e escreve `data-theme` no <html>, então aqui
-// basta um bloco. `--color-primary-deep` é a superfície verde escura do card
-// herói: continua escura nos dois temas, não é cor de texto.
 :root[data-theme='dark'] {
   color-scheme: dark;
 
@@ -73,8 +70,6 @@
   --color-primary-active: #80c8ac;
   --color-primary-soft: #1c3329;
   --color-on-primary: #0a241c;
-  // Superfície do card herói. No claro ela escurece para destacar do fundo; no
-  // escuro precisa do caminho oposto, senão o card some.
   --color-primary-deep: #1e5e4b;
 
   --color-accent: #d9a040;
@@ -95,7 +90,6 @@
   --color-success-soft: #16291f;
   --color-danger: #e4695c;
   --color-danger-soft: #331c19;
-  // O vermelho clareia no escuro, então o texto sobre ele precisa escurecer.
   --color-on-danger: #2b0e0a;
   --color-warning: #d99a3f;
   --color-warning-soft: #332518;

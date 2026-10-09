@@ -37,7 +37,6 @@ export class StorageService {
     this.storage?.clear();
   }
 
-  /** Valor em claro sem passar pelo cache. */
   snapshot(key: StorageKey): unknown {
     if (this.cache.has(key)) return this.cache.get(key);
     const value = this.readRaw(key);

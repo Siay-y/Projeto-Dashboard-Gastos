@@ -202,6 +202,12 @@ $breakpoint-desktop: 1024px;
   }
 }
 
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .topbar__user {
   border-radius: 50%;
 

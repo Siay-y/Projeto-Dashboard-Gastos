@@ -55,8 +55,6 @@
   font-size: 18px;
 }
 
-// Quatro abas não cabem lado a lado no celular: viram ícone sobre rótulo, como
-// a barra inferior de navegação, em vez de rolar e esconder a última.
 @media (max-width: 559px) {
   .tab {
     flex-direction: column;

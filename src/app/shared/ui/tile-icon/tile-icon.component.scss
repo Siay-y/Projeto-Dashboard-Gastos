@@ -16,7 +16,6 @@
     color var(--duration-short) var(--ease-standard);
 }
 
-// Há categorias de cor quase preta (Uber, Steam): no escuro elas precisam clarear.
 :host-context(:root[data-theme='dark']) {
   background: color-mix(in srgb, var(--cat-color) 22%, var(--color-surface));
   color: color-mix(in srgb, var(--cat-color) 55%, #ffffff);

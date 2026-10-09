@@ -12,8 +12,6 @@
 
 .fade-in-up {
   --delay: 0;
-  // `backwards`, não `both`: transform residual criaria contexto de empilhamento
-  // e esconderia menus atrás do bloco seguinte.
   animation: fade-in-up var(--duration-long) var(--ease-emphasized) backwards;
   animation-delay: calc(var(--delay) * 80ms);
 }

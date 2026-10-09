@@ -22,7 +22,7 @@ export class DialogComponent {
   readonly size = input<'md' | 'lg'>('md');
   readonly closed = output<void>();
 
-  protected readonly isOpen = signal(false);
+  readonly isOpen = signal(false);
   private readonly dialogRef = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
   open(): void {

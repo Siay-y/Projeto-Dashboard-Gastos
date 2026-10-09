@@ -5,4 +5,5 @@ export interface Account {
   label: string;
   icon: IconRef;
   color: string;
+  group: string;
 }

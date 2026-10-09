@@ -15,7 +15,6 @@
   justify-content: space-between;
   gap: var(--space-2) var(--space-3);
 
-  // No celular o botão não divide a linha com o texto: ele desce e alinha à direita.
   @media (max-width: 639px) {
     .budgets__text {
       flex-basis: 100%;
@@ -56,7 +55,6 @@
   align-items: start;
   gap: var(--space-3);
 
-  // A cor da barra e da nota vem do estado, não da categoria: o aviso tem de se destacar.
   --budget-color: var(--color-primary);
 
   &[data-status='near'] {
@@ -95,8 +93,6 @@
   font-weight: 600;
   white-space: nowrap;
 
-  // "R$ 320,00 de R$ 600,00" é longo: no celular ele encolhe para o nome da
-  // categoria não ficar só com reticências.
   @media (max-width: 479px) {
     font-size: 0.8125rem;
   }

@@ -1,4 +1,5 @@
 export * from './button/button.component';
+export * from './calculator/calculator.component';
 export * from './card/card.component';
 export * from './category-picker/category-picker.component';
 export * from './tile-icon/tile-icon.component';

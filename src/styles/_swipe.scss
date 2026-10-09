@@ -1,7 +1,6 @@
 .swipe-action {
   position: relative;
   overflow: hidden;
-  // A rolagem vertical é do navegador; o horizontal é da diretiva.
   touch-action: pan-y;
 }
 

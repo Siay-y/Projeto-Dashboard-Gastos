@@ -6,7 +6,6 @@
   transition: box-shadow var(--duration-medium) var(--ease-standard);
 }
 
-// Variantes via `:host([data-*])`: com encapsulamento emulado, classe no host perde para `:host {}`.
 :host([data-padded]) {
   padding: var(--space-6);
 

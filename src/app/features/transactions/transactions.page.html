@@ -42,6 +42,7 @@
 
 <app-collapsible-section id="history" title="Histórico" appFadeInUp [delay]="2">
   <span subtitle>Lançamentos pontuais: mercado, almoço, Uber, entradas extras.</span>
+  <app-button actions variant="tonal" icon="add" (click)="openNew()">Adicionar</app-button>
   <app-menu
     actions
     label="Mais opções do histórico"
@@ -68,10 +69,12 @@
 
 <app-dialog #txDialog size="lg" [title]="txDialogTitle()" (closed)="editing.set(null)">
   <app-transaction-form (saved)="save($event)" (cancelled)="txDialog.close()" />
+  <app-calculator dialogOverlay variant="embedded" [active]="txDialog.isOpen()" />
 </app-dialog>
 
 <app-dialog #recDialog size="lg" [title]="recDialogTitle()" (closed)="editingRecurring.set(null)">
   <app-recurring-form (saved)="saveRecurring($event)" (cancelled)="recDialog.close()" />
+  <app-calculator dialogOverlay variant="embedded" [active]="recDialog.isOpen()" />
 </app-dialog>
 
 <input
