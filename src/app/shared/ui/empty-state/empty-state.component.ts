@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CardComponent } from '../card/card.component';
 
-export type EmptyIllustration = 'wallet' | 'receipt' | 'chart' | 'repeat';
+export type EmptyIllustration = 'wallet' | 'receipt' | 'chart' | 'repeat' | 'note' | 'search';
 
 @Component({
   selector: 'app-empty-state',
@@ -13,6 +13,6 @@ export type EmptyIllustration = 'wallet' | 'receipt' | 'chart' | 'repeat';
 export class EmptyStateComponent {
   readonly title = input.required<string>();
   readonly description = input<string>();
-  readonly illustration = input<EmptyIllustration>();
-  readonly icon = input<string>('inbox');
+  // Obrigatória: é o que mantém todo estado vazio com a mesma cara.
+  readonly illustration = input.required<EmptyIllustration>();
 }

@@ -1,15 +1,31 @@
-<div class="shell">
+<div class="shell" [class.shell--rail]="collapsed()">
   <app-calculator #calculator />
 
   <aside class="sidebar">
-    <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos: visão geral">
-      <span class="brand__mark" aria-hidden="true">
-        <span class="material-symbols-rounded filled">account_balance_wallet</span>
-      </span>
-      <span class="brand__name">Meus Gastos</span>
-    </a>
+    <div class="sidebar__head">
+      <a class="brand" [routerLink]="'/'" aria-label="Meus Gastos: visão geral">
+        <span class="brand__mark" aria-hidden="true">
+          <span class="material-symbols-rounded filled">account_balance_wallet</span>
+        </span>
+        <span class="brand__name" [class.visually-hidden]="collapsed()">Meus Gastos</span>
+      </a>
 
-    <nav class="sidebar__nav" aria-label="Principal">
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Menu lateral"
+        aria-controls="shell-nav"
+        [attr.aria-expanded]="!collapsed()"
+        [title]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
+        (click)="toggleSidebar()"
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">{{
+          collapsed() ? 'left_panel_open' : 'left_panel_close'
+        }}</span>
+      </button>
+    </div>
+
+    <nav class="sidebar__nav" id="shell-nav" aria-label="Principal">
       @for (item of navItems; track item.path) {
         <a
           class="nav-link"
@@ -17,18 +33,19 @@
           routerLinkActive="nav-link--active"
           [routerLinkActiveOptions]="{ exact: !!item.exact }"
           ariaCurrentWhenActive="page"
+          [attr.title]="collapsed() ? item.label : null"
         >
           <span class="material-symbols-rounded nav-link__icon" aria-hidden="true">{{
             item.icon
           }}</span>
-          <span>{{ item.label }}</span>
+          <span [class.visually-hidden]="collapsed()">{{ item.label }}</span>
         </a>
       }
     </nav>
 
     <div class="sidebar__user">
       <span class="avatar" aria-hidden="true">{{ initial() }}</span>
-      <div class="sidebar__user-info">
+      <div class="sidebar__user-info" [class.visually-hidden]="collapsed()">
         <span class="sidebar__user-name">{{ user.name() }}</span>
         <span class="sidebar__user-hint">Dados locais</span>
       </div>

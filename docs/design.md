@@ -30,7 +30,10 @@ Decisões de identidade:
 - Valores monetários usam o componente `Money`, que separa os centavos em
   tamanho menor e conta do valor anterior ao novo em 700 ms.
 - Estados vazios usam ilustrações em linha (SVG) na cor primária com um ponto
-  âmbar, em vez de ícone ou emoji.
+  âmbar, em vez de ícone ou emoji. A entrada `illustration` do `EmptyState` é
+  obrigatória justamente para isso: o conjunto hoje tem `wallet`, `receipt`,
+  `chart`, `repeat`, `note` e `search`, e um estado novo escolhe uma delas ou
+  ganha a sua, em vez de cair num ícone com outra aparência.
 - O fundo da página é um quadriculado inclinado em SVG com máscara radial.
 - Ícones de categoria aparecem na cor do sistema por padrão; a cor da marca só
   entra onde a legibilidade exige (`brandColor`).
@@ -89,9 +92,13 @@ própria diretiva, por isso seus estilos ficam globais em `_swipe.scss`.
   anunciado.
 - Abas no padrão ARIA: `role="tablist"`, seta esquerda e direita com volta nas
   pontas, `Home` e `End`, e só a aba ativa na ordem de tabulação.
+- A barra lateral do desktop recolhe para um rail de 64px. O botão leva
+  `aria-expanded` e `aria-controls` apontando para a navegação, e o rótulo de
+  cada atalho sai da tela com `.visually-hidden` em vez de ser removido, então
+  continua no leitor de tela e volta como dica do mouse (`title`).
 - Estados de foco visíveis com `:focus-visible` na cor primária.
 - Alvos de toque de no mínimo 40 px; botões principais com 46 px.
-- `prefers-reduced-motion: reduce` desliga entradas, count-up, molas do swipe e
-  animações de gráfico.
+- `prefers-reduced-motion: reduce` desliga entradas, count-up, molas do swipe,
+  animações de gráfico e a transição de largura da barra lateral.
 - Ícones decorativos com `aria-hidden`; ícones de marca embutidos como SVG
   inline, sem `<img>` externo.

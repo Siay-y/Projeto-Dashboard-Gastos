@@ -105,6 +105,10 @@ próximos dias e leve seus dados para o Excel quando quiser.
   IndexedDB, não no `localStorage`, e cifrado com a mesma chave do PIN. Anotação
   com senha própria não aceita anexo: o comprovante ficaria fora do que a senha
   protege, e prometer o contrário seria mentira.
+- **Barra lateral recolhível no desktop.** Um clique a reduz a um rail de
+  ícones, devolvendo até 184px de largura ao conteúdo em telas de notebook (na
+  grade de anotações, isso vira uma coluna a mais). A escolha fica guardada. No
+  celular nada muda: lá a navegação já é a barra de baixo.
 - **Calculadora** com as quatro operações, porcentagem, teclado físico e um
   botão para copiar o resultado. No desktop é um botão flutuante no canto
   inferior direito e o painel pode ser arrastado pela tela; no celular ela abre

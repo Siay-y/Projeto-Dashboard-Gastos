@@ -42,21 +42,6 @@
   fill: var(--color-accent);
 }
 
-.empty__icon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-variant);
-  color: var(--color-text-secondary);
-
-  .material-symbols-rounded {
-    font-size: 28px;
-  }
-}
-
 .empty__text {
   flex: 1;
   display: flex;

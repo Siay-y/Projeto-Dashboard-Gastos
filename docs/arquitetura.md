@@ -112,7 +112,7 @@ calendário.
 | `gastos:notes` | Anotações: título, HTML limitado, checklist, lembrete, vínculos, cor, histórico, cofre e metadados dos anexos |
 | `gastos:note-draft` | A anotação em edição que ainda não foi salva |
 | `gastos:finance-settings` | Saldo total, `balanceUpdatedAt` e renda mensal |
-| `gastos:ui-preferences` | Estado das seções recolhíveis |
+| `gastos:ui-preferences` | Estado das seções recolhíveis e da barra lateral recolhida (desktop) |
 | `gastos:theme` | Tema escolhido: `system`, `light` ou `dark` |
 | `gastos:security` | Sais, verificador do PIN e o PIN cifrado sob o código de recuperação |
 

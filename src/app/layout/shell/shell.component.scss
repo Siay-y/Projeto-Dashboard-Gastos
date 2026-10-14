@@ -1,4 +1,5 @@
 $sidebar-width: 248px;
+$rail-width: 64px;
 $bottom-nav-height: 64px;
 $breakpoint-desktop: 1024px;
 
@@ -11,6 +12,13 @@ $breakpoint-desktop: 1024px;
   @media (min-width: $breakpoint-desktop) {
     grid-template-columns: $sidebar-width 1fr;
     grid-template-rows: 1fr;
+    transition: grid-template-columns var(--duration-medium) var(--ease-standard);
+  }
+}
+
+.shell--rail {
+  @media (min-width: $breakpoint-desktop) {
+    grid-template-columns: $rail-width 1fr;
   }
 }
 
@@ -105,6 +113,13 @@ $breakpoint-desktop: 1024px;
   }
 }
 
+.sidebar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
 .sidebar__nav {
   display: flex;
   flex-direction: column;
@@ -138,6 +153,7 @@ $breakpoint-desktop: 1024px;
 
 .nav-link__icon {
   font-size: 22px;
+  flex-shrink: 0;
 }
 
 .nav-link--active {
@@ -186,6 +202,35 @@ $breakpoint-desktop: 1024px;
 .sidebar__user-hint {
   font-size: 0.75rem;
   color: var(--color-text-disabled);
+}
+
+.shell--rail .sidebar {
+  @media (min-width: $breakpoint-desktop) {
+    padding-inline: var(--space-2);
+    gap: var(--space-6);
+  }
+
+  .brand {
+    padding-inline: 0;
+    justify-content: center;
+  }
+}
+
+.shell--rail .sidebar__head {
+  flex-direction: column;
+}
+
+.shell--rail .nav-link {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
+}
+
+.shell--rail .sidebar__user {
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
 }
 
 .topbar {
@@ -352,4 +397,10 @@ $breakpoint-desktop: 1024px;
 .more__chevron {
   flex-shrink: 0;
   color: var(--color-text-disabled);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell {
+    transition: none;
+  }
 }
