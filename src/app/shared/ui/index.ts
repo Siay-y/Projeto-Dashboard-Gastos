@@ -1,3 +1,4 @@
+export * from './account-picker/account-picker.component';
 export * from './button/button.component';
 export * from './calculator/calculator.component';
 export * from './card/card.component';
@@ -11,4 +12,5 @@ export * from './input/input.component';
 export * from './menu/menu.component';
 export * from './money/money.component';
 export * from './pin-input/pin-input.component';
+export * from './rich-text/rich-text.component';
 export * from './tabs/tabs.component';

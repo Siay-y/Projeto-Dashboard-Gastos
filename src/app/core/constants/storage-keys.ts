@@ -4,6 +4,8 @@ export const STORAGE_KEYS = {
   FINANCE_SETTINGS: 'gastos:finance-settings',
   RECURRING_EXPENSES: 'gastos:recurring-expenses',
   BUDGETS: 'gastos:budgets',
+  NOTES: 'gastos:notes',
+  NOTE_DRAFT: 'gastos:note-draft',
   UI_PREFERENCES: 'gastos:ui-preferences',
   THEME: 'gastos:theme',
   SECURITY: 'gastos:security',
@@ -18,4 +20,6 @@ export const ENCRYPTED_KEYS: readonly StorageKey[] = [
   STORAGE_KEYS.FINANCE_SETTINGS,
   STORAGE_KEYS.RECURRING_EXPENSES,
   STORAGE_KEYS.BUDGETS,
+  STORAGE_KEYS.NOTES,
+  STORAGE_KEYS.NOTE_DRAFT,
 ];

@@ -12,6 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BudgetService } from '../../core/services/budget.service';
 import { SecurityService } from '../../core/services/security.service';
+import { AttachmentStore } from '../../core/services/attachment.store';
 import { StorageService } from '../../core/services/storage.service';
 import { THEME_OPTIONS, ThemeService } from '../../core/services/theme.service';
 import { UserService } from '../../core/services/user.service';
@@ -26,7 +27,10 @@ import {
   TabsComponent,
   TileIconComponent,
 } from '../../shared/ui';
-import { BudgetDialogComponent, BudgetLimit } from './components/budget-dialog/budget-dialog.component';
+import {
+  BudgetDialogComponent,
+  BudgetLimit,
+} from './components/budget-dialog/budget-dialog.component';
 import { PinDialogComponent } from './components/pin-dialog/pin-dialog.component';
 
 /** O que fazer quando o PIN atual for confirmado; `null` = criar. */
@@ -61,6 +65,7 @@ const TABS: readonly TabItem[] = [
 })
 export class SettingsPage {
   private readonly storage = inject(StorageService);
+  private readonly attachments = inject(AttachmentStore);
   protected readonly user = inject(UserService);
   protected readonly security = inject(SecurityService);
   protected readonly budget = inject(BudgetService);
@@ -189,7 +194,9 @@ export class SettingsPage {
     this.wipeDialog().open();
   }
 
-  protected wipe(): void {
+  // Os anexos ficam no IndexedDB: limpar só o localStorage deixaria os bytes.
+  protected async wipe(): Promise<void> {
+    await this.attachments.clear();
     this.storage.clear();
     location.reload();
   }

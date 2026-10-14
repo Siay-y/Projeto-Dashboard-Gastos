@@ -47,9 +47,13 @@ for (const handler of handlers) {
 }
 
 const inlineScripts = [...html.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)];
-const hashes = inlineScripts.map(
-  (match) => `'sha256-${createHash('sha256').update(match[1], 'utf8').digest('base64')}'`,
-);
+
+// O hash é sobre os bytes servidos, e o deploy sai de um checkout com LF. Num
+// clone Windows o arquivo vem com CRLF, o que mudaria o hash sem mudar o script.
+const hashes = inlineScripts.map((match) => {
+  const body = match[1].split('\r\n').join('\n');
+  return `'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`;
+});
 
 for (const hash of hashes) {
   if (!scriptSrc.includes(hash)) {

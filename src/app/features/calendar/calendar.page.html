@@ -105,9 +105,14 @@
                   {{ e.detail ?? e.category.label }}
                 </span>
               </span>
-              <span class="item__amount tabular" [class.item__amount--income]="e.kind === 'income'">
-                {{ e.kind === 'income' ? '+' : '−' }}{{ e.amount | currency }}
-              </span>
+              @if (e.kind !== 'note') {
+                <span
+                  class="item__amount tabular"
+                  [class.item__amount--income]="e.kind === 'income'"
+                >
+                  {{ e.kind === 'income' ? '+' : '−' }}{{ e.amount | currency }}
+                </span>
+              }
             </li>
           }
         </ul>

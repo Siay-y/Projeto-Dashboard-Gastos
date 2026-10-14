@@ -1,0 +1,59 @@
+<app-dialog #dlg title="Importar anotações">
+  <div class="import">
+    @if (error(); as message) {
+      <p class="import__error" role="alert">{{ message }}</p>
+
+      <footer class="import__actions">
+        <app-button variant="tonal" (click)="dlg.close()">Fechar</app-button>
+      </footer>
+    } @else if (preview(); as data) {
+      <p class="import__summary">
+        <strong>{{ plural(count(), 'anotação nova', 'anotações novas') }}</strong>
+        na aba "{{ data.sheet }}".
+        @if (data.duplicates > 0) {
+          {{
+            plural(data.duplicates, 'já existia e será ignorada', 'já existiam e serão ignoradas')
+          }}.
+        }
+      </p>
+
+      @if (titles().length) {
+        <ul class="import__list">
+          @for (title of titles(); track title) {
+            <li class="import__item">
+              <span class="material-symbols-rounded" aria-hidden="true">edit_note</span>
+              {{ title }}
+            </li>
+          }
+          @if (rest() > 0) {
+            <li class="import__item import__item--rest">e mais {{ rest() }}.</li>
+          }
+        </ul>
+      }
+
+      @if (data.issues.length) {
+        <div class="import__issues">
+          <p class="import__issues-title">
+            {{ plural(data.issues.length, 'linha com problema', 'linhas com problema') }}:
+          </p>
+          <ul>
+            @for (issue of data.issues.slice(0, issueLimit); track issue.row) {
+              <li>Linha {{ issue.row }}: {{ issue.message }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <p class="import__note">
+        A formatação (negrito, itálico) e os anexos não vêm na planilha: só o texto.
+      </p>
+
+      <footer class="import__actions">
+        <app-button variant="tonal" (click)="dlg.close()">Cancelar</app-button>
+        <app-button icon="check" [disabled]="count() === 0" (click)="confirm()">
+          Importar {{ count() }}
+        </app-button>
+      </footer>
+    }
+  </div>
+</app-dialog>

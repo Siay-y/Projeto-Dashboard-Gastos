@@ -23,7 +23,7 @@
               Todo dia {{ item.dueDay }} ·
             }
             {{ row.category.label }}
-            @if (row.account; as account) {
+            @for (account of row.accounts; track account.id) {
               · {{ account.label }}
             }
             @if (!item.active) {

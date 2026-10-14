@@ -8,6 +8,8 @@ const GROUP = {
   OTHER: 'Outros',
 } as const;
 
+// A tabela se lê melhor com uma categoria por linha.
+// prettier-ignore
 export const CATEGORIES: readonly Category[] = [
   { id: 'food', label: 'Alimentação', type: 'expense', group: GROUP.ESSENTIALS, color: '#c2410c', icon: { kind: 'symbol', name: 'restaurant' } },
   { id: 'groceries', label: 'Mercado', type: 'expense', group: GROUP.ESSENTIALS, color: '#15803d', icon: { kind: 'symbol', name: 'shopping_cart' } },
@@ -59,6 +61,10 @@ export const FALLBACK_CATEGORY = CATEGORY_MAP.get('other')!;
 
 export function findCategory(id: string): Category {
   return CATEGORY_MAP.get(id) ?? FALLBACK_CATEGORY;
+}
+
+export function hasCategory(id: string | null): boolean {
+  return id !== null && CATEGORY_MAP.has(id);
 }
 
 export function categoriesFor(type: 'income' | 'expense'): Category[] {

@@ -41,9 +41,12 @@ próximos dias e leve seus dados para o Excel quando quiser.
    formulários em diálogo, filtros de parcelas e menu de exportar/importar.
 4. **Calendário**: grade do mês com vencimentos e lançamentos marcados por dia,
    e a agenda do dia selecionado.
-5. **Configurações**, em abas: Geral (nome e aparência), Orçamento (limites por
+5. **Anotações**: cartões coloridos com busca, filtro por cor e fixar no topo.
+   Clicar no cartão abre a prévia, com o texto formatado, a checklist, os
+   comprovantes, o histórico de versões e o botão de editar.
+6. **Configurações**, em abas: Geral (nome e aparência), Orçamento (limites por
    categoria), Segurança (PIN e código de recuperação) e Dados.
-6. **Bloqueio**: pedida do PIN antes de qualquer tela, quando a proteção está ativa.
+7. **Bloqueio**: pedida do PIN antes de qualquer tela, quando a proteção está ativa.
 
 ---
 
@@ -64,8 +67,44 @@ próximos dias e leve seus dados para o Excel quando quiser.
 - **Orçamento por categoria.** Um teto mensal opcional por categoria, com barra
   de uso no painel e aviso quando o ritmo de gastos aponta para um estouro antes
   do fim do mês.
-- **Contas e cartões** (Nubank, Itaú, PicPay, Pix, dinheiro...) associados a
-  cada lançamento, separados em Bancos e Formas de Pagamento.
+- **Banco e forma de pagamento juntos.** Cada lançamento, gasto fixo e anotação
+  guarda os dois: onde o dinheiro saiu (Nubank, Itaú, PicPay...) e como saiu
+  (Pix, crédito, dinheiro...). São campos independentes, então escolher o banco
+  não desmarca a forma de pagamento. Quem tinha dados da versão anterior, com um
+  campo só, não perde nada: o valor antigo é lido uma vez e cai no campo do grupo
+  a que pertence.
+- **Anotações** com formatação simples (negrito, itálico, sublinhado, riscado,
+  lista e lista numerada), busca por título ou conteúdo e opção de fixar no
+  topo. O texto é guardado como HTML de uma lista fechada de tags, sem atributo
+  nenhum, e colar de um site entra sem trazer fonte nem cor. O que está sendo
+  escrito vira rascunho automático, então fechar o diálogo sem querer não perde
+  o texto.
+- **Prévia antes de editar.** Clicar no cartão abre a anotação para leitura, com
+  a formatação aplicada, e de lá um botão leva ao editor. A checklist pode ser
+  marcada na própria prévia.
+- **Cor por anotação**, nas mesmas matizes das categorias, com filtro por cor na
+  grade. A cor é uma mudança de etiqueta, não de conteúdo: não mexe na data de
+  alteração nem gera versão no histórico.
+- **Histórico de versões local.** Cada anotação guarda os últimos cinco estados
+  do texto e dá para restaurar qualquer um deles. Restaurar também é uma edição,
+  então a versão de agora entra no histórico e o passo pode ser desfeito.
+- **Senha própria por anotação**, independente do PIN: o conteúdo é selado com
+  uma chave derivada só dessa senha e o título continua visível para achar a
+  anotação na busca. Serve para guardar documento em um app que não tem servidor
+  para confiar. Sem a senha, não há como recuperar o conteúdo.
+- **Checklist com valor que vira lançamento.** Itens com caixa de marcar e
+  valor opcional (`Arroz R$ 25`). A anotação soma o que está marcado e um botão
+  transforma o total em um gasto no histórico, já com categoria e conta.
+- **Lembrete na anotação**, que aparece no calendário junto dos vencimentos e
+  nos avisos da visão geral quando a data chega ou passa.
+- **Vínculo com categoria, banco, forma de pagamento ou lançamento.** A
+  categoria ligada mostra um ícone no cartão de orçamento, e o lançamento ligado
+  mostra um ícone na linha do histórico, explicando depois o que hoje parece
+  óbvio.
+- **Comprovante anexado** à anotação (imagem ou PDF, até 5 MB), guardado no
+  IndexedDB, não no `localStorage`, e cifrado com a mesma chave do PIN. Anotação
+  com senha própria não aceita anexo: o comprovante ficaria fora do que a senha
+  protege, e prometer o contrário seria mentira.
 - **Calculadora** com as quatro operações, porcentagem, teclado físico e um
   botão para copiar o resultado. No desktop é um botão flutuante no canto
   inferior direito e o painel pode ser arrastado pela tela; no celular ela abre
@@ -75,8 +114,8 @@ próximos dias e leve seus dados para o Excel quando quiser.
   de fechar o mês no vermelho, categoria acima do limite, renda não definida,
   saldo desatualizado.
 - **Calendário mensal** com gastos fixos, parcelas, gastos e ganhos por dia.
-- **Exportar e importar Excel** para gastos fixos e histórico, com prévia,
-  detecção de duplicados e relatório de linhas com problema.
+- **Exportar e importar Excel** para gastos fixos, histórico e anotações, com
+  prévia, detecção de duplicados e relatório de linhas com problema.
 - **Deslizar para editar ou apagar** no celular, com feedback tátil.
 - **PIN opcional** que cifra os dados no aparelho e bloqueia o painel ao abrir.
 - **Tema claro, escuro ou do sistema**, aplicado antes do primeiro pixel para
@@ -183,7 +222,10 @@ então basta importar o projeto na Vercel. Os detalhes estão em
 - **PIN opcional** cifra os dados em repouso; ver [PIN e criptografia](docs/seguranca.md).
 - **Exportação é o backup.** Como o `localStorage` pertence ao navegador, limpar
   os dados do site apaga tudo. Exporte periodicamente; o arquivo reimporta sem
-  duplicar.
+  duplicar. Uma ressalva: a planilha de anotações leva o texto, a checklist, a
+  cor e os vínculos, mas **não** a formatação, os comprovantes anexados, o
+  histórico de versões nem o conteúdo de uma anotação trancada, que sai só com o
+  título e a marca "Trancada".
 - **Falha de gravação aparece na tela.** Se o armazenamento estiver cheio ou
   bloqueado pelo navegador, um aviso em vermelho diz que o dado não foi salvo e
   oferece tentar de novo, em vez de deixar você acreditar que salvou. JSON

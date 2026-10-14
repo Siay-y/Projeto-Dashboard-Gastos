@@ -29,7 +29,7 @@ let nextId = 0;
 export class InputComponent implements ControlValueAccessor {
   readonly label = input<string>();
   readonly placeholder = input('');
-  readonly type = input<'text' | 'number' | 'date' | 'email'>('text');
+  readonly type = input<'text' | 'number' | 'date' | 'email' | 'password'>('text');
   readonly icon = input<string>();
   readonly hint = input<string>();
   readonly error = input<string>();

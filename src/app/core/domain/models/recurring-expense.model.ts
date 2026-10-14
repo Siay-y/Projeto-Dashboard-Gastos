@@ -3,7 +3,8 @@ export interface RecurringExpense {
   description: string;
   amount: number;
   categoryId: string;
-  accountId: string | null;
+  bankId: string | null;
+  methodId: string | null;
   dueDay: number | null;
   active: boolean;
   createdAt: string;

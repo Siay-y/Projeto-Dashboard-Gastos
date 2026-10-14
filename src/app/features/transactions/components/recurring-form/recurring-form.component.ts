@@ -9,7 +9,7 @@ import {
 import { RecurringExpense } from '../../../../core/domain/models';
 import { RecurringExpenseInput } from '../../../../core/services/recurring-expense.service';
 import { ButtonComponent, InputComponent } from '../../../../shared/ui';
-import { AccountPickerComponent } from '../account-picker/account-picker.component';
+import { AccountPickerComponent } from '../../../../shared/ui/account-picker/account-picker.component';
 import { CategoryPickerComponent } from '../../../../shared/ui/category-picker/category-picker.component';
 
 const MAX_DESCRIPTION = 60;
@@ -52,14 +52,16 @@ export class RecurringFormComponent {
   protected readonly maxDescription = MAX_DESCRIPTION;
   protected readonly submitted = signal(false);
   protected readonly categoryId = signal('');
-  protected readonly accountId = signal<string | null>(null);
+  protected readonly bankId = signal<string | null>(null);
+  protected readonly methodId = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     description: ['', [Validators.required, Validators.maxLength(MAX_DESCRIPTION)]],
     amount: ['', [Validators.required, amountValidator]],
     dueDay: ['', dueDayValidator],
     categoryId: ['', Validators.required],
-    accountId: [null as string | null],
+    bankId: [null as string | null],
+    methodId: [null as string | null],
   });
 
   load(item: RecurringExpense | null): void {
@@ -69,10 +71,12 @@ export class RecurringFormComponent {
       amount: item ? String(item.amount) : '',
       dueDay: item?.dueDay ? String(item.dueDay) : '',
       categoryId: item?.categoryId ?? '',
-      accountId: item?.accountId ?? null,
+      bankId: item?.bankId ?? null,
+      methodId: item?.methodId ?? null,
     });
     this.categoryId.set(this.form.controls.categoryId.value);
-    this.accountId.set(this.form.controls.accountId.value);
+    this.bankId.set(this.form.controls.bankId.value);
+    this.methodId.set(this.form.controls.methodId.value);
   }
 
   protected setCategory(id: string): void {
@@ -81,9 +85,14 @@ export class RecurringFormComponent {
     this.form.controls.categoryId.markAsTouched();
   }
 
-  protected setAccount(id: string | null): void {
-    this.accountId.set(id);
-    this.form.controls.accountId.setValue(id);
+  protected setBank(id: string | null): void {
+    this.bankId.set(id);
+    this.form.controls.bankId.setValue(id);
+  }
+
+  protected setMethod(id: string | null): void {
+    this.methodId.set(id);
+    this.form.controls.methodId.setValue(id);
   }
 
   protected errorFor(field: keyof typeof this.form.controls): string | undefined {
@@ -110,7 +119,8 @@ export class RecurringFormComponent {
       amount: parseAmount(value.amount),
       dueDay: value.dueDay.trim() ? Number(value.dueDay) : null,
       categoryId: value.categoryId,
-      accountId: value.accountId,
+      bankId: value.bankId,
+      methodId: value.methodId,
     });
   }
 }

@@ -64,11 +64,69 @@ dia já passou, vale o mês seguinte). Parcelas usam a data da próxima parcela.
 Vencimentos em até três dias viram alerta; vários no mesmo período são
 agrupados em um só ("3 gastos fixos vencem nos próximos dias").
 
+Anotação com lembrete entra na mesma janela de três dias, e também **depois**
+que a data passa, aí com tom de aviso. No calendário ela aparece como evento de
+valor zero, para não mexer no total do dia.
+
+---
+
+## Banco e forma de pagamento
+
+Todo lançamento, gasto fixo e anotação tem **dois campos independentes**:
+`bankId`, de onde o dinheiro saiu, e `methodId`, como ele saiu. Escolher um não
+desmarca o outro, e os dois são opcionais.
+
+A validação é por grupo: um id de banco só entra em `bankId` e um id de forma de
+pagamento só entra em `methodId`. Valor no campo errado é descartado, e o mesmo
+vale para id que não existe mais.
+
+Antes da separação havia um campo só, `accountId`, que aceitava qualquer um dos
+dois. Na primeira leitura do disco esse valor é levado para o campo do grupo a
+que pertence e o campo antigo deixa de ser gravado. A planilha com a coluna
+"Conta" continua importando pela mesma regra.
+
+---
+
+## Cor da anotação
+
+Oito opções (nenhuma e sete matizes das categorias), usadas como fundo do cartão
+e como filtro da grade. O filtro só lista as cores em uso.
+
+Trocar a cor **não** é edição: não muda a data de alteração nem gera versão no
+histórico. O mesmo vale para fixar no topo e para marcar um item da checklist.
+
+---
+
+## Histórico de versões
+
+Cada anotação guarda os **últimos cinco** estados do texto. Uma versão é criada
+só quando título, conteúdo ou checklist mudam; mexer em cor, lembrete ou vínculo
+não gera versão. O teto existe porque a anotação vive no `localStorage`, que tem
+poucos megabytes para o app inteiro.
+
+Restaurar é tratado como uma edição: o estado atual entra no histórico antes de
+ser substituído, então dá para desfazer a restauração. Anotação trancada não tem
+histórico, pelo motivo descrito em [PIN e criptografia](seguranca.md).
+
+---
+
+## Checklist que vira lançamento
+
+Cada item da checklist pode ter um valor. A anotação soma **só os itens
+marcados**, e é esse total que o botão "Lançar" leva para o histórico, como um
+gasto à vista na data escolhida. Categoria, banco e forma de pagamento vêm do
+vínculo da anotação, quando existe, e podem ser trocados antes de confirmar.
+
+O lançamento é independente da anotação: marcar ou desmarcar itens depois não
+altera o gasto já criado, e apagar a anotação não apaga o lançamento. Isso é
+proposital, porque o histórico é o registro do que aconteceu.
+
 ---
 
 ## Importação e exportação
 
-Disponíveis no menu de três pontos de cada seção em Transações.
+Disponíveis no menu de três pontos de cada seção em Transações, e no menu da
+página de Anotações.
 
 ### Exportação
 
@@ -77,8 +135,14 @@ congelada, valores em formato de moeda e datas como datas.
 
 | Arquivo | Abas |
 | --- | --- |
-| `meus-gastos-gastos-fixos-AAAA-MM-DD.xlsx` | **Gastos fixos**: descrição, valor mensal, dia de cobrança, categoria, grupo, conta, situação, cadastrado em; linha final com o total dos ativos |
-| `meus-gastos-historico-AAAA-MM-DD.xlsx` | **Histórico**: data, tipo, descrição, categoria, grupo, conta, valor (parcela), parcelas, pagas, restantes, próxima parcela, valor total, situação, cadastrado em. **Por mês**: entradas, gastos, resultado e nº de lançamentos |
+| `meus-gastos-gastos-fixos-AAAA-MM-DD.xlsx` | **Gastos fixos**: descrição, valor mensal, dia de cobrança, categoria, grupo, banco, forma de pagamento, situação, cadastrado em; linha final com o total dos ativos |
+| `meus-gastos-historico-AAAA-MM-DD.xlsx` | **Histórico**: data, tipo, descrição, categoria, grupo, banco, forma de pagamento, valor (parcela), parcelas, pagas, restantes, próxima parcela, valor total, situação, cadastrado em. **Por mês**: entradas, gastos, resultado e nº de lançamentos |
+| `meus-gastos-anotacoes-AAAA-MM-DD.xlsx` | **Anotações**: título, conteúdo em texto puro, checklist no formato `[x] Item R$ 0,00`, lembrete, categoria, banco, forma de pagamento, cor, fixada, trancada, quantidade de anexos e as datas |
+
+A planilha de anotações é texto: a formatação (negrito, itálico), os
+comprovantes anexados e o histórico de versões não cabem nela e ficam de fora.
+Anotação trancada sai só com o título e a marca "Trancada": decifrar na
+exportação jogaria o conteúdo protegido em um arquivo em claro.
 
 Gastos saem negativos e ganhos positivos, então `SOMA` na coluna de valor já dá
 o resultado.
@@ -94,7 +158,10 @@ localizadas pelo nome do cabeçalho, sem diferenciar acento ou maiúscula.
 | Valor | Sim | Número, `R$ 1.234,56`, `-35,9`, `(35,90)` |
 | Data | Histórico | Célula de data, `21/09/2026`, `2026-09-21`, serial do Excel |
 | Tipo | Não | "Ganho", "Entrada", "Receita" = ganho; qualquer outra coisa = gasto |
-| Categoria / Conta | Não | Nome ou id; sem correspondência cai em "Outros" / sem conta |
+| Categoria | Não | Nome ou id; sem correspondência cai em "Outros" |
+| Banco / Forma de pagamento | Não | Nome ou id do grupo certo; valor no grupo errado é ignorado |
+| Conta | Não | Coluna das planilhas antigas; cai no campo do grupo a que o valor pertence |
+| Cor | Não | Nome ou id da cor (anotações); sem correspondência fica sem cor |
 | Parcelas | Não | Inteiro `≥ 2` |
 | Dia de cobrança | Não | 1 a 31 (gastos fixos) |
 | Situação | Não | "Pausado" importa o gasto fixo pausado |

@@ -5,6 +5,8 @@ const GROUP = {
   PAYMENT: 'Formas de Pagamento',
 } as const;
 
+// A tabela se lê melhor com uma conta por linha.
+// prettier-ignore
 export const ACCOUNTS: readonly Account[] = [
   { id: 'nubank', label: 'Nubank', group: GROUP.BANKS, color: '#820AD1', icon: { kind: 'brand', slug: 'nubank' } },
   { id: 'picpay', label: 'PicPay', group: GROUP.BANKS, color: '#21C25E', icon: { kind: 'brand', slug: 'picpay' } },
@@ -32,13 +34,33 @@ export const ACCOUNTS: readonly Account[] = [
 
 const ACCOUNT_MAP = new Map(ACCOUNTS.map((a) => [a.id, a]));
 
+export type AccountSlot = 'bank' | 'method';
+
+export interface AccountGroup {
+  label: string;
+  slot: AccountSlot;
+  items: Account[];
+}
+
 export function findAccount(id: string | null | undefined): Account | undefined {
   return id ? ACCOUNT_MAP.get(id) : undefined;
 }
 
-export function accountGroups(): { label: string; items: Account[] }[] {
-  return Object.values(GROUP).map((label) => ({
-    label,
-    items: ACCOUNTS.filter((a) => a.group === label),
-  }));
+export function isBank(id: string | null | undefined): boolean {
+  return findAccount(id)?.group === GROUP.BANKS;
+}
+
+export function isMethod(id: string | null | undefined): boolean {
+  return findAccount(id)?.group === GROUP.PAYMENT;
+}
+
+export function accountGroups(): AccountGroup[] {
+  return [
+    { label: GROUP.BANKS, slot: 'bank', items: ACCOUNTS.filter((a) => a.group === GROUP.BANKS) },
+    {
+      label: GROUP.PAYMENT,
+      slot: 'method',
+      items: ACCOUNTS.filter((a) => a.group === GROUP.PAYMENT),
+    },
+  ];
 }

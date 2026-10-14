@@ -1,0 +1,57 @@
+.launch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.launch__total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-soft);
+}
+
+.launch__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+}
+
+.launch__value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.launch__hint {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.launch__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.launch__field-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.launch__error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.launch__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}

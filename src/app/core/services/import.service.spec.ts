@@ -1,6 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ImportError, ImportService } from './import.service';
+import { NoteService } from './note.service';
 import { RecurringExpenseService } from './recurring-expense.service';
 import { TransactionService } from './transaction.service';
 
@@ -268,7 +269,7 @@ describe('ImportService', () => {
       expect(preview.items.map((i) => i.categoryId)).toEqual(['other', 'other', 'other']);
     });
 
-    it('casa conta por rótulo, aceitando acento e caixa', async () => {
+    it('planilha antiga tem uma coluna só: cada valor cai no campo do seu grupo', async () => {
       const { importer } = setup();
       history(
         row('2026-10-01', 'A', 10, { account: 'Nubank' }),
@@ -278,7 +279,32 @@ describe('ImportService', () => {
       );
 
       const preview = await importer.parseHistory(file());
-      expect(preview.items.map((i) => i.accountId)).toEqual(['nubank', 'credit', null, null]);
+
+      expect(preview.items.map((i) => [i.bankId, i.methodId])).toEqual([
+        ['nubank', null],
+        [null, 'credit'],
+        [null, null],
+        [null, null],
+      ]);
+    });
+
+    it('planilha nova traz banco e forma de pagamento juntos', async () => {
+      const { importer } = setup();
+      sheets({
+        sheet: 'Histórico',
+        data: [
+          ['Data', 'Descrição', 'Categoria', 'Banco', 'Forma de pagamento', 'Valor'],
+          ['2026-10-01', 'Mercado', 'Mercado', 'Nubank', 'Pix', 100],
+          ['2026-10-01', 'Trocado', 'Mercado', 'Pix', 'Nubank', 100],
+        ],
+      });
+
+      const preview = await importer.parseHistory(file());
+
+      expect(preview.items.map((i) => [i.bankId, i.methodId])).toEqual([
+        ['nubank', 'pix'],
+        [null, null],
+      ]);
     });
 
     it('parcelas valem só para gasto e a partir de duas', async () => {
@@ -319,7 +345,8 @@ describe('ImportService', () => {
         description: 'Café da manhã',
         amount: 10,
         categoryId: 'groceries',
-        accountId: null,
+        bankId: null,
+        methodId: null,
         installments: null,
         date: '2026-10-01',
       });
@@ -340,7 +367,8 @@ describe('ImportService', () => {
         description: 'Café',
         amount: 10,
         categoryId: 'groceries',
-        accountId: null,
+        bankId: null,
+        methodId: null,
         installments: null,
         date: '2026-10-01',
       });
@@ -369,7 +397,8 @@ describe('ImportService', () => {
         description: 'Aluguel',
         amount: 1200,
         categoryId: 'housing',
-        accountId: 'pix',
+        bankId: null,
+        methodId: 'pix',
         dueDay: 10,
         active: true,
       });
@@ -408,7 +437,8 @@ describe('ImportService', () => {
         description: 'Netflix',
         amount: 39.9,
         categoryId: 'netflix',
-        accountId: null,
+        bankId: null,
+        methodId: null,
         dueDay: 15,
       });
 
@@ -421,6 +451,118 @@ describe('ImportService', () => {
       expect(preview.duplicates).toBe(1);
       expect(preview.items).toHaveLength(1);
       expect(preview.items[0].description).toBe('Spotify');
+    });
+  });
+
+  describe('anotações', () => {
+    const NOTES_HEADER = ['Título', 'Conteúdo', 'Checklist', 'Lembrete', 'Categoria', 'Conta'];
+
+    const notesSheet = (...rows: Cell[][]) =>
+      sheets({ sheet: 'Anotações', data: [NOTES_HEADER, ...rows] });
+
+    it('lê título, conteúdo e vínculos', async () => {
+      const { importer } = setup();
+      notesSheet(['Mercado', 'Arroz\nFeijão', '', '2026-12-31', 'Mercado', 'Pix']);
+
+      const [note] = (await importer.parseNotes(file())).items;
+
+      expect(note.title).toBe('Mercado');
+      expect(note.content).toBe('<div>Arroz</div><div>Feijão</div>');
+      expect(note.remindOn).toBe('2026-12-31');
+      expect(note.categoryId).toBe('groceries');
+      expect(note.methodId).toBe('pix');
+      expect(note.bankId).toBeNull();
+    });
+
+    it('escapa marcação vinda da planilha em vez de interpretá-la', async () => {
+      const { importer } = setup();
+      notesSheet(['Teste', '<script>alert(1)</script>', '', null, null, null]);
+
+      const [note] = (await importer.parseNotes(file())).items;
+
+      expect(note.content).toContain('&lt;script&gt;');
+      expect(note.content).not.toContain('<script>');
+    });
+
+    it('lê a checklist de volta', async () => {
+      const { importer } = setup();
+      notesSheet(['Lista', '', '[x] Arroz R$ 25,00\n[ ] Café', null, null, null]);
+
+      const [note] = (await importer.parseNotes(file())).items;
+
+      expect(note.checklist.map((i) => [i.text, i.amount, i.done])).toEqual([
+        ['Arroz', 25, true],
+        ['Café', null, false],
+      ]);
+    });
+
+    it('lembrete inválido vira problema, mas a anotação entra', async () => {
+      const { importer } = setup();
+      notesSheet(['Teste', 'texto', '', 'qualquer coisa', null, null]);
+
+      const preview = await importer.parseNotes(file());
+
+      expect(preview.items).toHaveLength(1);
+      expect(preview.items[0].remindOn).toBeNull();
+      expect(preview.issues[0].message).toContain('lembrete');
+    });
+
+    it('categoria desconhecida fica sem vínculo, não cai em Outros', async () => {
+      const { importer } = setup();
+      notesSheet(['Teste', 'texto', '', null, 'Inexistente', null]);
+
+      expect((await importer.parseNotes(file())).items[0].categoryId).toBeNull();
+    });
+
+    it('conta como duplicada a que já existe com o mesmo texto', async () => {
+      const { importer } = setup();
+      const notes = TestBed.inject(NoteService);
+
+      notes.add({
+        title: 'Mercado',
+        content: '<div>Arroz</div>',
+        checklist: [],
+        attachments: [],
+        remindOn: null,
+        categoryId: null,
+        bankId: null,
+        methodId: null,
+        transactionId: null,
+        color: 'none',
+      });
+
+      notesSheet(
+        ['Mercado', 'Arroz', '', null, null, null],
+        ['Outra', 'Texto', '', null, null, null],
+      );
+      const preview = await importer.parseNotes(file());
+
+      expect(preview.duplicates).toBe(1);
+      expect(preview.items).toHaveLength(1);
+      expect(preview.items[0].title).toBe('Outra');
+    });
+
+    it('linha totalmente vazia é ignorada sem virar problema', async () => {
+      const { importer } = setup();
+      notesSheet([null, null, null, null, null, null], ['Válida', 'texto', '', null, null, null]);
+
+      const preview = await importer.parseNotes(file());
+
+      expect(preview.items).toHaveLength(1);
+      expect(preview.issues).toHaveLength(0);
+    });
+
+    it('sem coluna de título, recusa o arquivo', async () => {
+      const { importer } = setup();
+      sheets({
+        sheet: 'Anotações',
+        data: [
+          ['Coluna A', 'Coluna B'],
+          ['x', 'y'],
+        ],
+      });
+
+      await expect(importer.parseNotes(file())).rejects.toThrow(/Descrição/);
     });
   });
 });

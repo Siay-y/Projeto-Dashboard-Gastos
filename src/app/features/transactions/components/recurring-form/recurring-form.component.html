@@ -35,7 +35,11 @@
 
   <div class="rec-form__field">
     <span class="rec-form__label">Categoria</span>
-    <app-category-picker type="expense" [value]="categoryId()" (valueChange)="setCategory($event)" />
+    <app-category-picker
+      type="expense"
+      [value]="categoryId()"
+      (valueChange)="setCategory($event)"
+    />
     @if (errorFor('categoryId'); as error) {
       <p class="rec-form__error" role="alert">{{ error }}</p>
     }
@@ -43,9 +47,14 @@
 
   <div class="rec-form__field">
     <span class="rec-form__label">
-      Conta ou cartão <span class="rec-form__optional">opcional</span>
+      Banco e forma de pagamento <span class="rec-form__optional">opcional</span>
     </span>
-    <app-account-picker [value]="accountId()" (valueChange)="setAccount($event)" />
+    <app-account-picker
+      [bank]="bankId()"
+      (bankChange)="setBank($event)"
+      [method]="methodId()"
+      (methodChange)="setMethod($event)"
+    />
   </div>
 
   <footer class="rec-form__actions">

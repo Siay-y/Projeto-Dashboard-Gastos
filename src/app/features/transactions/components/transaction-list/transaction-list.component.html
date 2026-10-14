@@ -87,7 +87,7 @@
                 </span>
                 <span class="meta">
                   {{ row.category.label }}
-                  @if (row.account; as account) {
+                  @for (account of row.accounts; track account.id) {
                     · {{ account.label }}
                   }
                   @if (inst) {
@@ -119,6 +119,17 @@
             </button>
 
             <span role="cell" class="col-actions">
+              @if (row.note; as note) {
+                <a
+                  class="row-note"
+                  [routerLink]="notesRoute"
+                  [title]="note"
+                  [attr.aria-label]="'Ver a anotação ' + note"
+                >
+                  <span class="material-symbols-rounded" aria-hidden="true">edit_note</span>
+                </a>
+              }
+
               <app-delete-button
                 [itemLabel]="t.description"
                 (confirmingChange)="setConfirming(t.id, $event)"

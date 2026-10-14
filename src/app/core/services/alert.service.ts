@@ -4,13 +4,15 @@ import { daysBetween, toDateKey } from '../../shared/utils/date';
 import { BudgetService } from './budget.service';
 import { FinanceSettingsService } from './finance-settings.service';
 import { ForecastService } from './forecast.service';
+import { NoteService } from './note.service';
 import { RecurringExpenseService } from './recurring-expense.service';
 import { TransactionService } from './transaction.service';
 import { UpcomingItem, UpcomingService } from './upcoming.service';
 
 export type AlertTone = 'info' | 'warning' | 'danger';
 
-export type AlertAction = 'set-income' | 'set-balance' | 'view-fixed' | 'view-history';
+export type AlertAction =
+  'set-income' | 'set-balance' | 'view-fixed' | 'view-history' | 'view-notes';
 
 export interface Alert {
   id: string;
@@ -35,6 +37,7 @@ export class AlertService {
   private readonly forecastService = inject(ForecastService);
   private readonly upcoming = inject(UpcomingService);
   private readonly budgets = inject(BudgetService);
+  private readonly notes = inject(NoteService);
 
   private readonly today = toDateKey();
 
@@ -45,6 +48,7 @@ export class AlertService {
     this.pushCategoryAlerts(list);
     this.pushDueAlert(list, 'fixed');
     this.pushDueAlert(list, 'installment');
+    this.pushNoteAlert(list);
     this.pushSetupAlerts(list);
 
     return list;
@@ -166,6 +170,42 @@ export class AlertService {
     });
   }
 
+  private pushNoteAlert(list: Alert[]): void {
+    const due = this.notes
+      .reminders()
+      .map((note) => ({ note, days: daysBetween(this.today, note.remindOn!) }))
+      .filter(({ days }) => days <= DUE_WINDOW_DAYS)
+      .sort((a, b) => a.days - b.days);
+
+    if (due.length === 0) return;
+
+    const [first] = due;
+    const late = first.days < 0;
+    const tone: AlertTone = late || first.days === 0 ? 'warning' : 'info';
+    const action = { label: 'Ver anotações', id: 'view-notes' as const };
+
+    if (due.length === 1) {
+      list.push({
+        id: 'note-reminder-single',
+        tone,
+        icon: 'edit_note',
+        title: `Lembrete: "${first.note.title}" ${this.when(first.days)}`,
+        description: late ? 'A data do lembrete já passou.' : 'Anotação com lembrete marcado.',
+        action,
+      });
+      return;
+    }
+
+    list.push({
+      id: 'note-reminder-many',
+      tone,
+      icon: 'edit_note',
+      title: `${due.length} anotações com lembrete`,
+      description: `${joinNames(due.map((d) => d.note.title))} · a primeira ${this.when(first.days)}.`,
+      action,
+    });
+  }
+
   private pushSetupAlerts(list: Alert[]): void {
     const hasData = this.transactions.hasTransactions() || this.recurring.activeCount() > 0;
 
@@ -175,7 +215,8 @@ export class AlertService {
         tone: 'info',
         icon: 'payments',
         title: 'Defina sua renda mensal',
-        description: 'Com ela, a previsão do mês mostra quanto deve sobrar (ou faltar) até o fim do mês.',
+        description:
+          'Com ela, a previsão do mês mostra quanto deve sobrar (ou faltar) até o fim do mês.',
         action: { label: 'Definir renda', id: 'set-income' },
       });
     }
@@ -207,6 +248,8 @@ export class AlertService {
   private when(days: number): string {
     if (days === 0) return 'hoje';
     if (days === 1) return 'amanhã';
+    if (days === -1) return 'ontem';
+    if (days < 0) return `há ${-days} dias`;
     return `em ${days} dias`;
   }
 }

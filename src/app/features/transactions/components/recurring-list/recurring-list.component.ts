@@ -8,7 +8,8 @@ import { DeleteButtonComponent, TileIconComponent } from '../../../../shared/ui'
 interface Row {
   item: RecurringExpense;
   category: Category;
-  account: Account | undefined;
+  /** Banco e forma de pagamento, na ordem, só o que foi escolhido. */
+  accounts: Account[];
 }
 
 @Component({
@@ -30,7 +31,9 @@ export class RecurringListComponent {
     this.items().map((item) => ({
       item,
       category: findCategory(item.categoryId),
-      account: findAccount(item.accountId),
+      accounts: [findAccount(item.bankId), findAccount(item.methodId)].filter(
+        (account): account is Account => account !== undefined,
+      ),
     })),
   );
 

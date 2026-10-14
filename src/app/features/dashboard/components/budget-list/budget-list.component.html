@@ -22,7 +22,19 @@
 
         <div class="budget__body">
           <div class="budget__top">
-            <span class="budget__label">{{ item.category.label }}</span>
+            <span class="budget__label">
+              {{ item.category.label }}
+              @if (noteFor(item.category.id); as note) {
+                <a
+                  class="budget__note"
+                  [routerLink]="notesRoute"
+                  [title]="note"
+                  [attr.aria-label]="'Ver a anotação ' + note"
+                >
+                  <span class="material-symbols-rounded" aria-hidden="true">edit_note</span>
+                </a>
+              }
+            </span>
             <span class="budget__value tabular">
               {{ item.spent | currency }}
               <span class="budget__of">de {{ item.limit | currency }}</span>

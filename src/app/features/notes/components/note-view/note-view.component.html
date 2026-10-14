@@ -1,0 +1,281 @@
+<app-dialog #dlg size="lg" [title]="note()?.title ?? 'Anotação'">
+  @if (note(); as note) {
+    <div class="view" [attr.data-color]="note.color">
+      @if (chips().length || note.vault) {
+        <div class="view__chips">
+          @if (note.vault) {
+            <span class="chip chip--lock">
+              <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+              Trancada
+            </span>
+          }
+          @for (chip of chips(); track chip.id) {
+            <span class="chip">
+              @if (chip.category) {
+                <app-tile-icon size="sm" [source]="chip.category" />
+              } @else {
+                <span class="material-symbols-rounded" aria-hidden="true">{{ chip.icon }}</span>
+              }
+              {{ chip.label }}
+            </span>
+          }
+        </div>
+      }
+
+      @if (sealed()) {
+        <form class="gate" (ngSubmit)="reveal()" novalidate>
+          <span class="gate__icon material-symbols-rounded" aria-hidden="true">lock</span>
+          <p class="gate__text">
+            Esta anotação tem senha própria. Digite a senha para ver o conteúdo.
+          </p>
+
+          <app-input
+            name="senha"
+            label="Senha da anotação"
+            type="password"
+            icon="key"
+            [autofocus]="true"
+            [error]="error() ?? undefined"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+          />
+
+          <app-button type="submit" icon="lock_open" [loading]="working()">Abrir</app-button>
+        </form>
+      } @else {
+        @if (content()) {
+          <div class="view__content" [innerHTML]="content()"></div>
+        } @else if (checklist().length === 0) {
+          <p class="view__empty">Sem conteúdo.</p>
+        }
+
+        @if (checklist().length) {
+          <section class="view__section">
+            <h3 class="view__label">Checklist</h3>
+
+            <ul class="items">
+              @for (item of checklist(); track item.id) {
+                <li class="item" [class.item--done]="item.done">
+                  <label class="item__check">
+                    <input type="checkbox" [checked]="item.done" (change)="toggleItem(item.id)" />
+                    <span class="visually-hidden">Concluir {{ item.text }}</span>
+                  </label>
+                  <span class="item__text">{{ item.text }}</span>
+                  @if (item.amount !== null) {
+                    <span class="item__amount tabular">{{ item.amount | currency }}</span>
+                  }
+                </li>
+              }
+            </ul>
+
+            <p class="items__total">
+              {{ summary().done }} de {{ summary().total }}
+              @if (summary().amount > 0) {
+                · marcados somam
+                <strong class="tabular">{{ summary().checkedAmount | currency }}</strong>
+              }
+            </p>
+          </section>
+        }
+
+        @if (note.attachments.length) {
+          <section class="view__section">
+            <h3 class="view__label">Comprovantes</h3>
+
+            <ul class="files">
+              @for (file of note.attachments; track file.id) {
+                <li class="file">
+                  @if (file.type === 'application/pdf') {
+                    <span class="file__thumb file__thumb--icon" aria-hidden="true">
+                      <span class="material-symbols-rounded">picture_as_pdf</span>
+                    </span>
+                  } @else if (previews.urlOf(file.id); as url) {
+                    <button type="button" class="file__thumb" (click)="view(file)">
+                      <img [src]="url" [alt]="file.name" />
+                    </button>
+                  } @else {
+                    <span class="file__thumb file__thumb--icon" aria-hidden="true">
+                      <span class="material-symbols-rounded">image</span>
+                    </span>
+                  }
+
+                  <span class="file__text">
+                    <span class="file__name">{{ file.name }}</span>
+                    <span class="file__size">{{ sizeLabel(file.size) }}</span>
+                  </span>
+
+                  @if (previews.urlOf(file.id); as url) {
+                    <a
+                      class="file__action"
+                      [href]="url"
+                      [download]="file.name"
+                      [attr.aria-label]="'Baixar ' + file.name"
+                    >
+                      <span class="material-symbols-rounded" aria-hidden="true">download</span>
+                    </a>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        <section class="view__section">
+          <h3 class="view__label">Cor</h3>
+          <app-note-color-picker [value]="note.color" (valueChange)="setColor($event)" />
+        </section>
+
+        @if (note.history.length) {
+          <section class="view__section">
+            <button type="button" class="view__toggle" (click)="showHistory.set(!showHistory())">
+              <span class="material-symbols-rounded" aria-hidden="true">history</span>
+              Histórico de versões
+              <span class="view__count">{{ note.history.length }}</span>
+              <span
+                class="view__chevron material-symbols-rounded"
+                [class.view__chevron--open]="showHistory()"
+                aria-hidden="true"
+                >expand_more</span
+              >
+            </button>
+
+            @if (showHistory()) {
+              <ul class="versions">
+                @for (version of note.history; track version.at) {
+                  <li class="version">
+                    <span class="version__text">
+                      <span class="version__title">{{ version.title }}</span>
+                      <span class="version__date">
+                        {{ version.at | date: "dd/MM/y 'às' HH:mm" }}
+                      </span>
+                      <span class="version__excerpt">{{ excerptOf(version) }}</span>
+                    </span>
+                    <app-button variant="text" icon="undo" (click)="restore(version.at)">
+                      Restaurar
+                    </app-button>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        }
+
+        <section class="view__section">
+          <h3 class="view__label">Senha da anotação</h3>
+
+          @if (!canLock) {
+            <p class="view__hint">
+              Este navegador não tem a criptografia necessária para trancar uma anotação.
+            </p>
+          } @else if (note.vault) {
+            <p class="view__hint">
+              Trancada com senha própria, independente do PIN do app. Aberta só nesta sessão.
+            </p>
+            <div class="view__row">
+              <app-button variant="tonal" icon="lock" (click)="hide()">Fechar de novo</app-button>
+              <app-button variant="text" icon="lock_open" (click)="startPrompt('remove')">
+                Tirar a senha
+              </app-button>
+            </div>
+          } @else if (note.attachments.length) {
+            <p class="view__hint">
+              Para trancar, remova os comprovantes: o anexo fica fora do que a senha protege.
+            </p>
+          } @else {
+            <p class="view__hint">
+              Fecha o conteúdo com uma senha só desta anotação. O histórico de versões é apagado,
+              porque ele guarda o texto de antes. Perder a senha é perder o conteúdo.
+            </p>
+            <app-button variant="tonal" icon="lock" (click)="startPrompt('lock')">
+              Trancar com senha
+            </app-button>
+          }
+
+          @if (prompt() === 'lock') {
+            <form class="prompt" (ngSubmit)="lock()" novalidate>
+              <app-input
+                name="nova-senha"
+                label="Senha"
+                type="password"
+                icon="key"
+                [autofocus]="true"
+                [hint]="'Pelo menos ' + passwordMin + ' caracteres.'"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+              />
+              <app-input
+                name="confirma-senha"
+                label="Repita a senha"
+                type="password"
+                icon="key"
+                [error]="error() ?? undefined"
+                [ngModel]="confirm()"
+                (ngModelChange)="confirm.set($event)"
+              />
+              <div class="view__row">
+                <app-button variant="text" (click)="startPrompt('none')">Cancelar</app-button>
+                <app-button type="submit" icon="lock" [loading]="working()">Trancar</app-button>
+              </div>
+            </form>
+          }
+
+          @if (prompt() === 'remove') {
+            <form class="prompt" (ngSubmit)="removeLock()" novalidate>
+              <app-input
+                name="senha-atual"
+                label="Senha atual"
+                type="password"
+                icon="key"
+                [autofocus]="true"
+                [error]="error() ?? undefined"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+              />
+              <div class="view__row">
+                <app-button variant="text" (click)="startPrompt('none')">Cancelar</app-button>
+                <app-button type="submit" icon="lock_open" [loading]="working()">
+                  Tirar a senha
+                </app-button>
+              </div>
+            </form>
+          }
+        </section>
+
+        <p class="view__dates">
+          Criada em {{ note.createdAt | date: "dd/MM/y 'às' HH:mm" }} · alterada em
+          {{ note.updatedAt | date: "dd/MM/y 'às' HH:mm" }}
+        </p>
+      }
+
+      <footer class="view__actions">
+        <button
+          type="button"
+          class="view__pin"
+          [class.view__pin--on]="note.pinned"
+          [attr.aria-pressed]="note.pinned"
+          [attr.aria-label]="note.pinned ? 'Desafixar anotação' : 'Fixar anotação'"
+          (click)="togglePinned()"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">push_pin</span>
+        </button>
+
+        <div class="view__row">
+          <app-button variant="tonal" (click)="close()">Fechar</app-button>
+
+          @if (!sealed() && summary().checkedAmount > 0) {
+            <app-button variant="text" icon="receipt_long" (click)="onLaunch()">Lançar</app-button>
+          }
+          @if (!sealed()) {
+            <app-button icon="edit" (click)="onEdit()">Editar</app-button>
+          }
+        </div>
+      </footer>
+    </div>
+  }
+</app-dialog>
+
+<app-dialog #viewerDialog size="lg" [title]="viewing()?.name ?? 'Comprovante'">
+  @if (viewing(); as current) {
+    <img class="viewer" [src]="current.url" [alt]="current.name" />
+  }
+</app-dialog>

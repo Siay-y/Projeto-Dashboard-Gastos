@@ -1,0 +1,47 @@
+<app-dialog #dlg title="Vincular a um lançamento">
+  <div class="picker">
+    <app-input
+      name="busca-lancamento"
+      icon="search"
+      placeholder="Buscar pela descrição"
+      [(ngModel)]="query"
+    />
+
+    @if (results().length) {
+      <ul class="picker__list">
+        @for (t of results(); track t.id) {
+          <li>
+            <button type="button" class="picker__item" (click)="choose(t.id)">
+              <app-tile-icon size="sm" [source]="categoryOf(t)" />
+
+              <span class="picker__text">
+                <span class="picker__label">{{ t.description }}</span>
+                <span class="picker__meta">{{ t.date | date: 'dd/MM/y' }}</span>
+              </span>
+
+              <span
+                class="picker__amount tabular"
+                [class.picker__amount--income]="t.type === 'income'"
+              >
+                {{ t.amount | currency }}
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+
+      @if (hasMore()) {
+        <p class="picker__hint">
+          Mostrando os {{ results().length }} mais recentes. Use a busca para achar os outros.
+        </p>
+      }
+    } @else {
+      <p class="picker__empty">Nenhum lançamento encontrado.</p>
+    }
+
+    <footer class="picker__actions">
+      <app-button variant="text" (click)="choose(null)">Remover vínculo</app-button>
+      <app-button variant="tonal" (click)="dlg.close()">Fechar</app-button>
+    </footer>
+  </div>
+</app-dialog>

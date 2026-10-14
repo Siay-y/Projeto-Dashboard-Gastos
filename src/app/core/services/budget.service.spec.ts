@@ -34,7 +34,8 @@ const expense = (
   description: 'Teste',
   amount,
   categoryId,
-  accountId: null,
+  bankId: null,
+  methodId: null,
   installments,
   date,
 });
@@ -43,7 +44,14 @@ describe('BudgetService', () => {
   it('soma gastos fixos, parcelas e lançamentos variáveis da categoria', () => {
     const { budget, transactions, recurring } = setup();
 
-    recurring.add({ description: 'Aluguel', amount: 1200, categoryId: 'housing', accountId: null, dueDay: 10 });
+    recurring.add({
+      description: 'Aluguel',
+      amount: 1200,
+      categoryId: 'housing',
+      bankId: null,
+      methodId: null,
+      dueDay: 10,
+    });
     transactions.add(expense(300, 'housing', today));
     transactions.add(expense(100, 'housing', monthsAgo(2), 12));
 
@@ -91,7 +99,6 @@ describe('BudgetService', () => {
     const [probe] = budget.budgets();
     expect(probe.projected).toBeCloseTo((100 / day) * days, 6);
 
-    // No último dia do mês não há o que projetar: a média já cobre o mês inteiro.
     if (probe.projected <= probe.spent) return;
 
     budget.setLimit('ifood', (probe.spent + probe.projected) / 2);
@@ -105,8 +112,9 @@ describe('BudgetService', () => {
   it('não projeta além do que já foi lançado para o mês', () => {
     const { budget, transactions } = setup();
 
-    // Gasto futuro, ainda neste mês: entra no total, mas não infla a média diária.
-    transactions.add(expense(500, 'travel', toDateKey(new Date(now.getFullYear(), now.getMonth(), days))));
+    transactions.add(
+      expense(500, 'travel', toDateKey(new Date(now.getFullYear(), now.getMonth(), days))),
+    );
     budget.setLimit('travel', 600);
 
     const [item] = budget.budgets();

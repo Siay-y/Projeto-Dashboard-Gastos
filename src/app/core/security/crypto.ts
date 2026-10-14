@@ -16,6 +16,12 @@ export interface Envelope {
   data: string;
 }
 
+/** Para binário grande, o byte vai cru: base64 inflaria o anexo em um terço. */
+export interface BinaryEnvelope {
+  iv: string;
+  data: ArrayBuffer;
+}
+
 export function isCryptoAvailable(): boolean {
   return typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined';
 }
@@ -80,6 +86,21 @@ export async function unseal<T>(key: CryptoKey, envelope: Envelope): Promise<T> 
   );
 
   return JSON.parse(new TextDecoder().decode(plain)) as T;
+}
+
+export async function sealBytes(key: CryptoKey, bytes: ArrayBuffer): Promise<BinaryEnvelope> {
+  const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+  const sealed = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes);
+
+  return { iv: toBase64(iv), data: sealed };
+}
+
+export async function unsealBytes(key: CryptoKey, envelope: BinaryEnvelope): Promise<ArrayBuffer> {
+  return crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: fromBase64(envelope.iv) },
+    key,
+    envelope.data,
+  );
 }
 
 function toBase64(bytes: Uint8Array<ArrayBufferLike>): string {

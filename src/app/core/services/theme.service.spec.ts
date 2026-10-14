@@ -21,7 +21,6 @@ describe('ThemeService', () => {
     const theme = setup();
     await TestBed.tick();
 
-    // O jsdom responde que o sistema não está no escuro.
     expect(theme.choice()).toBe('system');
     expect(theme.theme()).toBe('light');
     expect(themeAttribute()).toBe('light');

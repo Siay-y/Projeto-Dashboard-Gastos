@@ -22,8 +22,6 @@ describe('DialogComponent', () => {
 
     const root: HTMLElement = fixture.nativeElement;
 
-    // O painel é animado com `transform`, o que prenderia um `position: fixed`
-    // projetado dentro dele: a sobreposição precisa ser filha do <dialog>.
     expect(root.querySelector('.corpo')?.closest('.dialog__panel')).not.toBeNull();
     expect(root.querySelector('.sobreposto')?.closest('.dialog__panel')).toBeNull();
     expect(root.querySelector('.sobreposto')?.parentElement?.tagName).toBe('DIALOG');

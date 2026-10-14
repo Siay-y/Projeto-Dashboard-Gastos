@@ -1,5 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { STORAGE_KEYS } from '../constants/storage-keys';
+import { readAccountSlots, withAccountSlots } from '../domain/account-slots';
 import { RecurringExpense } from '../domain/models';
 import { StorageService } from './storage.service';
 
@@ -11,7 +12,7 @@ export class RecurringExpenseService {
 
   private readonly _items = signal<RecurringExpense[]>(
     (this.storage.get<Partial<RecurringExpense>[]>(STORAGE_KEYS.RECURRING_EXPENSES) ?? []).map(
-      (raw) => ({ ...(raw as RecurringExpense), accountId: raw.accountId ?? null }),
+      (raw) => withAccountSlots(raw as RecurringExpense),
     ),
   );
 
@@ -62,9 +63,9 @@ export class RecurringExpenseService {
   private normalize(input: RecurringExpenseInput): RecurringExpenseInput {
     return {
       ...input,
+      ...readAccountSlots(input),
       description: input.description.trim(),
       amount: Math.round(Math.abs(input.amount) * 100) / 100,
-      accountId: input.accountId || null,
       dueDay: input.dueDay ? Math.min(31, Math.max(1, Math.round(input.dueDay))) : null,
     };
   }

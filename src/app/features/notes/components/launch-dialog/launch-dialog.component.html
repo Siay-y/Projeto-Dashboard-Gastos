@@ -1,0 +1,54 @@
+<app-dialog #dlg title="Lançar como gasto">
+  <form class="launch" (ngSubmit)="submit()" novalidate>
+    <p class="launch__total">
+      <span class="launch__label">Total dos itens marcados</span>
+      <strong class="launch__value tabular">{{ amount() | currency }}</strong>
+      <span class="launch__hint">
+        {{ itemCount() }} {{ itemCount() === 1 ? 'item marcado' : 'itens marcados' }} na anotação
+      </span>
+    </p>
+
+    <app-input
+      name="descricao"
+      label="Descrição"
+      [error]="descriptionError()"
+      [ngModel]="description()"
+      (ngModelChange)="description.set($event)"
+    />
+
+    <div class="launch__field">
+      <span class="launch__field-label">Categoria</span>
+      <app-category-picker
+        type="expense"
+        [value]="categoryId()"
+        (valueChange)="categoryId.set($event)"
+      />
+      @if (categoryError(); as message) {
+        <p class="launch__error" role="alert">{{ message }}</p>
+      }
+    </div>
+
+    <div class="launch__field">
+      <span class="launch__field-label">Banco e forma de pagamento</span>
+      <app-account-picker
+        [bank]="bankId()"
+        (bankChange)="bankId.set($event)"
+        [method]="methodId()"
+        (methodChange)="methodId.set($event)"
+      />
+    </div>
+
+    <app-input
+      name="data"
+      label="Data"
+      type="date"
+      [ngModel]="date()"
+      (ngModelChange)="date.set($event)"
+    />
+
+    <footer class="launch__actions">
+      <app-button variant="tonal" (click)="dlg.close()">Cancelar</app-button>
+      <app-button type="submit" icon="check">Lançar gasto</app-button>
+    </footer>
+  </form>
+</app-dialog>

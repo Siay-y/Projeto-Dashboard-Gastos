@@ -81,11 +81,35 @@
 }
 
 .budget__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
   font-size: 0.9375rem;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.budget__note {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-text-disabled);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .material-symbols-rounded {
+    font-size: 16px;
+  }
 }
 
 .budget__value {

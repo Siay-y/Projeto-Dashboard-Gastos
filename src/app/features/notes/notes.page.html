@@ -1,0 +1,237 @@
+<header class="page-header" appFadeInUp>
+  <div class="page-header__text">
+    <span class="overline">{{ countLabel() }}</span>
+    <h1>Anotações</h1>
+  </div>
+
+  <div class="page-header__actions">
+    <app-button icon="add" (click)="openNew()">Nova anotação</app-button>
+    <app-menu label="Exportar e importar anotações" [items]="menu()" (select)="onMenu($event)" />
+  </div>
+</header>
+
+@if (launched(); as description) {
+  <p class="launched" role="status">
+    <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+    <span class="launched__text">Gasto "{{ description }}" lançado no histórico.</span>
+    <button type="button" class="launched__link" (click)="goToHistory()">Ver lançamento</button>
+    <button
+      type="button"
+      class="launched__close"
+      aria-label="Fechar aviso"
+      (click)="launched.set(null)"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
+  </p>
+}
+
+@if (service.hasNotes()) {
+  <div class="notes__search" appFadeInUp [delay]="1">
+    <app-input
+      name="busca"
+      type="text"
+      icon="search"
+      placeholder="Buscar por título ou conteúdo"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+    />
+  </div>
+
+  @if (colorOptions().length > 1) {
+    <div class="notes__colors" role="radiogroup" aria-label="Filtrar por cor">
+      <button
+        type="button"
+        role="radio"
+        class="filter"
+        [class.filter--on]="colorFilter() === 'all'"
+        [attr.aria-checked]="colorFilter() === 'all'"
+        (click)="colorFilter.set('all')"
+      >
+        Todas
+      </button>
+
+      @for (color of colorOptions(); track color.id) {
+        @let on = colorFilter() === color.id;
+        <button
+          type="button"
+          role="radio"
+          class="filter filter--color"
+          [attr.data-color]="color.id"
+          [class.filter--on]="on"
+          [attr.aria-checked]="on"
+          (click)="colorFilter.set(on ? 'all' : color.id)"
+        >
+          <span class="filter__dot" aria-hidden="true"></span>
+          {{ color.label }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (visible().length) {
+    <ul class="notes" appFadeInUp [delay]="2">
+      @for (note of visible(); track note.id) {
+        @let items = summary(note);
+        @let days = reminderDays(note);
+
+        <li>
+          <app-card
+            class="note"
+            [padded]="false"
+            [elevation]="1"
+            [attr.data-color]="note.color === 'none' ? null : note.color"
+          >
+            <article class="note__body" [class.note__body--pinned]="note.pinned">
+              <button
+                type="button"
+                class="note__open"
+                [attr.aria-label]="'Ver ' + note.title"
+                (click)="openView(note)"
+              >
+                <h2 class="note__title">{{ note.title }}</h2>
+
+                @if (note.vault && !isRevealed(note)) {
+                  <p class="note__excerpt note__excerpt--sealed">
+                    <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                    Conteúdo protegido por senha
+                  </p>
+                } @else if (excerpt(note); as preview) {
+                  <p class="note__excerpt">{{ preview }}</p>
+                } @else if (items.total === 0) {
+                  <p class="note__excerpt note__excerpt--empty">Sem conteúdo</p>
+                }
+
+                @if (items.total > 0) {
+                  <p class="note__progress">
+                    <span class="material-symbols-rounded" aria-hidden="true">checklist</span>
+                    {{ items.done }} de {{ items.total }}
+                    @if (items.amount > 0) {
+                      · marcados somam
+                      <strong class="tabular">{{ items.checkedAmount | currency }}</strong>
+                    }
+                  </p>
+                }
+
+                <div class="note__chips">
+                  @if (note.vault) {
+                    <span class="chip chip--lock">
+                      <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                      Trancada
+                    </span>
+                  }
+
+                  @if (days !== null) {
+                    <span
+                      class="chip"
+                      [class.chip--late]="days < 0"
+                      [class.chip--soon]="days === 0 || days === 1"
+                    >
+                      <span class="material-symbols-rounded" aria-hidden="true">alarm</span>
+                      {{ note.remindOn | date: 'dd/MM' }}
+                    </span>
+                  }
+
+                  @if (categoryOf(note); as category) {
+                    <span class="chip">
+                      <app-tile-icon size="sm" [source]="category" />
+                      {{ category.label }}
+                    </span>
+                  }
+
+                  @for (account of accountsOf(note); track account.id) {
+                    <span class="chip">
+                      <app-tile-icon size="sm" [source]="account" />
+                      {{ account.label }}
+                    </span>
+                  }
+
+                  @if (note.transactionId) {
+                    <span class="chip">
+                      <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>
+                      Lançamento
+                    </span>
+                  }
+
+                  @if (note.attachments.length) {
+                    <span class="chip">
+                      <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
+                      {{ note.attachments.length }}
+                    </span>
+                  }
+                </div>
+
+                <span class="note__date">{{ note.updatedAt | date: "dd/MM/y 'às' HH:mm" }}</span>
+              </button>
+
+              <div class="note__actions">
+                <button
+                  type="button"
+                  class="note__pin"
+                  [class.note__pin--on]="note.pinned"
+                  [attr.aria-pressed]="note.pinned"
+                  [attr.aria-label]="(note.pinned ? 'Desafixar ' : 'Fixar ') + note.title"
+                  (click)="togglePinned(note)"
+                >
+                  <span class="material-symbols-rounded" aria-hidden="true">push_pin</span>
+                </button>
+
+                <div class="note__actions-right">
+                  @if (items.checkedAmount > 0) {
+                    <button
+                      type="button"
+                      class="note__launch"
+                      [attr.aria-label]="'Lançar ' + note.title + ' como gasto'"
+                      (click)="openLaunch(note)"
+                    >
+                      <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>
+                      Lançar
+                    </button>
+                  }
+
+                  @if (!note.vault || isRevealed(note)) {
+                    <button
+                      type="button"
+                      class="note__edit"
+                      [attr.aria-label]="'Editar ' + note.title"
+                      (click)="openEdit(note)"
+                    >
+                      <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+                    </button>
+                  }
+
+                  <app-delete-button [itemLabel]="note.title" (confirmed)="remove(note)" />
+                </div>
+              </div>
+            </article>
+          </app-card>
+        </li>
+      }
+    </ul>
+  } @else {
+    <app-empty-state
+      icon="search_off"
+      title="Nada encontrado"
+      description="Nenhuma anotação combina com essa busca."
+    >
+      <app-button variant="tonal" icon="close" (click)="query.set('')">Limpar busca</app-button>
+    </app-empty-state>
+  }
+} @else {
+  <app-empty-state
+    icon="edit_note"
+    title="Nenhuma anotação"
+    description="Guarde aqui o que precisa lembrar: metas, lista de compras, o combinado da divisão de contas. Dá para marcar um lembrete, anexar comprovante e transformar uma lista em lançamento."
+    appFadeInUp
+    [delay]="1"
+  >
+    <app-button variant="tonal" icon="add" (click)="openNew()">Criar a primeira</app-button>
+  </app-empty-state>
+}
+
+<input #fileInput type="file" class="visually-hidden" accept=".xlsx" (change)="onFile($event)" />
+
+<app-note-view (edit)="openEdit($event)" (launch)="openLaunch($event)" />
+<app-note-editor (saved)="onSaved($event)" />
+<app-launch-dialog (launched)="onLaunched($event)" />
+<app-note-import-dialog (confirmed)="confirmImport()" />

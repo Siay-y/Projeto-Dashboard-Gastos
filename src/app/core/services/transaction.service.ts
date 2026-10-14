@@ -1,5 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { STORAGE_KEYS } from '../constants/storage-keys';
+import { readAccountSlots, withAccountSlots } from '../domain/account-slots';
 import { Transaction, TransactionOccurrence } from '../domain/models';
 import { FinanceSettingsService } from './finance-settings.service';
 import { RecurringExpenseService } from './recurring-expense.service';
@@ -92,7 +93,9 @@ export class TransactionService {
 
   private expand(t: Transaction): TransactionOccurrence[] {
     if (!t.installments || t.installments < 2) {
-      return [{ key: `${t.id}#0`, transaction: t, date: t.date, amount: t.amount, installment: null }];
+      return [
+        { key: `${t.id}#0`, transaction: t, date: t.date, amount: t.amount, installment: null },
+      ];
     }
 
     const list: TransactionOccurrence[] = [];
@@ -120,9 +123,9 @@ export class TransactionService {
 
     return {
       ...input,
+      ...readAccountSlots(input),
       description: input.description.trim(),
       amount: Math.round(Math.abs(input.amount) * 100) / 100,
-      accountId: input.accountId || null,
       installments,
     };
   }
@@ -134,8 +137,7 @@ export class TransactionService {
 
 function migrate(raw: Partial<Transaction>): Transaction {
   return {
-    ...(raw as Transaction),
-    accountId: raw.accountId ?? null,
+    ...withAccountSlots(raw as Transaction),
     installments: raw.installments ?? null,
   };
 }

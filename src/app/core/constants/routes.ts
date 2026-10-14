@@ -3,5 +3,6 @@ export const APP_ROUTES = {
   DASHBOARD: '/',
   TRANSACTIONS: '/transacoes',
   CALENDAR: '/calendario',
+  NOTES: '/anotacoes',
   SETTINGS: '/configuracoes',
 } as const;

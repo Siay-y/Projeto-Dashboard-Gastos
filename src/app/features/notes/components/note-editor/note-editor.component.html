@@ -1,0 +1,239 @@
+<app-dialog #dlg size="lg" [title]="dialogTitle()">
+  <form class="note-form" (ngSubmit)="save()" novalidate>
+    @if (sealed()) {
+      <p class="note-form__restored note-form__restored--lock" role="status">
+        <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+        Anotação trancada: o texto é selado de novo ao salvar, e nada fica em rascunho.
+      </p>
+    }
+
+    @if (restored()) {
+      <p class="note-form__restored" role="status">
+        <span class="material-symbols-rounded" aria-hidden="true">history</span>
+        Rascunho recuperado do que você não chegou a salvar.
+        <button type="button" class="note-form__link" (click)="discardDraft()">Descartar</button>
+      </p>
+    }
+
+    <app-input
+      name="title"
+      label="Título"
+      placeholder="Sem título"
+      icon="title"
+      [autofocus]="true"
+      [maxlength]="titleMax"
+      [ngModel]="title()"
+      (ngModelChange)="onTitle($event)"
+    />
+
+    <div class="note-form__field">
+      <span class="note-form__label">Conteúdo</span>
+      <app-rich-text [value]="content()" (valueChange)="onContent($event)" />
+      @if (error(); as message) {
+        <p class="note-form__error" role="alert">{{ message }}</p>
+      }
+    </div>
+
+    <div class="note-form__chips">
+      @for (section of sections; track section.id) {
+        @if (!isShown(section.id) && (section.id !== 'attachments' || (canAttach && !sealed()))) {
+          <button type="button" class="note-form__chip" (click)="reveal(section.id)">
+            <span class="material-symbols-rounded" aria-hidden="true">{{ section.icon }}</span>
+            {{ section.label }}
+          </button>
+        }
+      }
+    </div>
+
+    @if (isShown('checklist')) {
+      <section class="note-form__field">
+        <span class="note-form__label">Checklist</span>
+
+        <ul class="items">
+          @for (item of checklist(); track item.id) {
+            <li class="item">
+              <label class="item__check">
+                <input type="checkbox" [checked]="item.done" (change)="toggleItem(item.id)" />
+                <span class="visually-hidden">Concluir {{ item.text || 'item' }}</span>
+              </label>
+
+              <input
+                type="text"
+                class="item__text"
+                placeholder="Item"
+                [value]="item.text"
+                [attr.maxlength]="60"
+                (input)="setItemText(item.id, $any($event.target).value)"
+              />
+
+              <input
+                type="text"
+                class="item__amount tabular"
+                inputmode="decimal"
+                placeholder="R$"
+                [value]="item.amount ?? ''"
+                (change)="setItemAmount(item.id, $any($event.target).value)"
+              />
+
+              <button
+                type="button"
+                class="item__remove"
+                [attr.aria-label]="'Remover ' + (item.text || 'item')"
+                (click)="removeItem(item.id)"
+              >
+                <span class="material-symbols-rounded" aria-hidden="true">close</span>
+              </button>
+            </li>
+          }
+        </ul>
+
+        <div class="items__footer">
+          <app-button variant="text" icon="add" (click)="addItem()">Adicionar item</app-button>
+
+          @if (summary().amount > 0) {
+            <span class="items__total tabular">
+              {{ summary().done }}/{{ summary().total }} · marcados somam
+              <strong>{{ summary().checkedAmount | currency }}</strong>
+            </span>
+          }
+        </div>
+      </section>
+    }
+
+    @if (isShown('reminder')) {
+      <app-input
+        name="remindOn"
+        label="Lembrete"
+        type="date"
+        icon="alarm"
+        hint="A anotação aparece no calendário e nos avisos da visão geral."
+        [ngModel]="remindOn()"
+        (ngModelChange)="onRemind($event)"
+      />
+    }
+
+    @if (isShown('link')) {
+      <section class="note-form__field">
+        <span class="note-form__label">Vínculo</span>
+
+        <app-category-picker
+          type="expense"
+          [value]="categoryId()"
+          (valueChange)="onCategory($event)"
+        />
+        <app-account-picker
+          [bank]="bankId()"
+          (bankChange)="onBank($event)"
+          [method]="methodId()"
+          (methodChange)="onMethod($event)"
+        />
+
+        <div class="link">
+          @if (transactionId()) {
+            <span class="link__chip">
+              <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>
+              Lançamento vinculado
+            </span>
+          }
+          <app-button variant="text" icon="link" (click)="openPicker()">
+            {{ transactionId() ? 'Trocar lançamento' : 'Vincular a um lançamento' }}
+          </app-button>
+        </div>
+      </section>
+    }
+
+    @if (isShown('color')) {
+      <section class="note-form__field">
+        <span class="note-form__label">Cor</span>
+        <app-note-color-picker [value]="color()" (valueChange)="onColor($event)" />
+      </section>
+    }
+
+    @if (isShown('attachments') && canAttach && !sealed()) {
+      <section class="note-form__field">
+        <span class="note-form__label">Anexos</span>
+
+        @if (attachments().length) {
+          <ul class="files">
+            @for (file of attachments(); track file.id) {
+              <li class="file">
+                @if (file.type === 'application/pdf') {
+                  <span class="file__thumb file__thumb--icon" aria-hidden="true">
+                    <span class="material-symbols-rounded">picture_as_pdf</span>
+                  </span>
+                } @else if (previews.urlOf(file.id); as url) {
+                  <button type="button" class="file__thumb" (click)="view(file)">
+                    <img [src]="url" [alt]="file.name" />
+                  </button>
+                } @else {
+                  <span class="file__thumb file__thumb--icon" aria-hidden="true">
+                    <span class="material-symbols-rounded">image</span>
+                  </span>
+                }
+
+                <span class="file__text">
+                  <span class="file__name">{{ file.name }}</span>
+                  <span class="file__size">{{ sizeLabel(file.size) }}</span>
+                </span>
+
+                @if (previews.urlOf(file.id); as url) {
+                  <a
+                    class="file__action"
+                    [href]="url"
+                    [download]="file.name"
+                    [attr.aria-label]="'Baixar ' + file.name"
+                  >
+                    <span class="material-symbols-rounded" aria-hidden="true">download</span>
+                  </a>
+                }
+
+                <button
+                  type="button"
+                  class="file__action"
+                  [attr.aria-label]="'Remover ' + file.name"
+                  (click)="removeAttachment(file.id)"
+                >
+                  <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (attachError(); as message) {
+          <p class="note-form__error" role="alert">{{ message }}</p>
+        }
+
+        <app-button variant="tonal" icon="attach_file" (click)="pickFiles()">
+          Anexar comprovante
+        </app-button>
+
+        <span class="note-form__hint">Imagem ou PDF, até 5 MB por arquivo.</span>
+
+        <input
+          #fileInput
+          type="file"
+          class="visually-hidden"
+          multiple
+          [accept]="accept"
+          (change)="onFiles($event)"
+        />
+      </section>
+    }
+
+    <footer class="note-form__actions">
+      <div class="note-form__buttons">
+        <app-button variant="tonal" (click)="dlg.close()">Cancelar</app-button>
+        <app-button type="submit" icon="check" [loading]="saving()">Salvar</app-button>
+      </div>
+    </footer>
+  </form>
+</app-dialog>
+
+<app-transaction-picker (picked)="onTransactionPicked($event)" />
+
+<app-dialog #viewerDialog size="lg" [title]="viewing()?.name ?? 'Comprovante'">
+  @if (viewing(); as current) {
+    <img class="viewer" [src]="current.url" [alt]="current.name" />
+  }
+</app-dialog>

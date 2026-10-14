@@ -56,6 +56,78 @@ A única recuperação é o código: o PIN é a chave e não fica guardado em lu
 nenhum. Sem o PIN e sem o código, os dados não voltam, nem por aqui nem por
 ninguém; a tela de bloqueio só pode oferecer apagar tudo e recomeçar.
 
+## HTML das anotações
+
+As anotações são o único lugar onde o app guarda HTML e o devolve para o
+navegador interpretar, então elas passam por um sanitizador próprio em
+`core/domain/note-html.ts`, que **reconstrói** a árvore em vez de filtrar a
+original:
+
+- Só sobrevivem `b`, `i`, `u`, `s`, `br`, `div`, `ul`, `ol`, `li`, `h3` e
+  `blockquote`, e os sinônimos de cada navegador (`strong`, `em`, `strike`,
+  `p`, `h1`) são unificados nessas.
+- **Nenhum atributo é copiado.** Não existe `style`, `href`, `class` nem `on*`
+  no que vai para o disco.
+- `script`, `style`, `iframe`, `svg`, `form` e afins são removidos com o
+  conteúdo, para o código-fonte não virar texto visível da anotação.
+- Tag fora da lista perde a formatação, mas o texto dentro dela continua.
+
+A limpeza acontece em três momentos: ao colar (o conteúdo de fora entra já
+limpo, sem trazer fonte nem cor), ao salvar e ao ler do disco. O último é o que
+protege contra um `localStorage` editado à mão.
+
+## Senha própria de uma anotação
+
+O PIN protege o app inteiro e vale tudo ou nada: destravado, tudo fica legível.
+Uma anotação de documento pede outra coisa, então ela pode ter **senha própria**,
+independente do PIN e usando as mesmas peças (`deriveKey` com PBKDF2-SHA256 de
+600.000 iterações, sal novo por anotação, e `seal` com AES-GCM-256).
+
+O que é selado: **conteúdo e checklist**. O que continua visível: título, cor,
+lembrete, vínculos e datas. Isso é proposital, porque sem título a anotação
+não seria encontrável na lista nem na busca; o preço é que o título não pode
+guardar o segredo.
+
+Decisões que a proteção obriga:
+
+- **A chave fica em memória, não a senha.** Ao abrir, o app guarda o `CryptoKey`
+  derivado para poder selar de novo ao salvar. Nada reutilizável sobra, e
+  recarregar a página esquece tudo.
+- **O histórico de versões é apagado ao trancar.** Ele guarda o texto em claro de
+  antes, e manter isso ao lado do cofre anularia o cofre. Enquanto a anotação
+  está trancada, nenhuma versão nova é criada.
+- **Nada de rascunho automático.** O rascunho é gravado em claro no
+  `localStorage`; para uma anotação trancada ele simplesmente não é gravado.
+- **Sem anexo.** O binário fica no IndexedDB e só é cifrado quando o PIN está
+  ativo, então ele ficaria fora do alcance da senha. Em vez de prometer o que a
+  implementação não entrega, o app impede trancar uma anotação com comprovante.
+- **A exportação sai sem o conteúdo**, apenas com o título e a marca "Trancada".
+- **A busca não acha o texto selado**, só o título. É consequência do formato,
+  não um descuido: procurar dentro exigiria decifrar tudo.
+
+Não existe recuperação. O código de recuperação do PIN não vale aqui, e o app
+não guarda a senha nem um verificador dela: o próprio AES-GCM é autenticado, e
+decifrar com a chave errada falha. Perder a senha é perder o conteúdo, e a
+interface avisa isso antes de trancar.
+
+## Comprovantes anexados
+
+O binário do anexo não cabe no `localStorage`, que tem poucos megabytes para o
+app inteiro, então ele fica no **IndexedDB**. Para não abrir um buraco na
+proteção, o anexo acompanha o mesmo ciclo do resto:
+
+- Com PIN ativo, os bytes são cifrados com AES-GCM usando a **mesma chave** dos
+  outros dados, por `sealBytes`, que grava o `ArrayBuffer` cru em vez de base64,
+  para não inflar o arquivo em um terço.
+- Ligar o PIN cifra os anexos que já existiam; desligar devolve todos para
+  claro, senão eles ficariam ilegíveis.
+- "Apagar todos os dados" limpa o IndexedDB junto com o `localStorage`, e
+  excluir uma anotação apaga os anexos dela.
+
+Só imagem e PDF entram, com teto de 5 MB por arquivo. A miniatura usa uma URL
+`blob:`, que por isso aparece no `img-src` do CSP. PDF não é exibido na tela:
+o botão baixa o arquivo, porque mostrar exigiria afrouxar `object-src`.
+
 ## Content Security Policy
 
 Como todos os dados vivem no `localStorage`, um XSS seria a falha mais grave
@@ -68,7 +140,7 @@ decifrado em memória. O `vercel.json` define um CSP para fechar essa porta:
 | `script-src` | `'self'` + hash SHA-256 | Só o bundle e o script de tema embutido, por hash. Sem `'unsafe-inline'` |
 | `style-src` | `'self' 'unsafe-inline'` + Google Fonts | Ver a ressalva abaixo |
 | `font-src` | `'self' https://fonts.gstatic.com` | Os arquivos `.woff2` |
-| `img-src` | `'self' data:` | O favicon e os padrões SVG embutidos no CSS |
+| `img-src` | `'self' data: blob:` | O favicon, os padrões SVG do CSS e a miniatura do comprovante anexado, que vem do IndexedDB como `blob:` |
 | `connect-src` | `'self'` | O app não faz nenhuma requisição a terceiros |
 | `object-src` | `'none'` | Sem plugin, sem `<embed>` |
 | `base-uri` | `'self'` | Impede reescrever o `<base href>` |

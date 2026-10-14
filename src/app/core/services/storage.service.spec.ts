@@ -5,7 +5,6 @@ import { StorageService } from './storage.service';
 
 const KEY = STORAGE_KEYS.TRANSACTIONS;
 
-/** Faz `setItem` estourar cota; `includeProbe` derruba também a sondagem inicial. */
 function breakWrites(includeProbe = false): void {
   const original = Storage.prototype.setItem;
 

@@ -18,7 +18,9 @@
           [routerLinkActiveOptions]="{ exact: !!item.exact }"
           ariaCurrentWhenActive="page"
         >
-          <span class="material-symbols-rounded nav-link__icon" aria-hidden="true">{{ item.icon }}</span>
+          <span class="material-symbols-rounded nav-link__icon" aria-hidden="true">{{
+            item.icon
+          }}</span>
           <span>{{ item.label }}</span>
         </a>
       }
@@ -79,7 +81,7 @@
   </main>
 
   <nav class="bottom-nav" aria-label="Principal">
-    @for (item of navItems; track item.path) {
+    @for (item of bottomNavItems; track item.path) {
       <a
         class="bottom-nav__link"
         [routerLink]="item.path"
@@ -91,5 +93,40 @@
         <span class="bottom-nav__label">{{ item.label }}</span>
       </a>
     }
+
+    <button
+      type="button"
+      class="bottom-nav__link"
+      [class.bottom-nav__link--active]="moreActive()"
+      aria-haspopup="dialog"
+      aria-label="Mais seções"
+      (click)="moreDialog.open()"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">more_horiz</span>
+      <span class="bottom-nav__label">Mais</span>
+    </button>
   </nav>
+
+  <app-dialog #moreDialog title="Mais">
+    <nav class="more" aria-label="Mais seções">
+      @for (item of moreItems; track item.path) {
+        <a class="more__link" [routerLink]="item.path" (click)="moreDialog.close()">
+          <span class="material-symbols-rounded more__icon" aria-hidden="true">{{
+            item.icon
+          }}</span>
+
+          <span class="more__text">
+            <span class="more__label">{{ item.label }}</span>
+            @if (item.hint) {
+              <span class="more__hint">{{ item.hint }}</span>
+            }
+          </span>
+
+          <span class="material-symbols-rounded more__chevron" aria-hidden="true"
+            >chevron_right</span
+          >
+        </a>
+      }
+    </nav>
+  </app-dialog>
 </div>

@@ -246,6 +246,12 @@ $breakpoint-side: 1024px;
   --kind-soft: var(--color-success-soft);
 }
 
+.chip[data-kind='note'],
+.dot[data-kind='note'] {
+  --kind: var(--color-info);
+  --kind-soft: var(--color-info-soft);
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;

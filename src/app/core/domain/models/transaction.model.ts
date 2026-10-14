@@ -6,7 +6,8 @@ export interface Transaction {
   description: string;
   amount: number;
   categoryId: string;
-  accountId: string | null;
+  bankId: string | null;
+  methodId: string | null;
   installments: number | null;
   date: string;
   createdAt: string;

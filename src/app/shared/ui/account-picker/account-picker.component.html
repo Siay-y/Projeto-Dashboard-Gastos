@@ -1,7 +1,8 @@
-<div class="picker" role="radiogroup" aria-label="Conta ou cartão">
+<div class="picker">
   @for (group of groups; track group.label; let i = $index) {
     @let open = isOpen(group.label);
     @let selectedLabel = selectedIn(group);
+    @let current = valueOf(group.slot);
 
     <div class="group" [class.group--open]="open">
       <button
@@ -21,16 +22,16 @@
       </button>
 
       <div class="group__panel" [id]="panelId(i)" [attr.inert]="open ? null : ''">
-        <div class="group__grid">
+        <div class="group__grid" role="radiogroup" [attr.aria-label]="group.label">
           @for (account of group.items; track account.id) {
-            @let selected = value() === account.id;
+            @let selected = current === account.id;
             <button
               type="button"
               role="radio"
               class="chip"
               [class.chip--selected]="selected"
               [attr.aria-checked]="selected"
-              (click)="select(account.id)"
+              (click)="select(group.slot, account.id)"
             >
               <app-tile-icon [source]="account" size="sm" [solid]="selected" />
               <span class="chip__label">{{ account.label }}</span>

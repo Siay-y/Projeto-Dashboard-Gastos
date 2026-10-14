@@ -1,0 +1,9 @@
+$names: mint, sky, lilac, rose, amber, sand, slate;
+
+@mixin tints {
+  @each $name in $names {
+    &[data-color='#{$name}'] {
+      --note-tint: var(--note-#{$name});
+    }
+  }
+}

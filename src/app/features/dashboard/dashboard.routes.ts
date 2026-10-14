@@ -18,6 +18,11 @@ export const DASHBOARD_ROUTES: Routes = [
     title: 'Calendário · Meus Gastos',
   },
   {
+    path: 'anotacoes',
+    loadComponent: () => import('../notes/notes.page').then((m) => m.NotesPage),
+    title: 'Anotações · Meus Gastos',
+  },
+  {
     path: 'configuracoes',
     loadComponent: () => import('../settings/settings.page').then((m) => m.SettingsPage),
     title: 'Configurações · Meus Gastos',

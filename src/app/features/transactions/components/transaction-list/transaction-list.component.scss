@@ -276,3 +276,27 @@ $cols-desktop: 36px minmax(0, 1fr) 110px 140px;
   justify-content: flex-end;
   padding-inline: var(--space-2);
 }
+
+.row-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--color-text-disabled);
+
+  &:hover {
+    background: var(--color-surface-variant);
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+
+  .material-symbols-rounded {
+    font-size: 18px;
+  }
+}

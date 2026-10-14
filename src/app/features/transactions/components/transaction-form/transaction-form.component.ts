@@ -21,7 +21,7 @@ import { Transaction, TransactionType } from '../../../../core/domain/models';
 import { TransactionInput } from '../../../../core/services/transaction.service';
 import { ButtonComponent, InputComponent } from '../../../../shared/ui';
 import { toDateKey } from '../../../../shared/utils/date';
-import { AccountPickerComponent } from '../account-picker/account-picker.component';
+import { AccountPickerComponent } from '../../../../shared/ui/account-picker/account-picker.component';
 import { CategoryPickerComponent } from '../../../../shared/ui/category-picker/category-picker.component';
 
 const MAX_DESCRIPTION = 60;
@@ -71,7 +71,8 @@ export class TransactionFormComponent {
 
   protected readonly type = signal<TransactionType>('expense');
   protected readonly categoryId = signal('');
-  protected readonly accountId = signal<string | null>(null);
+  protected readonly bankId = signal<string | null>(null);
+  protected readonly methodId = signal<string | null>(null);
   protected readonly installed = signal(false);
   protected readonly amountRaw = signal('');
   protected readonly installmentsRaw = signal('');
@@ -82,7 +83,8 @@ export class TransactionFormComponent {
     description: ['', [Validators.required, Validators.maxLength(MAX_DESCRIPTION)]],
     date: [toDateKey(), Validators.required],
     categoryId: ['', Validators.required],
-    accountId: [null as string | null],
+    bankId: [null as string | null],
+    methodId: [null as string | null],
     installments: [''],
   });
 
@@ -115,13 +117,15 @@ export class TransactionFormComponent {
       description: transaction?.description ?? '',
       date: transaction?.date ?? toDateKey(),
       categoryId: transaction?.categoryId ?? '',
-      accountId: transaction?.accountId ?? null,
+      bankId: transaction?.bankId ?? null,
+      methodId: transaction?.methodId ?? null,
       installments: transaction?.installments ? String(transaction.installments) : '',
     });
 
     this.type.set(this.form.controls.type.value);
     this.categoryId.set(this.form.controls.categoryId.value);
-    this.accountId.set(this.form.controls.accountId.value);
+    this.bankId.set(this.form.controls.bankId.value);
+    this.methodId.set(this.form.controls.methodId.value);
     this.setInstalled(!!transaction?.installments);
   }
 
@@ -143,9 +147,14 @@ export class TransactionFormComponent {
     this.form.controls.categoryId.markAsTouched();
   }
 
-  protected setAccount(id: string | null): void {
-    this.accountId.set(id);
-    this.form.controls.accountId.setValue(id);
+  protected setBank(id: string | null): void {
+    this.bankId.set(id);
+    this.form.controls.bankId.setValue(id);
+  }
+
+  protected setMethod(id: string | null): void {
+    this.methodId.set(id);
+    this.form.controls.methodId.setValue(id);
   }
 
   protected setInstalled(value: boolean): void {
@@ -188,7 +197,8 @@ export class TransactionFormComponent {
       description: value.description,
       date: value.date,
       categoryId: value.categoryId,
-      accountId: value.accountId,
+      bankId: value.bankId,
+      methodId: value.methodId,
       installments: this.installed() ? Number(value.installments) : null,
     });
   }

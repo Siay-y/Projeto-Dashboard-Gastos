@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, inject } from 
 import { RouterLink } from '@angular/router';
 import { APP_ROUTES } from '../../../../core/constants/routes';
 import { BudgetService, CategoryBudget } from '../../../../core/services/budget.service';
+import { NoteService } from '../../../../core/services/note.service';
 import { ButtonComponent, CardComponent, TileIconComponent } from '../../../../shared/ui';
 
 @Component({
@@ -15,9 +16,15 @@ import { ButtonComponent, CardComponent, TileIconComponent } from '../../../../s
 export class BudgetListComponent {
   private readonly locale = inject(LOCALE_ID);
   private readonly budget = inject(BudgetService);
+  private readonly notes = inject(NoteService);
 
+  protected readonly notesRoute = APP_ROUTES.NOTES;
   protected readonly settingsRoute = APP_ROUTES.SETTINGS;
   protected readonly budgets = this.budget.budgets;
+
+  protected noteFor(categoryId: string): string | null {
+    return this.notes.forCategory(categoryId)[0]?.title ?? null;
+  }
 
   protected readonly summary = computed(() => {
     const { spent, limit } = this.budget.totals();

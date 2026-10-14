@@ -28,6 +28,7 @@ projeto-gastos/
 │   │   │   ├── dashboard/          Visão geral, rotas filhas e seus componentes
 │   │   │   ├── transactions/       Gastos fixos + histórico, formulários e listas
 │   │   │   ├── calendar/           Calendário mensal
+│   │   │   ├── notes/              Anotações e o editor de texto
 │   │   │   ├── settings/          Configurações: perfil, segurança e dados
 │   │   │   ├── lock/              Tela de bloqueio (pedida do PIN)
 │   │   │   └── not-found/          Página 404
@@ -35,8 +36,8 @@ projeto-gastos/
 │   │   ├── shared/
 │   │   │   ├── directives/         appFadeInUp, appSwipeAction
 │   │   │   ├── icons/              Registro explícito de marcas do Simple Icons
-│   │   │   ├── ui/                 Button, Calculator, Card, Dialog, Input, Menu, Money,
-│   │   │   │                       PinInput, StorageAlert, Tabs, TileIcon, EmptyState...
+│   │   │   ├── ui/                 AccountPicker, Button, Calculator, Card, Dialog, Input,
+│   │   │   │                       Menu, Money, PinInput, RichText, StorageAlert, Tabs...
 │   │   │   └── utils/              Datas e saudação
 │   │   ├── app.config.ts           Providers, locale pt-BR e moeda BRL
 │   │   ├── app.routes.ts           Onboarding, shell e página 404
@@ -89,6 +90,9 @@ mudança, então nenhum componente chama "salvar".
 | `ForecastService` | Projeção de gastos até o fim do mês |
 | `UpcomingService` | Próximos vencimentos de fixos e parcelas |
 | `AlertService` | Avisos da visão geral, derivados dos serviços acima |
+| `NoteService` | Anotações, checklist, lembretes, vínculos, cor, histórico de versões, senha própria, busca e sanitização do HTML |
+| `NoteDraftService` | O que está sendo escrito e ainda não foi salvo |
+| `AttachmentStore` | Comprovantes no IndexedDB, cifrados junto com o resto quando há PIN |
 | `CalendarService` | Eventos e grade de um mês |
 | `ExportService` / `ImportService` | Planilhas `.xlsx` |
 | `UiPreferencesService` | Seções recolhíveis abertas ou fechadas |
@@ -105,6 +109,8 @@ calendário.
 | `gastos:transactions` | Lista de transações |
 | `gastos:recurring-expenses` | Lista de gastos fixos |
 | `gastos:budgets` | Limite mensal por categoria (`{ categoria: valor }`) |
+| `gastos:notes` | Anotações: título, HTML limitado, checklist, lembrete, vínculos, cor, histórico, cofre e metadados dos anexos |
+| `gastos:note-draft` | A anotação em edição que ainda não foi salva |
 | `gastos:finance-settings` | Saldo total, `balanceUpdatedAt` e renda mensal |
 | `gastos:ui-preferences` | Estado das seções recolhíveis |
 | `gastos:theme` | Tema escolhido: `system`, `light` ou `dark` |
@@ -121,6 +127,7 @@ posteriores do modelo, para que dados antigos continuem válidos.
 | `/` | Visão geral | `hasUserGuard` |
 | `/transacoes` | Gastos fixos e histórico | `hasUserGuard` |
 | `/calendario` | Calendário | `hasUserGuard` |
+| `/anotacoes` | Anotações | `hasUserGuard` |
 | `/configuracoes` | Configurações | `hasUserGuard` |
 | `**` | Página 404, fora do shell | nenhum |
 
@@ -142,7 +149,8 @@ correspondente; ambos são removidos da URL depois de aplicados.
 | `description` | `string` | |
 | `amount` | `number` | Valor **por parcela** quando parcelado |
 | `categoryId` | `string` | Id em `core/constants/categories.ts`; ids desconhecidos caem em "Outros" |
-| `accountId` | `string \| null` | Id em `core/constants/accounts.ts` |
+| `bankId` | `string \| null` | Id do grupo Bancos em `core/constants/accounts.ts` |
+| `methodId` | `string \| null` | Id do grupo Formas de Pagamento; campos independentes |
 | `installments` | `number \| null` | `≥ 2` apenas para gastos |
 | `date` | `'YYYY-MM-DD'` | Data da compra ou da primeira parcela |
 | `createdAt` | ISO 8601 | |
@@ -155,10 +163,31 @@ correspondente; ambos são removidos da URL depois de aplicados.
 | `description` | `string` | |
 | `amount` | `number` | Valor mensal |
 | `categoryId` | `string` | Só categorias de gasto |
-| `accountId` | `string \| null` | |
+| `bankId` | `string \| null` | |
+| `methodId` | `string \| null` | |
 | `dueDay` | `number \| null` | 1 a 31; `null` quando não importa |
 | `active` | `boolean` | Pausado = não conta nos totais |
 | `createdAt` | ISO 8601 | |
+
+### `Note`
+
+| Campo | Tipo | Observação |
+| --- | --- | --- |
+| `id` | `string` | |
+| `title` | `string` | Em branco, vira a primeira linha do conteúdo, depois o primeiro item da checklist, depois "Sem título" |
+| `content` | `string` | HTML só com `b`, `i`, `u`, `s`, `br`, `div`, `ul`, `ol`, `li`, `h3` e `blockquote`, sem atributo nenhum; vazio enquanto `vault` existe |
+| `checklist` | `NoteChecklistItem[]` | `{ id, text, amount, done }`; item sem texto é descartado |
+| `attachments` | `NoteAttachment[]` | `{ id, name, type, size }`; os bytes ficam no IndexedDB |
+| `remindOn` | `'YYYY-MM-DD' \| null` | Vira evento no calendário e aviso na visão geral |
+| `categoryId` | `string \| null` | Id válido em `categories.ts`, senão nulo |
+| `bankId` / `methodId` | `string \| null` | Id válido no grupo correspondente, senão nulo |
+| `transactionId` | `string \| null` | Lançamento que a anotação explica |
+| `color` | `NoteColor` | `none` e sete matizes; etiqueta visual, não conteúdo |
+| `history` | `NoteVersion[]` | Até cinco estados anteriores do texto, do mais novo para o mais velho |
+| `vault` | `NoteVault \| null` | `{ salt, payload }` quando a anotação tem senha própria |
+| `pinned` | `boolean` | Fixada no topo da lista |
+| `createdAt` | ISO 8601 | |
+| `updatedAt` | ISO 8601 | Fixar, colorir e trancar não alteram esta data |
 
 ### `FinanceSettings`
 

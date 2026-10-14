@@ -1,5 +1,12 @@
 import { CurrencyPipe, formatDate } from '@angular/common';
-import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  LOCALE_ID,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CalendarEventKind, CalendarService } from '../../core/services/calendar.service';
 import { FadeInUpDirective } from '../../shared/directives/fade-in-up.directive';
 import { ButtonComponent, CardComponent, TileIconComponent } from '../../shared/ui';
@@ -12,6 +19,7 @@ const KINDS: readonly { kind: CalendarEventKind; label: string }[] = [
   { kind: 'installment', label: 'Parcela' },
   { kind: 'expense', label: 'Gasto' },
   { kind: 'income', label: 'Ganho' },
+  { kind: 'note', label: 'Anotação' },
 ];
 
 const CHIPS_PER_DAY = 2;

@@ -1,0 +1,23 @@
+<div class="swatches" role="radiogroup" aria-label="Cor da anotação">
+  @for (color of colors; track color.id) {
+    @let selected = value() === color.id;
+
+    <button
+      type="button"
+      role="radio"
+      class="swatch"
+      [attr.data-color]="color.id"
+      [class.swatch--selected]="selected"
+      [attr.aria-checked]="selected"
+      [attr.title]="color.label"
+      (click)="value.set(color.id)"
+    >
+      <span class="visually-hidden">{{ color.label }}</span>
+      @if (selected) {
+        <span class="material-symbols-rounded" aria-hidden="true">check</span>
+      } @else if (color.id === 'none') {
+        <span class="material-symbols-rounded" aria-hidden="true">format_color_reset</span>
+      }
+    </button>
+  }
+</div>

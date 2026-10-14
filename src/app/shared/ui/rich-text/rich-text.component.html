@@ -1,0 +1,30 @@
+<div class="toolbar" role="toolbar" aria-label="Formatação">
+  @for (tool of tools; track tool.command) {
+    <button
+      type="button"
+      class="toolbar__button"
+      [class.toolbar__button--active]="isActive(tool.command)"
+      [attr.aria-pressed]="isActive(tool.command)"
+      [attr.aria-label]="tool.label"
+      [title]="tool.hint ? tool.label + ' (' + tool.hint + ')' : tool.label"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec(tool.command)"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">{{ tool.icon }}</span>
+    </button>
+  }
+</div>
+
+<div
+  #editor
+  class="editor"
+  [class.editor--empty]="empty()"
+  contenteditable="true"
+  role="textbox"
+  aria-multiline="true"
+  [attr.aria-label]="label()"
+  [attr.data-placeholder]="placeholder()"
+  (input)="onInput()"
+  (paste)="onPaste($event)"
+  (focus)="refresh()"
+></div>

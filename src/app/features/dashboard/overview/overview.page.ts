@@ -77,7 +77,9 @@ export class OverviewPage {
   protected readonly routes = APP_ROUTES;
   protected readonly greeting = getGreeting();
 
-  protected readonly today = capitalizeFirst(formatDate(new Date(), "EEEE, d 'de' MMMM", this.locale));
+  protected readonly today = capitalizeFirst(
+    formatDate(new Date(), "EEEE, d 'de' MMMM", this.locale),
+  );
 
   protected readonly monthName = computed(() =>
     formatDate(`${this.transactions.referenceMonth()}-01`, 'MMMM', this.locale),
@@ -146,7 +148,12 @@ export class OverviewPage {
         void this.router.navigate([this.routes.TRANSACTIONS], { queryParams: { secao: 'fixos' } });
         break;
       case 'view-history':
-        void this.router.navigate([this.routes.TRANSACTIONS], { queryParams: { secao: 'historico' } });
+        void this.router.navigate([this.routes.TRANSACTIONS], {
+          queryParams: { secao: 'historico' },
+        });
+        break;
+      case 'view-notes':
+        void this.router.navigate([this.routes.NOTES]);
         break;
     }
   }

@@ -2,8 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import type { CellObject, Row, Sheet } from 'write-excel-file/universal';
 import { findAccount } from '../constants/accounts';
 import { findCategory } from '../constants/categories';
+import { noteColorLabel } from '../constants/note-colors';
 import { getInstallmentProgress } from '../domain/installments';
+import { noteToText } from '../domain/note-html';
 import { fromDateKey, toDateKey, toMonthKey } from '../../shared/utils/date';
+import { NoteService } from './note.service';
 import { RecurringExpenseService } from './recurring-expense.service';
 import { TransactionService } from './transaction.service';
 
@@ -20,6 +23,54 @@ const BORDER = '#c9c6bb';
 export class ExportService {
   private readonly transactions = inject(TransactionService);
   private readonly recurring = inject(RecurringExpenseService);
+  private readonly notes = inject(NoteService);
+
+  async exportNotes(): Promise<void> {
+    // Anotação trancada sai só com o título: decifrar aqui jogaria o texto na planilha.
+    const rows: Row[] = this.notes
+      .notes()
+      .map((note) => [
+        text(note.title),
+        text(note.vault ? '' : noteToText(note.content)),
+        text(checklistToText(note.checklist)),
+        note.remindOn ? date(note.remindOn) : null,
+        note.categoryId ? text(findCategory(note.categoryId).label) : null,
+        account(note.bankId),
+        account(note.methodId),
+        text(noteColorLabel(note.color)),
+        text(note.pinned ? 'Fixada' : ''),
+        text(note.vault ? 'Trancada' : ''),
+        note.attachments.length ? number(note.attachments.length) : null,
+        date(note.createdAt.slice(0, 10)),
+        date(note.updatedAt.slice(0, 10)),
+      ]);
+
+    await this.download('anotacoes', [
+      {
+        sheet: 'Anotações',
+        data: [
+          header([
+            'Título',
+            'Conteúdo',
+            'Checklist',
+            'Lembrete',
+            'Categoria',
+            'Banco',
+            'Forma de pagamento',
+            'Cor',
+            'Fixada',
+            'Trancada',
+            'Anexos',
+            'Criada em',
+            'Atualizada em',
+          ]),
+          ...rows,
+        ],
+        columns: widths([30, 60, 40, 14, 18, 16, 20, 12, 10, 10, 10, 14, 14]),
+        stickyRowsCount: 1,
+      },
+    ]);
+  }
 
   async exportRecurring(): Promise<void> {
     const items = this.recurring.items();
@@ -32,7 +83,8 @@ export class ExportService {
         r.dueDay ? number(r.dueDay) : null,
         text(category.label),
         text(category.group),
-        account(r.accountId),
+        account(r.bankId),
+        account(r.methodId),
         text(r.active ? 'Ativo' : 'Pausado'),
         date(r.createdAt.slice(0, 10)),
       ];
@@ -41,7 +93,13 @@ export class ExportService {
     rows.push([
       bold('Total dos ativos por mês'),
       { ...money(this.recurring.monthlyTotal()), fontWeight: 'bold' },
-      null, null, null, null, null, null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
     ]);
 
     await this.download('gastos-fixos', [
@@ -54,13 +112,14 @@ export class ExportService {
             'Dia de cobrança',
             'Categoria',
             'Grupo',
-            'Conta',
+            'Banco',
+            'Forma de pagamento',
             'Situação',
             'Cadastrado em',
           ]),
           ...rows,
         ],
-        columns: widths([34, 16, 16, 20, 18, 18, 12, 16]),
+        columns: widths([34, 16, 16, 20, 18, 18, 20, 12, 16]),
         stickyRowsCount: 1,
       },
     ]);
@@ -80,7 +139,8 @@ export class ExportService {
         text(t.description),
         text(category.label),
         text(category.group),
-        account(t.accountId),
+        account(t.bankId),
+        account(t.methodId),
         money(isIncome ? t.amount : -t.amount),
         progress ? number(progress.count) : null,
         progress ? number(progress.paid) : null,
@@ -102,7 +162,8 @@ export class ExportService {
             'Descrição',
             'Categoria',
             'Grupo',
-            'Conta',
+            'Banco',
+            'Forma de pagamento',
             'Valor (parcela)',
             'Parcelas',
             'Pagas',
@@ -114,7 +175,7 @@ export class ExportService {
           ]),
           ...rows,
         ],
-        columns: widths([12, 8, 34, 20, 18, 16, 16, 10, 8, 10, 16, 16, 14, 14]),
+        columns: widths([12, 8, 34, 20, 18, 16, 20, 16, 10, 8, 10, 16, 16, 14, 14]),
         stickyRowsCount: 1,
       },
       {
@@ -163,6 +224,17 @@ export class ExportService {
 
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+}
+
+/** Formato que a importação lê de volta: `[x] Arroz R$ 25,00`. */
+function checklistToText(items: { text: string; amount: number | null; done: boolean }[]): string {
+  return items
+    .map((item) => {
+      const box = item.done ? '[x]' : '[ ]';
+      const value = item.amount === null ? '' : ` R$ ${item.amount.toFixed(2).replace('.', ',')}`;
+      return `${box} ${item.text}${value}`;
+    })
+    .join('\n');
 }
 
 function header(labels: string[]): Row {

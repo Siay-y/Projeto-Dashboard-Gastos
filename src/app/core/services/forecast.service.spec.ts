@@ -32,7 +32,8 @@ const expense = (amount: number, date: string, installments: number | null = nul
   description: 'Compra',
   amount,
   categoryId: 'shopping',
-  accountId: null,
+  bankId: null,
+  methodId: null,
   installments,
   date,
 });
@@ -41,7 +42,8 @@ const fixed = (amount: number) => ({
   description: 'Aluguel',
   amount,
   categoryId: 'housing',
-  accountId: null,
+  bankId: null,
+  methodId: null,
   dueDay: 10,
 });
 
@@ -109,7 +111,8 @@ describe('ForecastService', () => {
       description: 'Freela',
       amount: 600,
       categoryId: 'salary',
-      accountId: null,
+      bankId: null,
+      methodId: null,
       installments: null,
       date: today,
     });

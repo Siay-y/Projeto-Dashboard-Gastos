@@ -30,7 +30,8 @@ const expense = (amount: number, date: string, installments: number | null = nul
   description: 'Compra',
   amount,
   categoryId: 'shopping',
-  accountId: null,
+  bankId: null,
+  methodId: null,
   installments,
   date,
 });
@@ -40,7 +41,8 @@ const income = (amount: number, date: string) => ({
   description: 'Freela',
   amount,
   categoryId: 'salary',
-  accountId: null,
+  bankId: null,
+  methodId: null,
   installments: null,
   date,
 });
@@ -65,7 +67,7 @@ describe('TransactionService', () => {
     it('conta vazia virá nula, nunca string vazia', () => {
       const { transactions } = setup();
 
-      expect(transactions.add({ ...expense(10, today), accountId: '' }).accountId).toBeNull();
+      expect(transactions.add({ ...expense(10, today), bankId: '' }).bankId).toBeNull();
     });
 
     it('parcelamento só vale para gasto e a partir de duas parcelas', () => {
@@ -154,7 +156,8 @@ describe('TransactionService', () => {
         description: 'Aluguel',
         amount: 1200,
         categoryId: 'housing',
-        accountId: null,
+        bankId: null,
+        methodId: null,
         dueDay: 10,
       });
       transactions.add(expense(300, today));
@@ -239,7 +242,7 @@ describe('TransactionService', () => {
       TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] });
       const [restored] = TestBed.inject(TransactionService).transactions();
 
-      expect(restored.accountId).toBeNull();
+      expect(restored.bankId).toBeNull();
       expect(restored.installments).toBeNull();
     });
   });

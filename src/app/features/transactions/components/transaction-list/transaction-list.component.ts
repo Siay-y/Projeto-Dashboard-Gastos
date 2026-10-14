@@ -9,18 +9,23 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { findAccount } from '../../../../core/constants/accounts';
+import { APP_ROUTES } from '../../../../core/constants/routes';
 import { findCategory } from '../../../../core/constants/categories';
 import { InstallmentProgress, getInstallmentProgress } from '../../../../core/domain/installments';
 import { Account, Category, Transaction } from '../../../../core/domain/models';
+import { NoteService } from '../../../../core/services/note.service';
 import { SwipeActionDirective } from '../../../../shared/directives/swipe-action.directive';
 import { DeleteButtonComponent, TileIconComponent } from '../../../../shared/ui';
 import { capitalizeFirst, toMonthKey } from '../../../../shared/utils/date';
 
 interface Row {
   transaction: Transaction;
+  note: string | null;
   category: Category;
-  account: Account | undefined;
+  /** Banco e forma de pagamento, na ordem, só o que foi escolhido. */
+  accounts: Account[];
 
   installments: InstallmentProgress | null;
 }
@@ -43,13 +48,23 @@ const FILTERS: readonly { value: HistoryFilter; label: string }[] = [
 
 @Component({
   selector: 'app-transaction-list',
-  imports: [CurrencyPipe, DatePipe, TileIconComponent, DeleteButtonComponent, SwipeActionDirective],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    RouterLink,
+    TileIconComponent,
+    DeleteButtonComponent,
+    SwipeActionDirective,
+  ],
   templateUrl: './transaction-list.component.html',
   styleUrl: './transaction-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransactionListComponent {
   private readonly locale = inject(LOCALE_ID);
+  private readonly notes = inject(NoteService);
+
+  protected readonly notesRoute = APP_ROUTES.NOTES;
 
   readonly transactions = input.required<Transaction[]>();
   readonly edit = output<Transaction>();
@@ -63,8 +78,9 @@ export class TransactionListComponent {
   private readonly rows = computed<Row[]>(() =>
     this.transactions().map((transaction) => ({
       transaction,
+      note: this.notes.forTransaction(transaction.id)?.title ?? null,
       category: findCategory(transaction.categoryId),
-      account: findAccount(transaction.accountId),
+      accounts: accountsOf(transaction),
       installments: getInstallmentProgress(transaction),
     })),
   );
@@ -78,7 +94,9 @@ export class TransactionListComponent {
     };
   });
 
-  protected readonly showFilters = computed(() => this.counts().ongoing + this.counts().settled > 0);
+  protected readonly showFilters = computed(
+    () => this.counts().ongoing + this.counts().settled > 0,
+  );
 
   private readonly filteredRows = computed(() => {
     const rows = this.rows();
@@ -125,4 +143,10 @@ export class TransactionListComponent {
   private monthLabel(key: string): string {
     return capitalizeFirst(formatDate(`${key}-01`, "MMMM 'de' y", this.locale));
   }
+}
+
+function accountsOf(source: { bankId: string | null; methodId: string | null }): Account[] {
+  return [findAccount(source.bankId), findAccount(source.methodId)].filter(
+    (account): account is Account => account !== undefined,
+  );
 }

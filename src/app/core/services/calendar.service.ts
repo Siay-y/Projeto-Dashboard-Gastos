@@ -1,11 +1,18 @@
 import { Injectable, inject } from '@angular/core';
 import { findCategory } from '../constants/categories';
 import { Category } from '../domain/models';
-import { addMonthsClamped, daysInMonth, fromDateKey, toDateKey, toMonthKey } from '../../shared/utils/date';
+import {
+  addMonthsClamped,
+  daysInMonth,
+  fromDateKey,
+  toDateKey,
+  toMonthKey,
+} from '../../shared/utils/date';
+import { NoteService } from './note.service';
 import { RecurringExpenseService } from './recurring-expense.service';
 import { TransactionService } from './transaction.service';
 
-export type CalendarEventKind = 'fixed' | 'installment' | 'expense' | 'income';
+export type CalendarEventKind = 'fixed' | 'installment' | 'expense' | 'income' | 'note';
 
 export interface CalendarEvent {
   id: string;
@@ -31,9 +38,15 @@ export interface CalendarDay {
 export class CalendarService {
   private readonly transactions = inject(TransactionService);
   private readonly recurring = inject(RecurringExpenseService);
+  private readonly notes = inject(NoteService);
 
   eventsFor(month: string): CalendarEvent[] {
-    const events = [...this.fixedFor(month), ...this.installmentsFor(month), ...this.entriesFor(month)];
+    const events = [
+      ...this.fixedFor(month),
+      ...this.installmentsFor(month),
+      ...this.entriesFor(month),
+      ...this.notesFor(month),
+    ];
     return events.sort((a, b) => a.date.localeCompare(b.date) || b.amount - a.amount);
   }
 
@@ -113,6 +126,22 @@ export class CalendarService {
       }
     }
     return events;
+  }
+
+  // Lembrete não tem valor: entra com zero para não mexer no total do dia.
+  private notesFor(month: string): CalendarEvent[] {
+    return this.notes
+      .reminders()
+      .filter((note) => toMonthKey(note.remindOn!) === month)
+      .map((note) => ({
+        id: `note:${note.id}`,
+        date: note.remindOn!,
+        kind: 'note' as const,
+        label: note.title,
+        detail: 'Anotação',
+        amount: 0,
+        category: findCategory(note.categoryId ?? ''),
+      }));
   }
 
   private entriesFor(month: string): CalendarEvent[] {

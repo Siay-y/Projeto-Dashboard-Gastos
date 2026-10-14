@@ -2,8 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import type { CellValue, Row } from 'read-excel-file/browser';
 import { ACCOUNTS } from '../constants/accounts';
 import { CATEGORIES, FALLBACK_CATEGORY } from '../constants/categories';
-import { TransactionType } from '../domain/models';
+import { NOTE_COLORS } from '../constants/note-colors';
+import { AccountSlots, readAccountSlots } from '../domain/account-slots';
+import { NoteColor, NoteInput, TransactionType } from '../domain/models';
+import { parseChecklistText } from '../domain/note-checklist';
+import { noteToText, textToNoteHtml } from '../domain/note-html';
 import { toDateKey } from '../../shared/utils/date';
+import { NoteService } from './note.service';
 import { RecurringExpenseInput, RecurringExpenseService } from './recurring-expense.service';
 import { TransactionInput, TransactionService } from './transaction.service';
 
@@ -29,12 +34,20 @@ export class ImportError extends Error {}
 type Cell = CellValue | null | undefined;
 
 const COLUMNS = {
-  description: ['descricao', 'nome', 'item', 'description'],
+  description: ['descricao', 'nome', 'item', 'description', 'titulo', 'title'],
+  content: ['conteudo', 'texto', 'content'],
+  reminder: ['lembrete', 'data do lembrete'],
+  pinned: ['fixada', 'fixado', 'pinned'],
   amount: ['valor', 'valor (parcela)', 'valor parcela', 'valor mensal', 'amount'],
   date: ['data', 'date'],
   type: ['tipo', 'type'],
   category: ['categoria', 'category'],
+  bank: ['banco', 'bank'],
+  method: ['forma de pagamento', 'pagamento', 'method'],
+  // Planilha anterior à separação dos campos: um valor só, de qualquer grupo.
   account: ['conta', 'cartao', 'account'],
+  color: ['cor', 'color'],
+  checklist: ['checklist', 'itens', 'lista'],
   installments: ['parcelas', 'installments'],
   dueDay: ['dia de cobranca', 'dia', 'vencimento', 'due day'],
   status: ['situacao', 'status'],
@@ -43,6 +56,25 @@ const COLUMNS = {
 type ColumnKey = keyof typeof COLUMNS;
 type ColumnIndex = Partial<Record<ColumnKey, number>>;
 
+const COLUMN_LABEL: Record<ColumnKey, string> = {
+  description: 'Descrição',
+  content: 'Conteúdo',
+  reminder: 'Lembrete',
+  pinned: 'Fixada',
+  amount: 'Valor',
+  date: 'Data',
+  type: 'Tipo',
+  category: 'Categoria',
+  bank: 'Banco',
+  method: 'Forma de pagamento',
+  account: 'Conta',
+  color: 'Cor',
+  checklist: 'Checklist',
+  installments: 'Parcelas',
+  dueDay: 'Dia de cobrança',
+  status: 'Situação',
+};
+
 const INCOME_WORDS = ['ganho', 'entrada', 'receita', 'income'];
 const PAUSED_WORDS = ['pausado', 'pausada', 'inativo', 'inativa', 'paused'];
 
@@ -50,6 +82,7 @@ const PAUSED_WORDS = ['pausado', 'pausada', 'inativo', 'inativa', 'paused'];
 export class ImportService {
   private readonly transactions = inject(TransactionService);
   private readonly recurring = inject(RecurringExpenseService);
+  private readonly notes = inject(NoteService);
 
   async parseHistory(file: File): Promise<ImportPreview<TransactionInput>> {
     const { sheet, rows, columns, firstRow } = await this.read(file, 'Histórico');
@@ -90,7 +123,8 @@ export class ImportService {
       const type = parseType(get('type'));
       const amount = Math.abs(rawAmount);
       const installmentsRaw = parseInteger(get('installments'));
-      const installments = type === 'expense' && installmentsRaw && installmentsRaw >= 2 ? installmentsRaw : null;
+      const installments =
+        type === 'expense' && installmentsRaw && installmentsRaw >= 2 ? installmentsRaw : null;
 
       if (existing.has(fingerprint(date, description, amount, type))) {
         duplicates++;
@@ -103,7 +137,7 @@ export class ImportService {
         amount,
         date,
         categoryId: matchCategory(get('category'), type),
-        accountId: matchAccount(get('account')),
+        ...slots(get),
         installments,
       });
     });
@@ -147,7 +181,7 @@ export class ImportService {
         description,
         amount,
         categoryId: matchCategory(get('category'), 'expense'),
-        accountId: matchAccount(get('account')),
+        ...slots(get),
         dueDay,
         active: !PAUSED_WORDS.includes(normalize(text(get('status')))),
       });
@@ -156,7 +190,59 @@ export class ImportService {
     return { sheet, items, duplicates, issues };
   }
 
-  private async read(file: File, preferred: string) {
+  async parseNotes(file: File): Promise<ImportPreview<NoteInput>> {
+    const { sheet, rows, columns, firstRow } = await this.read(file, 'Anotações', ['description']);
+
+    const existing = new Set(this.notes.notes().map(noteKey));
+
+    const items: NoteInput[] = [];
+    const issues: ImportIssue[] = [];
+    let duplicates = 0;
+
+    rows.forEach((row, i) => {
+      const line = firstRow + i;
+      const get = (key: ColumnKey) => cell(row, columns[key]);
+
+      const title = text(get('description'));
+      const content = textToNoteHtml(text(get('content')));
+      const checklist = parseChecklistText(text(get('checklist')));
+
+      if (!title && !content && checklist.length === 0) return;
+
+      const reminder = get('reminder');
+      const remindOn = reminder === null || reminder === undefined ? null : parseDate(reminder);
+      if (reminder && !remindOn) {
+        issues.push({ row: line, message: `"${title}": lembrete com data inválida.` });
+      }
+
+      const note: NoteInput = {
+        title,
+        content,
+        checklist,
+        attachments: [],
+        remindOn,
+        categoryId: matchNoteCategory(get('category')),
+        ...slots(get),
+        transactionId: null,
+        color: matchNoteColor(get('color')),
+      };
+
+      if (existing.has(noteKey(note))) {
+        duplicates++;
+        return;
+      }
+
+      items.push(note);
+    });
+
+    return { sheet, items, duplicates, issues };
+  }
+
+  private async read(
+    file: File,
+    preferred: string,
+    required: ColumnKey[] = ['description', 'amount'],
+  ) {
     if (!/\.xlsx$/i.test(file.name)) {
       throw new ImportError('Escolha um arquivo .xlsx (Excel).');
     }
@@ -167,18 +253,19 @@ export class ImportService {
     try {
       sheets = await readXlsxFile(file);
     } catch {
-      throw new ImportError('Não foi possível ler o arquivo. Ele está corrompido ou não é um .xlsx.');
+      throw new ImportError(
+        'Não foi possível ler o arquivo. Ele está corrompido ou não é um .xlsx.',
+      );
     }
 
-    const chosen =
-      sheets.find((s) => normalize(s.sheet) === normalize(preferred)) ?? sheets[0];
+    const chosen = sheets.find((s) => normalize(s.sheet) === normalize(preferred)) ?? sheets[0];
     if (!chosen || chosen.data.length === 0) {
       throw new ImportError('A planilha está vazia.');
     }
 
     for (let i = 0; i < Math.min(10, chosen.data.length); i++) {
       const columns = mapColumns(chosen.data[i]);
-      if (columns.description !== undefined && columns.amount !== undefined) {
+      if (required.every((key) => columns[key] !== undefined)) {
         return {
           sheet: chosen.sheet,
           columns,
@@ -189,7 +276,9 @@ export class ImportService {
     }
 
     throw new ImportError(
-      'Não encontrei as colunas "Descrição" e "Valor". Use o arquivo exportado como modelo.',
+      `Não encontrei ${required.length > 1 ? 'as colunas' : 'a coluna'} ${required
+        .map((key) => `"${COLUMN_LABEL[key]}"`)
+        .join(' e ')}. Use o arquivo exportado como modelo.`,
     );
   }
 }
@@ -217,11 +306,7 @@ function cell(row: Row, index: number | undefined): Cell {
 }
 
 function normalize(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .trim();
+  return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }
 
 function text(value: Cell): string {
@@ -295,6 +380,34 @@ function matchCategory(value: Cell, type: TransactionType): string {
     (c) => (c.type === type || c.type === 'both') && (normalize(c.label) === key || c.id === key),
   );
   return found?.id ?? FALLBACK_CATEGORY.id;
+}
+
+/** Igual ao de transação, mas aceita categoria de ganho e devolve nulo se não achar. */
+function matchNoteCategory(value: Cell): string | null {
+  const key = normalize(text(value));
+  if (!key) return null;
+
+  return CATEGORIES.find((c) => normalize(c.label) === key || c.id === key)?.id ?? null;
+}
+
+function noteKey(note: { title: string; content: string }): string {
+  return `${normalize(note.title)}|${normalize(noteToText(note.content))}`;
+}
+
+/** Lê as duas colunas novas e, se faltarem, a coluna "Conta" das planilhas antigas. */
+function slots(get: (key: ColumnKey) => Cell): AccountSlots {
+  return readAccountSlots({
+    bankId: matchAccount(get('bank')),
+    methodId: matchAccount(get('method')),
+    accountId: matchAccount(get('account')),
+  });
+}
+
+function matchNoteColor(value: Cell): NoteColor {
+  const key = normalize(text(value));
+  if (!key) return 'none';
+
+  return NOTE_COLORS.find((c) => normalize(c.label) === key || c.id === key)?.id ?? 'none';
 }
 
 function matchAccount(value: Cell): string | null {

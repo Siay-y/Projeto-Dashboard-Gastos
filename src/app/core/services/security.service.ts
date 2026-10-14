@@ -10,6 +10,7 @@ import {
   seal,
   unseal,
 } from '../security/crypto';
+import { AttachmentStore } from './attachment.store';
 import { StorageService } from './storage.service';
 
 /** O PIN cifrado sob a chave do código de recuperação. */
@@ -31,6 +32,7 @@ export const PIN_LENGTH = 4;
 @Injectable({ providedIn: 'root' })
 export class SecurityService {
   private readonly storage = inject(StorageService);
+  private readonly attachments = inject(AttachmentStore);
 
   private readonly config = signal<SecurityConfig | null>(
     this.storage.get<SecurityConfig>(STORAGE_KEYS.SECURITY),
@@ -63,6 +65,7 @@ export class SecurityService {
 
     this.failures = 0;
     this.storage.useEncryption(key);
+    this.attachments.useEncryption(key);
     this._locked.set(false);
     return true;
   }
@@ -73,6 +76,7 @@ export class SecurityService {
     const key = await deriveKey(pin, salt);
 
     await this.storage.enableEncryption(key);
+    await this.attachments.enableEncryption(key);
 
     const code = randomRecoveryCode();
     this.save({
@@ -112,6 +116,7 @@ export class SecurityService {
   async disable(pin: string): Promise<boolean> {
     if (!(await this.verify(pin))) return false;
 
+    await this.attachments.disableEncryption();
     await this.storage.disableEncryption();
     this.storage.remove(STORAGE_KEYS.SECURITY);
     this.config.set(null);

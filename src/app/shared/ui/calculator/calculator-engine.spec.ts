@@ -20,7 +20,6 @@ const KEYS: Record<string, CalculatorKey> = {
   '%': { kind: 'percent' },
 };
 
-/** Digita uma sequência: "12+3=" vira as teclas correspondentes. */
 function type(sequence: string): CalculatorState {
   return [...sequence].reduce(
     (state, char) => press(state, KEYS[char] ?? { kind: 'digit', value: char }),
@@ -39,7 +38,6 @@ describe('calculadora', () => {
   });
 
   it('encadeia operações como a calculadora do Windows', () => {
-    // Cada operador fecha a conta anterior antes de começar a próxima.
     expect(shown('2+3*4=')).toBe('20');
     expect(shown('10-2-3=')).toBe('5');
   });
