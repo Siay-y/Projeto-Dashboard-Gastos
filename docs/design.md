@@ -34,7 +34,7 @@ Decisões de identidade:
   obrigatória justamente para isso: o conjunto hoje tem `wallet`, `receipt`,
   `chart`, `repeat`, `note` e `search`, e um estado novo escolhe uma delas ou
   ganha a sua, em vez de cair num ícone com outra aparência.
-- O fundo da página é um quadriculado inclinado em SVG com máscara radial.
+- O fundo da página é cor chapada.
 - Ícones de categoria aparecem na cor do sistema por padrão; a cor da marca só
   entra onde a legibilidade exige (`brandColor`).
 

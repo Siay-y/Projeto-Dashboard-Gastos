@@ -31,9 +31,20 @@
       <span class="calc__pending tabular">{{ pending() }}</span>
 
       <div class="calc__row">
-        <output class="calc__value tabular" [class.calc__value--message]="error()">
-          {{ display() }}
-        </output>
+        @if (error()) {
+          <p class="calc__value calc__value--message">{{ display() }}</p>
+        } @else {
+          <input
+            #entry
+            type="text"
+            class="calc__value tabular"
+            inputmode="none"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Valor"
+            (input)="onEntryInput()"
+          />
+        }
 
         <button
           type="button"
@@ -56,6 +67,7 @@
           class="calc__key"
           [attr.data-variant]="item.variant"
           [class.calc__key--active]="isActiveOperator(item.key)"
+          (pointerdown)="keepFocus($event)"
           (click)="tap(item.key)"
         >
           {{ item.label }}

@@ -10,7 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { CalculatorKey, display, pending } from './calculator-engine';
+import { CalculatorKey, caretAt, caretDepth, display, pending } from './calculator-engine';
 import { CalculatorService, Point } from './calculator.service';
 
 interface Key {
@@ -67,6 +67,8 @@ const KEY_BY_SHORTCUT: Record<string, CalculatorKey> = {
   '.': { kind: 'decimal' },
 };
 
+const MATH_KEYS = new Set<CalculatorKey['kind']>(['operator', 'equals', 'percent']);
+
 const DESKTOP = '(min-width: 1024px)';
 const EDGE = 8;
 
@@ -84,6 +86,7 @@ export class CalculatorComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly store = inject(CalculatorService);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly entry = viewChild<ElementRef<HTMLInputElement>>('entry');
 
   /**
    * `embedded` roda dentro do diálogo de item, que fica na top layer do
@@ -146,6 +149,12 @@ export class CalculatorComponent {
       panel.focus();
     });
 
+    effect(() => {
+      const input = this.entry()?.nativeElement;
+      const text = this.display();
+      if (input && input.value !== text) input.value = text;
+    });
+
     inject(DestroyRef).onDestroy(() => {
       if (this.attached) this.store.detach();
     });
@@ -160,13 +169,26 @@ export class CalculatorComponent {
   }
 
   protected tap(key: CalculatorKey): void {
-    this.store.press(key);
+    if (!this.editAtCaret(key)) this.store.press(key);
+  }
+
+  protected keepFocus(event: Event): void {
+    event.preventDefault();
+  }
+
+  protected onEntryInput(): void {
+    const input = this.entry()?.nativeElement;
+    if (!input) return;
+
+    const depth = caretDepth(input.value, input.selectionStart ?? input.value.length);
+    this.store.setEntry(input.value);
+    this.render(input, depth);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
     // Enter e espaço pertencem ao botão em foco, senão a tecla vale duas vezes.
-    const onButton = (event.target as HTMLElement).tagName === 'BUTTON';
-    if (onButton && (event.key === 'Enter' || event.key === ' ')) return;
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'BUTTON' && (event.key === 'Enter' || event.key === ' ')) return;
 
     const key: CalculatorKey | undefined = /^[0-9]$/.test(event.key)
       ? { kind: 'digit', value: event.key }
@@ -174,8 +196,63 @@ export class CalculatorComponent {
 
     if (!key) return;
 
+    if (target === this.entry()?.nativeElement && !MATH_KEYS.has(key.kind) && event.key !== '.') {
+      return;
+    }
+
     event.preventDefault();
     this.tap(key);
+  }
+
+  private editAtCaret(key: CalculatorKey): boolean {
+    const input = this.entry()?.nativeElement;
+    if (!input || document.activeElement !== input || this.store.state().replacing) return false;
+
+    if (key.kind === 'digit') return this.insert(input, key.value);
+    if (key.kind === 'decimal') return this.insert(input, ',');
+    if (key.kind === 'backspace') return this.erase(input);
+
+    return false;
+  }
+
+  private insert(input: HTMLInputElement, text: string): boolean {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+    const depth = caretDepth(input.value, start) + text.length;
+
+    this.store.setEntry(input.value.slice(0, start) + text + input.value.slice(end));
+    this.render(input, depth);
+
+    return true;
+  }
+
+  private erase(input: HTMLInputElement): boolean {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+
+    if (start !== end) {
+      const depth = caretDepth(input.value, start);
+      this.store.setEntry(input.value.slice(0, start) + input.value.slice(end));
+      this.render(input, depth);
+
+      return true;
+    }
+
+    const depth = caretDepth(input.value, start);
+    if (depth === 0) return true;
+
+    // Apagar pulando o ponto de milhar: ele não é um caractere que o usuário digitou.
+    const at = caretAt(input.value, depth) - 1;
+    this.store.setEntry(input.value.slice(0, at) + input.value.slice(at + 1));
+    this.render(input, depth - 1);
+
+    return true;
+  }
+
+  private render(input: HTMLInputElement, depth: number): void {
+    input.value = this.display();
+    const at = caretAt(input.value, depth);
+    input.setSelectionRange(at, at);
   }
 
   protected startDrag(event: PointerEvent): void {

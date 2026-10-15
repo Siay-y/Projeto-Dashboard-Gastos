@@ -29,6 +29,7 @@ export const INITIAL: CalculatorState = {
 
 const MAX_DIGITS = 14;
 const OPERATOR_LABEL: Record<Operator, string> = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+const PART = /[\d,-]/;
 
 export function press(state: CalculatorState, key: CalculatorKey): CalculatorState {
   if (state.error && key.kind !== 'clear') return state;
@@ -68,6 +69,52 @@ export function press(state: CalculatorState, key: CalculatorKey): CalculatorSta
     case 'percent':
       return { ...state, entry: toEntry(Number(state.entry) / 100), replacing: true };
   }
+}
+
+export function setEntry(state: CalculatorState, entry: string): CalculatorState {
+  return state.error ? state : { ...state, entry, replacing: false };
+}
+
+export function parseEntry(text: string): string {
+  let integer = '';
+  let fraction: string | null = null;
+
+  for (const char of text) {
+    if (char === ',') fraction ??= '';
+    else if (char >= '0' && char <= '9') {
+      if (fraction === null) integer += char;
+      else fraction += char;
+    }
+  }
+
+  integer = integer.replace(/^0+(?=\d)/, '').slice(0, MAX_DIGITS);
+  const room = MAX_DIGITS - integer.length;
+  if (fraction !== null && fraction.length > room) fraction = fraction.slice(0, room);
+
+  const sign = text.includes('-') ? '-' : '';
+  const whole = integer === '' ? '0' : integer;
+
+  return fraction === null ? `${sign}${whole}` : `${sign}${whole}.${fraction}`;
+}
+
+export function caretDepth(text: string, index: number): number {
+  let depth = 0;
+  for (let i = 0; i < index && i < text.length; i++) {
+    if (PART.test(text[i])) depth++;
+  }
+
+  return depth;
+}
+
+export function caretAt(text: string, depth: number): number {
+  if (depth <= 0) return 0;
+
+  let seen = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (PART.test(text[i]) && ++seen === depth) return i + 1;
+  }
+
+  return text.length;
 }
 
 export function display(state: CalculatorState): string {

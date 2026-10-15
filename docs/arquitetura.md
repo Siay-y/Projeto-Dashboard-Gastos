@@ -45,7 +45,6 @@ projeto-gastos/
 │   ├── styles/
 │   │   ├── _tokens.scss            Paleta, raios, sombras, espaçamento, motion, fontes
 │   │   ├── _reset.scss             Reset mínimo
-│   │   ├── _background.scss        Quadriculado inclinado do fundo
 │   │   ├── _typography.scss        Escala tipográfica e Material Symbols
 │   │   ├── _animations.scss        fade-in-up e prefers-reduced-motion
 │   │   ├── _patterns.scss          Cabeçalho de página

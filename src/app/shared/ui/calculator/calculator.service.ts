@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { CalculatorKey, INITIAL, press } from './calculator-engine';
+import { CalculatorKey, INITIAL, parseEntry, press, setEntry } from './calculator-engine';
 
 export interface Point {
   x: number;
@@ -48,6 +48,12 @@ export class CalculatorService {
 
   press(key: CalculatorKey): void {
     this.state.update((current) => press(current, key));
+    this.copied.set(false);
+  }
+
+  /** Recebe o texto cru do visor, do jeito que o usuário deixou. */
+  setEntry(text: string): void {
+    this.state.update((current) => setEntry(current, parseEntry(text)));
     this.copied.set(false);
   }
 }

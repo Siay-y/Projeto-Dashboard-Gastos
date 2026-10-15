@@ -110,9 +110,10 @@ próximos dias e leve seus dados para o Excel quando quiser.
   grade de anotações, isso vira uma coluna a mais). A escolha fica guardada. No
   celular nada muda: lá a navegação já é a barra de baixo.
 - **Calculadora** com as quatro operações, porcentagem, teclado físico e um
-  botão para copiar o resultado. No desktop é um botão flutuante no canto
-  inferior direito e o painel pode ser arrastado pela tela; no celular ela abre
-  pela barra superior, em posição fixa, para não cobrir o conteúdo.
+  botão para copiar o resultado. No desktop é um botão
+  flutuante no canto inferior direito e o painel pode ser arrastado pela tela;
+  no celular ela abre pela barra superior, em posição fixa, para não cobrir o
+  conteúdo.
 - **Próximos vencimentos** no card herói e **alertas** na visão geral: conta
   vencendo hoje ou amanhã, parcela vencendo, gastos acima dos ganhos, previsão
   de fechar o mês no vermelho, categoria acima do limite, renda não definida,

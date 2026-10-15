@@ -17,6 +17,9 @@ class HostComponent {
 const hosts = (fixture: ComponentFixture<HostComponent>): HTMLElement[] =>
   Array.from(fixture.nativeElement.querySelectorAll('app-calculator'));
 
+const valueOf = (host: HTMLElement): string | undefined =>
+  (host.querySelector('.calc__value') as HTMLInputElement | null)?.value;
+
 function fakeMatchMedia(desktop: boolean): void {
   (globalThis as unknown as { matchMedia: unknown }).matchMedia = () => ({
     matches: desktop,
@@ -64,14 +67,14 @@ describe('calculadora entre o shell e o diálogo', () => {
     store.press({ kind: 'digit', value: '2' });
     await fixture.whenStable();
 
-    expect(hosts(fixture)[0].querySelector('.calc__value')?.textContent?.trim()).toBe('42');
+    expect(valueOf(hosts(fixture)[0])).toBe('42');
 
     fixture.componentInstance.active.set(true);
     await fixture.whenStable();
 
     const [shell, dialog] = hosts(fixture);
     expect(shell.querySelector('.calc')).toBeNull();
-    expect(dialog.querySelector('.calc__value')?.textContent?.trim()).toBe('42');
+    expect(valueOf(dialog)).toBe('42');
   });
 
   it('no celular o diálogo não assume: a sobreposição é só do desktop', async () => {

@@ -120,6 +120,8 @@ $bottom-nav-height: 64px;
 .calc__value {
   flex: 1;
   min-width: 0;
+  border: none;
+  background: none;
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
@@ -127,6 +129,12 @@ $bottom-nav-height: 64px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
 }
 
 .calc__value--message {
